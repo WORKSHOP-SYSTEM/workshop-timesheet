@@ -1,4 +1,4 @@
-<!-- VERSION: V5.5 FINAL - MISSING WORKDAY ANOMALY FIX -->
+<!-- VERSION: V5.6 FINAL - MISSING WORKDAY + EXPORT PAGE DETAIL TABLE -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1175,7 +1175,6 @@ function showMsg(text, ok=true){
 }
 function isWeekendDay(day){ return day === "六" || day === "日"; }
 function shouldCheckMissingWorkdays(){
-  // ✅ 只有已过去的 Week 才把未填写的工作日判定为异常；本周未到的日期不提前标红
   if(!state.week) return false;
   return weekNum(state.week) < weekNum(getCurrentWeek());
 }
@@ -1910,25 +1909,13 @@ function renderWeekRecords(rows, err=""){
       });
     });
   }
-  // ✅ 员工界面：如果已过去的 Week 整周未填，也在本周明细表中显示红色“未提交”行
+  // ✅ 员工界面：已过去 Week 整周未填，也显示红色未提交行
   if(!isAdmin() && employeeMissingAllWeek){
     const key = String(empId) + "||__EMPLOYEE_MISSING_ALL_WEEK__";
     if(!grouped.has(key)){
       const days = {};
       weekdayOptions.forEach(day=>days[day]={regular:"",overtime:""});
-      grouped.set(key,{
-        employeeId:empId,
-        employeeName:empName,
-        task:"未提交",
-        project:"",
-        unit:"",
-        remark:"整周未提交",
-        days:days,
-        totalRegular:0,
-        totalEveningOt:0,
-        totalWeekendOt:0,
-        missingAllWeek:true
-      });
+      grouped.set(key,{employeeId:empId,employeeName:empName,task:"未提交",project:"",unit:"",remark:"整周未提交",days:days,totalRegular:0,totalEveningOt:0,totalWeekendOt:0,missingAllWeek:true});
     }
   }
 
@@ -1959,14 +1946,8 @@ function renderWeekRecords(rows, err=""){
     let regularLevel = 0;
     let otLevel = 0;
     if(!isAdmin()){
-      if(missingLevel > 0 && !hasData){
-        // ✅ 已过去 Week 的工作日完全没填：正常/加班两个格子都标红，提醒缺填
-        regularLevel = 2;
-        otLevel = 2;
-      }else if(hasData){
-        regularLevel = getRegularLevel(summary[day].regular);
-        otLevel = getOTLevel(summary[day].overtime);
-      }
+      if(missingLevel > 0 && !hasData){ regularLevel = 2; otLevel = 2; }
+      else if(hasData){ regularLevel = getRegularLevel(summary[day].regular); otLevel = getOTLevel(summary[day].overtime); }
     }
     return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime || 0)+'</td>';
   }).join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
@@ -2446,13 +2427,48 @@ function exportSelectedWeekExcel(){
   }
 
   const rows = currentWeekRecords || [];
-  if(!rows.length){
-    alert("当前所选 Week 没有可导出的数据。");
-    return;
-  }
+  const adminAnomalies = calcEmployeeAnomalies(rows);
+  const summary = {};
+  weekdayOptions.forEach(day=>summary[day]={regular:0,overtime:0});
+  const grouped = new Map();
+  let totalRegular = 0;
+  let totalEveningOt = 0;
+  let totalWeekendOt = 0;
 
-  const summary = buildSelectedWeekExportSummary(rows);
-  const ids = Object.keys(summary).sort((a,b)=>String(summary[a].employeeName || "").localeCompare(String(summary[b].employeeName || ""), "zh-Hans-CN"));
+  rows.forEach(record=>{
+    const empPart = String(record.employeeId || "") + "||" + String(record.employeeName || employeeMap[record.employeeId] || "");
+    const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
+    if(!grouped.has(key)){
+      const days = {};
+      weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0});
+      grouped.set(key,{employeeId:record.employeeId || "",employeeName:record.employeeName || employeeMap[record.employeeId] || "",task:record.task || "",project:record.project || "",unit:record.unit || "",remark:String(record.remark || "").trim(),days:days,totalRegular:0,totalEveningOt:0,totalWeekendOt:0,missingAllWeek:false});
+    }
+    const row = grouped.get(key);
+    const day = record.weekday;
+    const regular = num(record.regularHours);
+    const overtime = num(record.otWeekday) + num(record.otWeekend);
+    if(row.days[day]){ row.days[day].regular += regular; row.days[day].overtime += overtime; }
+    row.totalRegular += regular;
+    row.totalEveningOt += num(record.otWeekday);
+    row.totalWeekendOt += num(record.otWeekend);
+    if(summary[day]){ summary[day].regular += regular; summary[day].overtime += overtime; }
+    totalRegular += regular;
+    totalEveningOt += num(record.otWeekday);
+    totalWeekendOt += num(record.otWeekend);
+  });
+
+  Object.keys(adminAnomalies).forEach(id=>{
+    const a = adminAnomalies[id];
+    if(!a || !a.missingAllWeek) return;
+    const key = String(id) + "||__MISSING_ALL_WEEK__";
+    if(grouped.has(key)) return;
+    const days = {};
+    weekdayOptions.forEach(day=>days[day]={regular:"",overtime:""});
+    grouped.set(key,{employeeId:id,employeeName:a.employeeName,task:"未提交",project:"",unit:"",remark:"整周未提交",days:days,totalRegular:0,totalEveningOt:0,totalWeekendOt:0,missingAllWeek:true});
+  });
+
+  function excelClassForLevel(level){ level = num(level); if(level === 1) return "soft"; if(level >= 2) return "bad"; return ""; }
+  function exportCell(value, className=""){ return '<td class="' + className + '">' + excelEscape(value) + '</td>'; }
 
   let html = '';
   html += '<html><head><meta charset="UTF-8">';
@@ -2460,90 +2476,73 @@ function exportSelectedWeekExcel(){
   html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;}';
   html += 'table{border-collapse:collapse;font-size:12px;}';
   html += 'th,td{border:1px solid #444;padding:5px;text-align:center;mso-number-format:"\\@";}';
-  html += 'th{background:#dbeafe;font-weight:bold;}';
+  html += 'th{background:#f3f4f6;font-weight:bold;}';
   html += '.title{font-size:18px;font-weight:bold;text-align:left;background:#ffffff;}';
-  html += '.subTitle{font-size:14px;font-weight:bold;text-align:left;background:#f3f4f6;}';
+  html += '.subTitle{font-size:14px;font-weight:bold;text-align:left;background:#f8fafc;}';
+  html += '.left{text-align:left;}';
   html += '.soft{background:#fff3cd;color:#92400e;font-weight:bold;}';
   html += '.bad{background:#fee2e2;color:#991b1b;font-weight:bold;}';
-  html += '.left{text-align:left;}';
+  html += '.missing td{background:#fff1f2;color:#991b1b;font-weight:bold;}';
   html += '</style></head><body>';
-
   html += '<table>';
-  html += '<tr><td class="title" colspan="18">车间工时周汇总 - ' + excelEscape(state.week) + '</td></tr>';
-  html += '<tr><td class="subTitle" colspan="18">导出时间：' + excelEscape(new Date().toLocaleString()) + '</td></tr>';
-  html += '<tr><td colspan="18"></td></tr>';
-  html += '<tr>';
-  html += excelHeader("员工姓名") + excelHeader("工号");
-  ["一","二","三","四","五"].forEach(day=>{
-    html += excelHeader("周" + day + "正常");
-    html += excelHeader("周" + day + "加班");
-  });
-  html += excelHeader("周六加班") + excelHeader("周日加班");
-  html += excelHeader("正常合计") + excelHeader("工作日晚加班合计") + excelHeader("周末加班合计") + excelHeader("异常说明");
-  html += '</tr>';
+  html += '<tr><td class="title" colspan="21">车间工时明细 - ' + excelEscape(state.week) + '</td></tr>';
+  html += '<tr><td class="subTitle" colspan="21">导出时间：' + excelEscape(new Date().toLocaleString()) + '</td></tr>';
+  html += '<tr><td colspan="21"></td></tr>';
+  html += '<tr><th rowspan="2">员工</th><th rowspan="2">工号</th><th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>';
+  ['周一','周二','周三','周四','周五'].forEach(day=>{ html += '<th colspan="2">' + day + '</th>'; });
+  html += '<th>周六</th><th>周日</th><th colspan="3">汇总</th></tr><tr>';
+  for(let i=0;i<5;i++) html += '<th>正常<br>出勤</th><th>实际<br>加班</th>';
+  html += '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr>';
 
-  ids.forEach(id=>{
-    const emp = summary[id];
-    const hasError = emp.anomaly.length > 0;
-    const empClass = emp.level === 1 ? "soft" : (emp.level >= 2 ? "bad" : "");
-    html += '<tr>';
-    html += excelCell(emp.employeeName, empClass);
-    html += excelCell(emp.employeeId, empClass);
-    ["一","二","三","四","五"].forEach(day=>{
-      const d = emp.days[day];
-      const regularClass = levelClass(getRegularLevel(d.regular)).replace("warn-soft","soft").replace("warn-cell","bad");
-      const otClass = levelClass(getOTLevel(d.otWeekday)).replace("warn-soft","soft").replace("warn-cell","bad");
-      html += excelCell(d.regular, regularClass);
-      html += excelCell(d.otWeekday, otClass);
+  Array.from(grouped.values()).sort((a,b)=>{
+    const am = a.missingAllWeek ? 1 : 0;
+    const bm = b.missingAllWeek ? 1 : 0;
+    if(am !== bm) return bm - am;
+    return String(a.employeeName || "").localeCompare(String(b.employeeName || ""), "zh-Hans-CN");
+  }).forEach(row=>{
+    const anomaly = adminAnomalies[String(row.employeeId || "")];
+    if(onlyShowAnomaly && !anomaly) return;
+    const empLevel = anomaly ? anomaly.level : 0;
+    const empClass = excelClassForLevel(empLevel);
+    html += '<tr' + (row.missingAllWeek ? ' class="missing"' : '') + '>';
+    html += exportCell(row.employeeName, empClass);
+    html += exportCell(row.employeeId, empClass);
+    html += exportCell(row.task, row.missingAllWeek ? "bad left" : "left");
+    html += exportCell(row.project);
+    html += exportCell(row.unit);
+    html += exportCell(row.remark, row.missingAllWeek ? "bad left" : "left");
+    ['一','二','三','四','五'].forEach(day=>{
+      const level = anomaly && anomaly.levels ? (anomaly.levels[day] || 0) : 0;
+      const cls = excelClassForLevel(level);
+      html += exportCell(row.days[day].regular || "", cls);
+      html += exportCell(row.days[day].overtime || "", cls);
     });
-    html += excelCell(emp.days["六"].otWeekend || 0);
-    html += excelCell(emp.days["日"].otWeekend || 0);
-    html += excelCell(emp.totalRegular);
-    html += excelCell(emp.totalOtWeekday);
-    html += excelCell(emp.totalOtWeekend);
-    html += excelCell(emp.anomaly.join("；"), hasError ? (empClass + " left") : "left");
+    html += exportCell(row.days['六'].overtime || "");
+    html += exportCell(row.days['日'].overtime || "");
+    html += exportCell(row.totalRegular || "");
+    html += exportCell(row.totalEveningOt || "");
+    html += exportCell(row.totalWeekendOt || "");
     html += '</tr>';
   });
 
-  html += '<tr><td colspan="18"></td></tr>';
-  html += '<tr><td class="subTitle" colspan="13">原始明细</td></tr>';
-  html += '<tr>';
-  ["提交时间","员工姓名","工号","Week","星期","工时类别","项目号","单元号","正常工时","工作日加班","周末加班","备注","锁定状态"].forEach(h=>html += excelHeader(h));
-  html += '</tr>';
-
-  rows.forEach(record=>{
-    const emp = summary[String(record.employeeId || "")];
-    const rowLevel = emp && emp.levels ? (emp.levels[record.weekday] || 0) : 0;
-    const rowClass = levelClass(rowLevel).replace("warn-soft","soft").replace("warn-cell","bad");
-    html += '<tr>';
-    html += excelCell(record.submitTime || "");
-    html += excelCell(record.employeeName || employeeMap[record.employeeId] || "", rowClass);
-    html += excelCell(record.employeeId || "", rowClass);
-    html += excelCell(record.week || "");
-    html += excelCell(record.weekday || "", rowClass);
-    html += excelCell(record.task || "");
-    html += excelCell(record.project || "");
-    html += excelCell(record.unit || "");
-    html += excelCell(num(record.regularHours), rowClass);
-    html += excelCell(num(record.otWeekday), rowClass);
-    html += excelCell(num(record.otWeekend));
-    html += excelCell(record.remark || "", "left");
-    html += excelCell(isLocked(record) ? "已锁定" : "未锁定");
-    html += '</tr>';
-  });
-
-  html += '</table></body></html>';
+  html += '<tr><td></td><td></td><td></td><td></td><td></td><td><b>汇总</b></td>';
+  ['一','二','三','四','五'].forEach(day=>{ html += exportCell(summary[day].regular || 0); html += exportCell(summary[day].overtime || 0); });
+  html += exportCell(summary['六'].overtime || 0);
+  html += exportCell(summary['日'].overtime || 0);
+  html += exportCell(totalRegular || 0);
+  html += exportCell(totalEveningOt || 0);
+  html += exportCell(totalWeekendOt || 0);
+  html += '</tr></table></body></html>';
 
   const blob = new Blob(["\ufeff" + html], {type:"application/vnd.ms-excel;charset=utf-8"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "车间工时_" + state.week + "_" + exportDateText() + ".xls";
+  a.download = "车间工时明细_" + state.week + "_" + exportDateText() + ".xls";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
 }
-
 async function init(){
   if(new URL(location.href).searchParams.get("admin") === "1") $("ruleBox").classList.remove("hidden");
   initEmployee();
