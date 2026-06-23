@@ -1,4 +1,4 @@
-<!-- VERSION: V4.6 FINAL - WHOLE WEEK LOCK + WEEK LOCK ICON -->
+<!-- VERSION: V4.7 FINAL - THREE-LEVEL ANOMALY COLOR -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -566,6 +566,11 @@
       color:#fff!important;
       font-weight:900;
     }
+    .warn-soft{
+      background:#fff3cd!important;
+      color:#92400e!important;
+      font-weight:900;
+    }
 
     .locked-cell{
       background:#fef3c7;
@@ -1121,6 +1126,35 @@ function showMsg(text, ok=true){
   el.innerHTML = text;
 }
 function isWeekendDay(day){ return day === "六" || day === "日"; }
+
+// ✅ 三级异常颜色规则：0=正常，1=轻微异常（黄色），2=严重异常（红色）
+function getRegularLevel(v){
+  v = num(v);
+  if(v === 8) return 0;
+  if(v > 0 && v < 8) return 1;
+  return 2;
+}
+function getOTLevel(v){
+  v = num(v);
+  if(v === 0 || v === 4) return 0;
+  if(v > 0 && v < 4) return 1;
+  return 2;
+}
+function maxLevel(a,b){ return Math.max(num(a), num(b)); }
+function levelClass(level){
+  level = num(level);
+  if(level === 1) return 'warn-soft';
+  if(level >= 2) return 'warn-cell';
+  return '';
+}
+function tdClass(level){
+  const cls = levelClass(level);
+  return cls ? ' class="' + cls + '"' : '';
+}
+function mergeClass(level, extra=""){
+  const cls = [levelClass(level), extra].filter(Boolean).join(" ");
+  return cls ? ' class="' + cls + '"' : '';
+}
 function needsProjectByTask(task){ return !TASKS_NO_PROJECT.includes(task || ""); }
 function needsUnitByTask(task){ return !(TASKS_NO_PROJECT.includes(task || "") || TASKS_PROJECT_ONLY.includes(task || "")); }
 function needsProject(){ return needsProjectByTask(state.task); }
@@ -1613,24 +1647,32 @@ function calcEmployeeAnomalies(rows){
   Object.keys(totals).forEach(id=>{
     const item = totals[id];
     const badDays = [];
+    const levels = {};
+    let maxBadLevel = 0;
     ["一","二","三","四","五"].forEach(day=>{
       const d = item.days[day];
-      const regularBad = d.regular !== 8;
-      const overtimeBad = !(d.otWeekday === 0 || d.otWeekday === 4);
-      if(regularBad || overtimeBad){
+      const regularLevel = getRegularLevel(d.regular);
+      const overtimeLevel = getOTLevel(d.otWeekday);
+      const level = maxLevel(regularLevel, overtimeLevel);
+      if(level > 0){
         badDays.push(day);
+        levels[day] = level;
+        maxBadLevel = Math.max(maxBadLevel, level);
       }
     });
     if(badDays.length){
       anomalies[id] = {
         employeeId:id,
         employeeName:item.employeeName,
-        days:badDays
+        days:badDays,
+        levels:levels,
+        level:maxBadLevel
       };
     }
   });
   return anomalies;
 }
+
 function renderAnomalyBox(rows){
   const box = $("anomalyBox");
   if(!box) return;
@@ -1653,7 +1695,7 @@ function renderAnomalyBox(rows){
   box.style.background = "#fff1f2";
   box.style.borderColor = "#fecaca";
   box.style.color = "#991b1b";
-  let html = '<div class="anomaly-title">⚠ 异常人员列表（正常工时≠8 或工作日加班≠0/4）</div>';
+  let html = '<div class="anomaly-title">⚠ 异常人员列表（黄色=轻微异常，红色=严重异常；工作日加班0或4为正常）</div>';
   ids.forEach(id=>{
     const a = anomalies[id];
     html += '<span class="anomaly-item">' + safe(a.employeeName) + '（' + a.days.map(d=>'周'+d).join('、') + '）</span>';
@@ -1756,24 +1798,28 @@ function renderWeekRecords(rows, err=""){
   let body = "";
   grouped.forEach(row=>{
     const anomaly = adminAnomalies[String(row.employeeId || "")];
-    const badDays = anomaly ? anomaly.days : [];
     const hasError = !!anomaly;
-    const empCells = isAdmin() ? '<td class="'+(hasError?'warn-cell':'')+'">'+safe(row.employeeName)+'</td><td class="'+(hasError?'warn-cell':'')+'">'+safe(row.employeeId)+'</td>' : '';
+    const empLevel = anomaly ? anomaly.level : 0;
+    const empCells = isAdmin() ? '<td'+mergeClass(empLevel)+'>'+safe(row.employeeName)+'</td><td'+mergeClass(empLevel)+'>'+safe(row.employeeId)+'</td>' : '';
     body += '<tr>' + empCells + '<td class="cell-left">'+safe(row.task)+'</td><td>'+safe(row.project)+'</td><td>'+safe(row.unit)+'</td><td>'+safe(row.remark)+'</td>' + ['一','二','三','四','五'].map(day=>{
-      const cls = badDays.includes(day) ? ' class="warn-cell"' : '';
+      const level = anomaly && anomaly.levels ? (anomaly.levels[day] || 0) : 0;
+      const cls = tdClass(level);
       return '<td'+cls+'>'+(row.days[day].regular || "")+'</td><td'+cls+'>'+(row.days[day].overtime || "")+'</td>';
     }).join('') + '<td>'+(row.days['六'].overtime || "")+'</td><td>'+(row.days['日'].overtime || "")+'</td><td>'+(row.totalRegular || "")+'</td><td>'+(row.totalEveningOt || "")+'</td><td>'+(row.totalWeekendOt || "")+'</td></tr>';
   });
-  function warnClass(warn){ return warn ? ' class="warn-cell"' : ''; }
   const blankPrefix = isAdmin() ? '<td></td><td></td>' : '';
-  const sumRow = '<tr>' + blankPrefix + '<td></td><td></td><td></td><td><b>汇总</b></td>' + ['一','二','三','四','五'].map(day=>'<td'+warnClass(summary[day].regular !== 8 && !isAdmin())+'>'+(summary[day].regular || 0)+'</td><td'+warnClass(!(summary[day].overtime === 0 || summary[day].overtime === 4) && !isAdmin())+'>'+(summary[day].overtime || 0)+'</td>').join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
+  const sumRow = '<tr>' + blankPrefix + '<td></td><td></td><td></td><td><b>汇总</b></td>' + ['一','二','三','四','五'].map(day=>{
+    const regularLevel = !isAdmin() ? getRegularLevel(summary[day].regular) : 0;
+    const otLevel = !isAdmin() ? getOTLevel(summary[day].overtime) : 0;
+    return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime || 0)+'</td>';
+  }).join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
   let rawRows = "";
   rows.forEach(record=>{
     const locked = isLocked(record);
     const anomaly = adminAnomalies[String(record.employeeId || "")];
-    const badDays = anomaly ? anomaly.days : [];
-    const rowDayBad = badDays.includes(record.weekday);
-    const empCells = isAdmin() ? '<td class="'+(anomaly?'warn-cell':'')+'">'+safe(record.employeeName || employeeMap[record.employeeId] || "")+'</td><td class="'+(anomaly?'warn-cell':'')+'">'+safe(record.employeeId || "")+'</td>' : '';
+    const rowDayLevel = anomaly && anomaly.levels ? (anomaly.levels[record.weekday] || 0) : 0;
+    const empLevel = anomaly ? anomaly.level : 0;
+    const empCells = isAdmin() ? '<td'+mergeClass(empLevel)+'>'+safe(record.employeeName || employeeMap[record.employeeId] || "")+'</td><td'+mergeClass(empLevel)+'>'+safe(record.employeeId || "")+'</td>' : '';
     const lockCell = locked ? '<td class="locked-cell">已锁定</td>' : '<td>未锁定</td>';
     let actionCell = "";
     if(isAdmin()){
@@ -1783,7 +1829,7 @@ function renderWeekRecords(rows, err=""){
     }else{
       actionCell = '<button class="small-btn edit-btn" onclick="openEditModal(\''+safe(record.id)+'\')">修改</button><button class="small-btn delete-btn" onclick="deleteRecord(\''+safe(record.id)+'\')">删除</button>';
     }
-    rawRows += '<tr>' + empCells + '<td class="'+(rowDayBad?'warn-cell':'')+'">'+safe(record.weekday)+'</td><td class="cell-left">'+safe(record.task)+'</td><td>'+safe(record.project)+'</td><td>'+safe(record.unit)+'</td><td class="'+(rowDayBad?'warn-cell':'')+'">'+num(record.regularHours)+'</td><td class="'+(rowDayBad?'warn-cell':'')+'">'+num(record.otWeekday)+'</td><td>'+num(record.otWeekend)+'</td><td>'+safe(record.remark || "")+'</td>' + lockCell + '<td>'+actionCell+'</td></tr>';
+    rawRows += '<tr>' + empCells + '<td'+mergeClass(rowDayLevel)+'>'+safe(record.weekday)+'</td><td class="cell-left">'+safe(record.task)+'</td><td>'+safe(record.project)+'</td><td>'+safe(record.unit)+'</td><td'+mergeClass(rowDayLevel)+'>'+num(record.regularHours)+'</td><td'+mergeClass(rowDayLevel)+'>'+num(record.otWeekday)+'</td><td>'+num(record.otWeekend)+'</td><td>'+safe(record.remark || "")+'</td>' + lockCell + '<td>'+actionCell+'</td></tr>';
   });
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
   box.innerHTML = '<div class="table-scroll"><table>'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
@@ -2163,7 +2209,9 @@ function buildSelectedWeekExportSummary(rows){
         totalRegular:0,
         totalOtWeekday:0,
         totalOtWeekend:0,
-        anomaly:[]
+        anomaly:[],
+        levels:{},
+        level:0
       };
       weekdayOptions.forEach(day=>{
         result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0};
@@ -2186,13 +2234,21 @@ function buildSelectedWeekExportSummary(rows){
     const emp = result[id];
     ["一","二","三","四","五"].forEach(day=>{
       const d = emp.days[day];
-      if(d.regular !== 8) emp.anomaly.push("周" + day + "正常=" + d.regular + "h");
-      if(!(d.otWeekday === 0 || d.otWeekday === 4)) emp.anomaly.push("周" + day + "工作日加班=" + d.otWeekday + "h");
+      const regularLevel = getRegularLevel(d.regular);
+      const otLevel = getOTLevel(d.otWeekday);
+      const dayLevel = maxLevel(regularLevel, otLevel);
+      if(dayLevel > 0){
+        emp.levels[day] = dayLevel;
+        emp.level = Math.max(emp.level, dayLevel);
+      }
+      if(regularLevel > 0) emp.anomaly.push("周" + day + "正常=" + d.regular + "h" + (regularLevel === 1 ? "（轻微）" : "（严重）"));
+      if(otLevel > 0) emp.anomaly.push("周" + day + "工作日加班=" + d.otWeekday + "h" + (otLevel === 1 ? "（轻微）" : "（严重）"));
     });
   });
 
   return result;
 }
+
 function exportSelectedWeekExcel(){
   if(!isAdmin()){
     alert("只有管理员可以导出所选 Week 数据。");
@@ -2221,6 +2277,7 @@ function exportSelectedWeekExcel(){
   html += 'th{background:#dbeafe;font-weight:bold;}';
   html += '.title{font-size:18px;font-weight:bold;text-align:left;background:#ffffff;}';
   html += '.subTitle{font-size:14px;font-weight:bold;text-align:left;background:#f3f4f6;}';
+  html += '.soft{background:#fff3cd;color:#92400e;font-weight:bold;}';
   html += '.bad{background:#ff0000;color:#ffffff;font-weight:bold;}';
   html += '.left{text-align:left;}';
   html += '</style></head><body>';
@@ -2242,20 +2299,23 @@ function exportSelectedWeekExcel(){
   ids.forEach(id=>{
     const emp = summary[id];
     const hasError = emp.anomaly.length > 0;
+    const empClass = emp.level === 1 ? "soft" : (emp.level >= 2 ? "bad" : "");
     html += '<tr>';
-    html += excelCell(emp.employeeName, hasError ? "bad" : "");
-    html += excelCell(emp.employeeId, hasError ? "bad" : "");
+    html += excelCell(emp.employeeName, empClass);
+    html += excelCell(emp.employeeId, empClass);
     ["一","二","三","四","五"].forEach(day=>{
       const d = emp.days[day];
-      html += excelCell(d.regular, d.regular !== 8 ? "bad" : "");
-      html += excelCell(d.otWeekday, !(d.otWeekday === 0 || d.otWeekday === 4) ? "bad" : "");
+      const regularClass = levelClass(getRegularLevel(d.regular)).replace("warn-soft","soft").replace("warn-cell","bad");
+      const otClass = levelClass(getOTLevel(d.otWeekday)).replace("warn-soft","soft").replace("warn-cell","bad");
+      html += excelCell(d.regular, regularClass);
+      html += excelCell(d.otWeekday, otClass);
     });
     html += excelCell(emp.days["六"].otWeekend || 0);
     html += excelCell(emp.days["日"].otWeekend || 0);
     html += excelCell(emp.totalRegular);
     html += excelCell(emp.totalOtWeekday);
     html += excelCell(emp.totalOtWeekend);
-    html += excelCell(emp.anomaly.join("；"), hasError ? "bad left" : "left");
+    html += excelCell(emp.anomaly.join("；"), hasError ? (empClass + " left") : "left");
     html += '</tr>';
   });
 
@@ -2266,17 +2326,20 @@ function exportSelectedWeekExcel(){
   html += '</tr>';
 
   rows.forEach(record=>{
+    const emp = summary[String(record.employeeId || "")];
+    const rowLevel = emp && emp.levels ? (emp.levels[record.weekday] || 0) : 0;
+    const rowClass = levelClass(rowLevel).replace("warn-soft","soft").replace("warn-cell","bad");
     html += '<tr>';
     html += excelCell(record.submitTime || "");
-    html += excelCell(record.employeeName || employeeMap[record.employeeId] || "");
-    html += excelCell(record.employeeId || "");
+    html += excelCell(record.employeeName || employeeMap[record.employeeId] || "", rowClass);
+    html += excelCell(record.employeeId || "", rowClass);
     html += excelCell(record.week || "");
-    html += excelCell(record.weekday || "");
+    html += excelCell(record.weekday || "", rowClass);
     html += excelCell(record.task || "");
     html += excelCell(record.project || "");
     html += excelCell(record.unit || "");
-    html += excelCell(num(record.regularHours));
-    html += excelCell(num(record.otWeekday));
+    html += excelCell(num(record.regularHours), rowClass);
+    html += excelCell(num(record.otWeekday), rowClass);
     html += excelCell(num(record.otWeekend));
     html += excelCell(record.remark || "", "left");
     html += excelCell(isLocked(record) ? "已锁定" : "未锁定");
