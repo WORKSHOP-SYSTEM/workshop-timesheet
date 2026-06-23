@@ -1,4 +1,4 @@
-<!-- VERSION: V4.7 FINAL - THREE-LEVEL ANOMALY COLOR -->
+<!-- VERSION: V4.8 FINAL - ANOMALY FILTER + UI FIX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -546,10 +546,11 @@
     th,
     td{
       border:1px solid #444;
-      padding:4px;
+      padding:2px 4px;
       text-align:center;
-      min-width:58px;
-      height:31px;
+      min-width:52px;
+      height:26px;
+      line-height:1.2;
     }
 
     th{
@@ -562,9 +563,10 @@
     }
 
     .warn-cell{
-      background:red!important;
-      color:#fff!important;
+      background:#fee2e2!important;
+      color:#991b1b!important;
       font-weight:900;
+      border:1px solid #fca5a5!important;
     }
     .warn-soft{
       background:#fff3cd!important;
@@ -591,11 +593,39 @@
     .small-btn{
       border:none;
       border-radius:8px;
-      padding:6px 9px;
+      padding:4px 8px;
       font-size:12px;
       font-weight:900;
-      margin:2px;
+      margin:0;
       cursor:pointer;
+      line-height:1.2;
+    }
+    .filter-area{
+      margin:8px 0 10px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .filter-btn{
+      border:none;
+      border-radius:10px;
+      padding:8px 12px;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
+      background:#dbeafe;
+      color:#1d4ed8;
+    }
+    .filter-btn.active{
+      background:#fde68a;
+      color:#92400e;
+      box-shadow:0 2px 8px rgba(146,64,14,.18);
+    }
+    .filter-note{
+      font-size:12px;
+      color:#64748b;
+      font-weight:900;
     }
 
     .edit-btn{
@@ -714,10 +744,10 @@
         <button class="admin-btn unlock-btn" onclick="unlockAllVisibleRows()">🔓 一键解除所选 Week 全部锁定</button>
       
         <button class="admin-btn export-btn" onclick="exportSelectedWeekExcel()">📥 导出所选 Week 数据</button>
+      </div>      <div id="anomalyFilterArea" class="filter-area hidden">
+        <button id="anomalyFilterBtn" class="filter-btn" onclick="toggleAnomalyFilter()">只显示异常行</button>
+        <span class="filter-note">筛选后：本周明细和原始记录只保留异常行</span>
       </div>
-
-      <div id="anomalyBox" class="anomaly-box"></div>
-
       <div class="sec-title">本周已提交工时明细</div>
       <div id="recordList">
         <div class="record-empty">正在加载 Week...</div>
@@ -1105,6 +1135,7 @@ let editState = {
   remark:""
 };
 let currentWeekRecords = [];
+let onlyShowAnomaly = false;
 let allWeeks = [];
 let lockedWeeks = new Set();
 let isSubmitting = false;
@@ -1651,6 +1682,8 @@ function calcEmployeeAnomalies(rows){
     let maxBadLevel = 0;
     ["一","二","三","四","五"].forEach(day=>{
       const d = item.days[day];
+      // ✅ 没有任何记录的日期不做异常判断，避免 0 被误标红
+      if(!d || !d.hasRecord) return;
       const regularLevel = getRegularLevel(d.regular);
       const overtimeLevel = getOTLevel(d.otWeekday);
       const level = maxLevel(regularLevel, overtimeLevel);
@@ -1671,6 +1704,18 @@ function calcEmployeeAnomalies(rows){
     }
   });
   return anomalies;
+}
+
+function setAnomalyFilterButtonText(){
+  const btn = $("anomalyFilterBtn");
+  if(!btn) return;
+  btn.innerText = onlyShowAnomaly ? "显示全部记录" : "只显示异常行";
+  btn.className = "filter-btn" + (onlyShowAnomaly ? " active" : "");
+}
+function toggleAnomalyFilter(){
+  onlyShowAnomaly = !onlyShowAnomaly;
+  setAnomalyFilterButtonText();
+  renderWeekRecords(currentWeekRecords);
 }
 
 function renderAnomalyBox(rows){
@@ -1735,6 +1780,7 @@ async function loadWeekRecords(){
   }
 }
 function renderWeekRecords(rows, err=""){
+  setAnomalyFilterButtonText();
   const box = $("recordList");
   if(err){
     box.innerHTML = '<div class="record-empty">' + safe(err) + '</div>';
@@ -1749,6 +1795,10 @@ function renderWeekRecords(rows, err=""){
     return;
   }
   const adminAnomalies = isAdmin() ? calcEmployeeAnomalies(rows) : {};
+  if(onlyShowAnomaly && isAdmin() && !Object.keys(adminAnomalies).length){
+    box.innerHTML = '<div class="record-empty">当前 Week 没有异常记录</div>';
+    return;
+  }
   const summary = {};
   weekdayOptions.forEach(day=>summary[day]={regular:0,overtime:0});
   const grouped = new Map();
@@ -1799,6 +1849,7 @@ function renderWeekRecords(rows, err=""){
   grouped.forEach(row=>{
     const anomaly = adminAnomalies[String(row.employeeId || "")];
     const hasError = !!anomaly;
+    if(onlyShowAnomaly && isAdmin() && !hasError) return;
     const empLevel = anomaly ? anomaly.level : 0;
     const empCells = isAdmin() ? '<td'+mergeClass(empLevel)+'>'+safe(row.employeeName)+'</td><td'+mergeClass(empLevel)+'>'+safe(row.employeeId)+'</td>' : '';
     body += '<tr>' + empCells + '<td class="cell-left">'+safe(row.task)+'</td><td>'+safe(row.project)+'</td><td>'+safe(row.unit)+'</td><td>'+safe(row.remark)+'</td>' + ['一','二','三','四','五'].map(day=>{
@@ -1809,8 +1860,9 @@ function renderWeekRecords(rows, err=""){
   });
   const blankPrefix = isAdmin() ? '<td></td><td></td>' : '';
   const sumRow = '<tr>' + blankPrefix + '<td></td><td></td><td></td><td><b>汇总</b></td>' + ['一','二','三','四','五'].map(day=>{
-    const regularLevel = !isAdmin() ? getRegularLevel(summary[day].regular) : 0;
-    const otLevel = !isAdmin() ? getOTLevel(summary[day].overtime) : 0;
+    const hasData = summary[day].regular > 0 || summary[day].overtime > 0;
+    const regularLevel = (!isAdmin() && hasData) ? getRegularLevel(summary[day].regular) : 0;
+    const otLevel = (!isAdmin() && hasData) ? getOTLevel(summary[day].overtime) : 0;
     return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime || 0)+'</td>';
   }).join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
   let rawRows = "";
@@ -1818,6 +1870,7 @@ function renderWeekRecords(rows, err=""){
     const locked = isLocked(record);
     const anomaly = adminAnomalies[String(record.employeeId || "")];
     const rowDayLevel = anomaly && anomaly.levels ? (anomaly.levels[record.weekday] || 0) : 0;
+    if(onlyShowAnomaly && isAdmin() && rowDayLevel === 0) return;
     const empLevel = anomaly ? anomaly.level : 0;
     const empCells = isAdmin() ? '<td'+mergeClass(empLevel)+'>'+safe(record.employeeName || employeeMap[record.employeeId] || "")+'</td><td'+mergeClass(empLevel)+'>'+safe(record.employeeId || "")+'</td>' : '';
     const lockCell = locked ? '<td class="locked-cell">已锁定</td>' : '<td>未锁定</td>';
@@ -2214,7 +2267,7 @@ function buildSelectedWeekExportSummary(rows){
         level:0
       };
       weekdayOptions.forEach(day=>{
-        result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0};
+        result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};
       });
     }
 
@@ -2223,6 +2276,7 @@ function buildSelectedWeekExportSummary(rows){
       result[id].days[day].regular += num(record.regularHours);
       result[id].days[day].otWeekday += num(record.otWeekday);
       result[id].days[day].otWeekend += num(record.otWeekend);
+      result[id].days[day].hasRecord = true;
     }
 
     result[id].totalRegular += num(record.regularHours);
@@ -2234,6 +2288,7 @@ function buildSelectedWeekExportSummary(rows){
     const emp = result[id];
     ["一","二","三","四","五"].forEach(day=>{
       const d = emp.days[day];
+      if(!d || !d.hasRecord) return;
       const regularLevel = getRegularLevel(d.regular);
       const otLevel = getOTLevel(d.otWeekday);
       const dayLevel = maxLevel(regularLevel, otLevel);
@@ -2278,7 +2333,7 @@ function exportSelectedWeekExcel(){
   html += '.title{font-size:18px;font-weight:bold;text-align:left;background:#ffffff;}';
   html += '.subTitle{font-size:14px;font-weight:bold;text-align:left;background:#f3f4f6;}';
   html += '.soft{background:#fff3cd;color:#92400e;font-weight:bold;}';
-  html += '.bad{background:#ff0000;color:#ffffff;font-weight:bold;}';
+  html += '.bad{background:#fee2e2;color:#991b1b;font-weight:bold;}';
   html += '.left{text-align:left;}';
   html += '</style></head><body>';
 
@@ -2366,6 +2421,8 @@ async function init(){
   if(isAdmin()){
     $("inputArea").classList.add("hidden");
     $("adminPanel").classList.add("show");
+    $("anomalyFilterArea").classList.remove("hidden");
+    setAnomalyFilterButtonText();
   }
 
   await loadAllWeeks();
