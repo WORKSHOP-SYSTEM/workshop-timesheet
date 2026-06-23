@@ -1,4 +1,4 @@
-<!-- VERSION: V5.4 FINAL - TABLE ONLY ANOMALY + MISSING SUBMIT INTEGRATED -->
+<!-- VERSION: V5.5 FINAL - MISSING WORKDAY ANOMALY FIX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1174,6 +1174,11 @@ function showMsg(text, ok=true){
   el.innerHTML = text;
 }
 function isWeekendDay(day){ return day === "六" || day === "日"; }
+function shouldCheckMissingWorkdays(){
+  // ✅ 只有已过去的 Week 才把未填写的工作日判定为异常；本周未到的日期不提前标红
+  if(!state.week) return false;
+  return weekNum(state.week) < weekNum(getCurrentWeek());
+}
 
 // ✅ 三级异常颜色规则：0=正常，1=轻微异常（黄色），2=严重异常（红色）
 function getRegularLevel(v){
@@ -1699,6 +1704,7 @@ function calcEmployeeDailyTotals(rows){
 function calcEmployeeAnomalies(rows){
   const totals = calcEmployeeDailyTotals(rows);
   const anomalies = {};
+  const checkMissingWorkdays = shouldCheckMissingWorkdays();
 
   Object.keys(employeeMap).forEach(id=>{
     if(id === ADMIN_ID) return;
@@ -1730,8 +1736,15 @@ function calcEmployeeAnomalies(rows){
 
     ["一","二","三","四","五"].forEach(day=>{
       const d = item.days[day];
-      // ✅ 有提交记录的日期才判断工时异常，避免未填日期被误判为0小时
-      if(!d || !d.hasRecord) return;
+      // ✅ 已过去的 Week：工作日没填也算严重异常；本周不提前标红未来未填日期
+      if(!d || !d.hasRecord){
+        if(checkMissingWorkdays){
+          badDays.push(day);
+          levels[day] = 2;
+          maxBadLevel = 2;
+        }
+        return;
+      }
       const regularLevel = getRegularLevel(d.regular);
       const overtimeLevel = getOTLevel(d.otWeekday);
       const level = maxLevel(regularLevel, overtimeLevel);
@@ -1816,8 +1829,11 @@ function renderWeekRecords(rows, err=""){
     box.innerHTML = '<div class="record-empty">请选择 Week 查看记录</div>';
     return;
   }
-  const adminAnomalies = isAdmin() ? calcEmployeeAnomalies(rows) : {};
-  if(!rows.length && !isAdmin()){
+  const allAnomalies = calcEmployeeAnomalies(rows);
+  const adminAnomalies = isAdmin() ? allAnomalies : {};
+  const employeeAnomaly = !isAdmin() ? allAnomalies[String(empId)] : null;
+  const employeeMissingAllWeek = !isAdmin() && employeeAnomaly && employeeAnomaly.missingAllWeek;
+  if(!rows.length && !isAdmin() && !employeeMissingAllWeek){
     box.innerHTML = '<div class="record-empty">当前 Week 没有提交记录</div>';
     return;
   }
@@ -1894,6 +1910,28 @@ function renderWeekRecords(rows, err=""){
       });
     });
   }
+  // ✅ 员工界面：如果已过去的 Week 整周未填，也在本周明细表中显示红色“未提交”行
+  if(!isAdmin() && employeeMissingAllWeek){
+    const key = String(empId) + "||__EMPLOYEE_MISSING_ALL_WEEK__";
+    if(!grouped.has(key)){
+      const days = {};
+      weekdayOptions.forEach(day=>days[day]={regular:"",overtime:""});
+      grouped.set(key,{
+        employeeId:empId,
+        employeeName:empName,
+        task:"未提交",
+        project:"",
+        unit:"",
+        remark:"整周未提交",
+        days:days,
+        totalRegular:0,
+        totalEveningOt:0,
+        totalWeekendOt:0,
+        missingAllWeek:true
+      });
+    }
+  }
+
   const employeeHead = isAdmin() ? '<th rowspan="2">员工</th><th rowspan="2">工号</th>' : '';
   const head = '<thead><tr>' + employeeHead + '<th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>' + ['周一','周二','周三','周四','周五'].map(x=>'<th colspan="2">'+x+'</th>').join('') + '<th>周六</th><th>周日</th><th colspan="3">汇总</th></tr><tr>' + Array(5).fill('<th>正常<br>出勤</th><th>实际<br>加班</th>').join('') + '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr></thead>';
   let body = "";
@@ -1903,7 +1941,7 @@ function renderWeekRecords(rows, err=""){
     if(am !== bm) return bm - am;
     return String(a.employeeName || "").localeCompare(String(b.employeeName || ""), "zh-Hans-CN");
   }).forEach(row=>{
-    const anomaly = adminAnomalies[String(row.employeeId || "")];
+    const anomaly = isAdmin() ? adminAnomalies[String(row.employeeId || "")] : employeeAnomaly;
     const hasError = !!anomaly;
     if(onlyShowAnomaly && isAdmin() && !hasError) return;
     const empLevel = anomaly ? anomaly.level : 0;
@@ -1917,14 +1955,25 @@ function renderWeekRecords(rows, err=""){
   const blankPrefix = isAdmin() ? '<td></td><td></td>' : '';
   const sumRow = '<tr>' + blankPrefix + '<td></td><td></td><td></td><td><b>汇总</b></td>' + ['一','二','三','四','五'].map(day=>{
     const hasData = summary[day].regular > 0 || summary[day].overtime > 0;
-    const regularLevel = (!isAdmin() && hasData) ? getRegularLevel(summary[day].regular) : 0;
-    const otLevel = (!isAdmin() && hasData) ? getOTLevel(summary[day].overtime) : 0;
+    const missingLevel = (!isAdmin() && employeeAnomaly && employeeAnomaly.levels) ? (employeeAnomaly.levels[day] || 0) : 0;
+    let regularLevel = 0;
+    let otLevel = 0;
+    if(!isAdmin()){
+      if(missingLevel > 0 && !hasData){
+        // ✅ 已过去 Week 的工作日完全没填：正常/加班两个格子都标红，提醒缺填
+        regularLevel = 2;
+        otLevel = 2;
+      }else if(hasData){
+        regularLevel = getRegularLevel(summary[day].regular);
+        otLevel = getOTLevel(summary[day].overtime);
+      }
+    }
     return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime || 0)+'</td>';
   }).join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
   let rawRows = "";
   rows.forEach(record=>{
     const locked = isLocked(record);
-    const anomaly = adminAnomalies[String(record.employeeId || "")];
+    const anomaly = isAdmin() ? adminAnomalies[String(record.employeeId || "")] : employeeAnomaly;
     const rowDayLevel = anomaly && anomaly.levels ? (anomaly.levels[record.weekday] || 0) : 0;
     if(onlyShowAnomaly && isAdmin() && rowDayLevel === 0) return;
     const empLevel = anomaly ? anomaly.level : 0;
