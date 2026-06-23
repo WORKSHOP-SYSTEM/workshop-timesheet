@@ -1,4 +1,4 @@
-<!-- VERSION: V5.7 FINAL - WEEK FILTER API + CLEAN EXCEL EXPORT -->
+<!-- VERSION: V5.8 FINAL - EXCEL HTML NO WARNING + PAGE STYLE EXPORT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1322,8 +1322,7 @@ async function fetchRows(){
   return fetchRowsFromUrl(apiUrl());
 }
 async function fetchRowsByWeek(week){
-  // ✅ 性能优化：优先让 Baserow 只返回当前 Week，避免每次切换 Week 都全量读取历史数据
-  // 如果某些 Baserow 字段过滤设置不兼容，则自动回退到全量读取后前端过滤，不影响使用。
+  // ✅ 性能优化：优先让 Baserow 只返回当前 Week；失败则自动回退全量读取后前端过滤
   try{
     const rows = await fetchRowsFromUrl(apiUrlWithParams({["filter__week__equal"]: String(week || "")}));
     return rows.filter(row=>String(row.week || "") === String(week));
@@ -2469,7 +2468,7 @@ function exportSelectedWeekExcel(){
   let totalEveningOt = 0;
   let totalWeekendOt = 0;
 
-  // ✅ 导出逻辑与页面“本周已提交工时明细”保持一致：员工 + 工时类别 + 项目号 + 单元号 + 备注分行
+  // ✅ 与页面“本周已提交工时明细”完全一致的分组：员工 + 工时类别 + 项目号 + 单元号 + 备注
   rows.forEach(record=>{
     const empPart = String(record.employeeId || "") + "||" + String(record.employeeName || employeeMap[record.employeeId] || "");
     const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
@@ -2510,7 +2509,7 @@ function exportSelectedWeekExcel(){
     totalWeekendOt += num(record.otWeekend);
   });
 
-  // ✅ 与页面一致：整周未提交作为红色“未提交”行导出
+  // ✅ 整周未提交保持页面同款红色行
   Object.keys(adminAnomalies).forEach(id=>{
     const a = adminAnomalies[id];
     if(!a || !a.missingAllWeek) return;
@@ -2544,18 +2543,19 @@ function exportSelectedWeekExcel(){
   }
 
   let html = '';
-  html += '<html><head><meta charset="UTF-8">';
+  html += '<!DOCTYPE html><html><head><meta charset="UTF-8">';
   html += '<style>';
-  html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111827;}';
+  html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111827;margin:0;}';
   html += 'table{border-collapse:collapse;font-size:12px;}';
-  html += 'th,td{border:1px solid #9ca3af;padding:4px 6px;text-align:center;font-weight:400;}';
-  html += 'th{background:#f8fafc;font-weight:400;}';
+  // ✅ 按你截图：黑色细线、不加粗、颜色和页面接近
+  html += 'th,td{border:1px solid #000000;padding:3px 5px;text-align:center;font-weight:400;white-space:nowrap;}';
+  html += 'th{background:#ffffff;font-weight:400;}';
   html += '.title{font-size:16px;font-weight:400;text-align:left;background:#ffffff;}';
   html += '.subTitle{font-size:12px;font-weight:400;text-align:left;background:#ffffff;}';
   html += '.left{text-align:left;}';
-  html += '.soft{background:#fff7ed;color:#92400e;font-weight:400;}';
-  html += '.bad{background:#fff1f2;color:#991b1b;font-weight:400;}';
-  html += '.missing td{background:#fff1f2;color:#991b1b;font-weight:400;}';
+  html += '.soft{background:#fff2cc;color:#7c4a03;font-weight:400;}';
+  html += '.bad{background:#ffdede;color:#b91c1c;font-weight:400;}';
+  html += '.missing td{background:#fff1f2;color:#b91c1c;font-weight:400;}';
   html += '</style></head><body>';
   html += '<table>';
   html += '<tr><td class="title" colspan="21">车间工时明细 - ' + excelEscape(state.week) + '</td></tr>';
@@ -2613,10 +2613,11 @@ function exportSelectedWeekExcel(){
   html += exportCell(totalWeekendOt || 0);
   html += '</tr></table></body></html>';
 
-  const blob = new Blob(["\ufeff" + html], {type:"application/vnd.ms-excel;charset=utf-8"});
+  // ✅ 关键：改成 .html，不再把HTML伪装成 .xls，Excel 打开不会再弹“格式和扩展名不匹配”提醒
+  const blob = new Blob(["\ufeff" + html], {type:"text/html;charset=utf-8"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "车间工时明细_" + state.week + "_" + exportDateText() + ".xls";
+  a.download = "车间工时明细_" + state.week + "_" + exportDateText() + ".html";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
