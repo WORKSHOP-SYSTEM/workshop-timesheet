@@ -1,4 +1,4 @@
-<!-- VERSION: V5.1 FINAL - ADMIN ANOMALY TABLE INTEGRATION FIX -->
+<!-- VERSION: V5.4 FINAL - TABLE ONLY ANOMALY + MISSING SUBMIT INTEGRATED -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -765,7 +765,6 @@
         <button id="anomalyFilterBtn" class="filter-btn" onclick="toggleAnomalyFilter()">只显示异常行</button>
         <span class="filter-note">筛选后：本周明细和原始记录只保留异常行</span>
       </div>
-      <div id="anomalyBox" class="anomaly-box"></div>  
       <div class="sec-title">本周已提交工时明细</div>
       <div id="recordList">
         <div class="record-empty">正在加载 Week...</div>
@@ -1315,35 +1314,35 @@ async function fetchAllWeekRows(week){
   const rows = await fetchRows();
   return rows.filter(row=>String(row.week || "") === String(week));
 }
-async function loadAllWeeks(){  
-  try{  
-    const rows = await fetchRows();  
-    if(rows.length) LOCK_FIELD = detectLockField(rows[0]);  
-    refreshLockedWeeks(rows);  
-    const set = new Set();  
-    rows.forEach(r=>{ if(r.week) set.add(r.week); });  
-    const current = getCurrentWeek();  
-    const currentNum = Number(current.replace("W", ""));  
-    // ✅ 只显示当前周及之前4周；不显示本周后面的 Week  
-    for(let i=-4;i<=0;i++){  
-      const w = currentNum + i;  
-      if(w > 0) set.add("W" + w);  
-    }  
-    allWeeks = Array.from(set)  
-      .filter(w=>weekNum(w) <= currentNum)  
-      .sort((a,b)=>weekNum(a)-weekNum(b));  
-  }catch(e){  
-    const current = getCurrentWeek();  
-    const currentNum = Number(current.replace("W", ""));  
-    const arr = [];  
-    for(let i=-4;i<=0;i++){  
-      const w = currentNum + i;  
-      if(w > 0) arr.push("W" + w);  
-    }  
-    allWeeks = arr;  
-    showMsg("读取历史周失败，仅显示当前周及之前4周：" + e.message, false);  
-  }  
-}  
+async function loadAllWeeks(){
+  try{
+    const rows = await fetchRows();
+    if(rows.length) LOCK_FIELD = detectLockField(rows[0]);
+    refreshLockedWeeks(rows);
+    const set = new Set();
+    rows.forEach(r=>{ if(r.week) set.add(r.week); });
+    const current = getCurrentWeek();
+    const currentNum = Number(current.replace("W", ""));
+    // ✅ 只显示当前周及之前4周；不显示本周后面的 Week
+    for(let i=-4;i<=0;i++){
+      const w = currentNum + i;
+      if(w > 0) set.add("W" + w);
+    }
+    allWeeks = Array.from(set)
+      .filter(w=>weekNum(w) <= currentNum)
+      .sort((a,b)=>weekNum(a)-weekNum(b));
+  }catch(e){
+    const current = getCurrentWeek();
+    const currentNum = Number(current.replace("W", ""));
+    const arr = [];
+    for(let i=-4;i<=0;i++){
+      const w = currentNum + i;
+      if(w > 0) arr.push("W" + w);
+    }
+    allWeeks = arr;
+    showMsg("读取历史周失败，仅显示当前周及之前4周：" + e.message, false);
+  }
+}
 function getWeekOptions(){ return allWeeks; }
 
 function initEmployee(){
@@ -1697,126 +1696,95 @@ function calcEmployeeDailyTotals(rows){
   });
   return map;
 }
-function calcEmployeeAnomalies(rows){  
-  const totals = calcEmployeeDailyTotals(rows);  
-  const anomalies = {};  
-  Object.keys(employeeMap).forEach(id=>{  
-    if(id === ADMIN_ID) return;  
-    const item = totals[id];  
-    if(!item) return;  
-    let hasAnyRecord = false;  
-    weekdayOptions.forEach(day=>{  
-      const d = item.days[day];  
-      if(d && d.hasRecord) hasAnyRecord = true;  
-    });  
-    // ✅ 名单里有，但所选 Week 整周一条都没提交 = 严重异常  
-    if(!hasAnyRecord){  
-      anomalies[id] = {  
-        employeeId:id,  
-        employeeName:item.employeeName,  
-        days:["整周未提交"],  
-        levels:{},  
-        level:2,  
-        missingAllWeek:true  
-      };  
-      return;  
-    }  
-    const badDays = [];  
-    const levels = {};  
-    let maxBadLevel = 0;  
-    ["一","二","三","四","五"].forEach(day=>{  
-      const d = item.days[day];  
-      // ✅ 有提交记录的日期才判断工时异常，避免没填的日期都被误判为0小时  
-      if(!d || !d.hasRecord) return;  
-      const regularLevel = getRegularLevel(d.regular);  
-      const overtimeLevel = getOTLevel(d.otWeekday);  
-      const level = maxLevel(regularLevel, overtimeLevel);  
-      if(level > 0){  
-        badDays.push(day);  
-        levels[day] = level;  
-        maxBadLevel = Math.max(maxBadLevel, level);  
-      }  
-    });  
-    if(badDays.length){  
-      anomalies[id] = {  
-        employeeId:id,  
-        employeeName:item.employeeName,  
-        days:badDays,  
-        levels:levels,  
-        level:maxBadLevel,  
-        missingAllWeek:false  
-      };  
-    }  
-  });  
-  return anomalies;  
-}  
-function setAnomalyFilterButtonText(){  
-  const area = $("anomalyFilterArea");  
-  const btn = $("anomalyFilterBtn");  
-  if(area){  
-    if(isAdmin()) area.classList.remove("hidden");  
-    else area.classList.add("hidden");  
-  }  
-  if(!btn) return;  
-  btn.innerText = onlyShowAnomaly ? "显示全部记录" : "只显示异常行";  
-  btn.className = "filter-btn" + (onlyShowAnomaly ? " active" : "");  
-}  
+function calcEmployeeAnomalies(rows){
+  const totals = calcEmployeeDailyTotals(rows);
+  const anomalies = {};
+
+  Object.keys(employeeMap).forEach(id=>{
+    if(id === ADMIN_ID) return;
+    const item = totals[id];
+    if(!item) return;
+
+    let hasAnyRecord = false;
+    weekdayOptions.forEach(day=>{
+      const d = item.days[day];
+      if(d && d.hasRecord) hasAnyRecord = true;
+    });
+
+    // ✅ 名单里有，但所选 Week 整周一条都没提交 = 严重异常
+    if(!hasAnyRecord){
+      anomalies[id] = {
+        employeeId:id,
+        employeeName:item.employeeName,
+        days:["整周未提交"],
+        levels:{},
+        level:2,
+        missingAllWeek:true
+      };
+      return;
+    }
+
+    const badDays = [];
+    const levels = {};
+    let maxBadLevel = 0;
+
+    ["一","二","三","四","五"].forEach(day=>{
+      const d = item.days[day];
+      // ✅ 有提交记录的日期才判断工时异常，避免未填日期被误判为0小时
+      if(!d || !d.hasRecord) return;
+      const regularLevel = getRegularLevel(d.regular);
+      const overtimeLevel = getOTLevel(d.otWeekday);
+      const level = maxLevel(regularLevel, overtimeLevel);
+      if(level > 0){
+        badDays.push(day);
+        levels[day] = level;
+        maxBadLevel = Math.max(maxBadLevel, level);
+      }
+    });
+
+    if(badDays.length){
+      anomalies[id] = {
+        employeeId:id,
+        employeeName:item.employeeName,
+        days:badDays,
+        levels:levels,
+        level:maxBadLevel,
+        missingAllWeek:false
+      };
+    }
+  });
+
+  return anomalies;
+}
+function setAnomalyFilterButtonText(){
+  const area = $("anomalyFilterArea");
+  const btn = $("anomalyFilterBtn");
+  if(area){
+    if(isAdmin()) area.classList.remove("hidden");
+    else area.classList.add("hidden");
+  }
+  if(!btn) return;
+  btn.innerText = onlyShowAnomaly ? "显示全部记录" : "只显示异常行";
+  btn.className = "filter-btn" + (onlyShowAnomaly ? " active" : "");
+}
 function toggleAnomalyFilter(){
   onlyShowAnomaly = !onlyShowAnomaly;
   setAnomalyFilterButtonText();
   renderWeekRecords(currentWeekRecords);
 }
 
-function renderAnomalyBox(rows){  
-  const box = $("anomalyBox");  
-  if(!box) return;  
-  if(!isAdmin()){  
-    box.style.display = "none";  
-    box.innerHTML = "";  
-    return;  
-  }  
-  const anomalies = calcEmployeeAnomalies(rows);  
-  const ids = Object.keys(anomalies);  
-  if(!ids.length){  
-    box.style.display = "block";  
-    box.innerHTML = '<div class="anomaly-title">✅ 当前所选 Week 未发现异常人员</div>';  
-    box.style.background = "#ecfdf5";  
-    box.style.borderColor = "#bbf7d0";  
-    box.style.color = "#166534";  
-    return;  
-  }  
-  ids.sort((a,b)=>{  
-    const A = anomalies[a].missingAllWeek ? 1 : 0;  
-    const B = anomalies[b].missingAllWeek ? 1 : 0;  
-    return B - A;  
-  });  
-  box.style.display = "block";  
-  box.style.background = "#fff1f2";  
-  box.style.borderColor = "#fecaca";  
-  box.style.color = "#991b1b";  
-  let html = '<div class="anomaly-title">⚠ 异常人员列表（红色=未提交，黄色=工时异常）</div>';  
-  ids.forEach(id=>{  
-    const a = anomalies[id];  
-    if(a.missingAllWeek){  
-      html += '<span class="anomaly-item" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5">'  
-        + safe(a.employeeName) + '（整周未提交）</span>';  
-    }else{  
-      html += '<span class="anomaly-item" style="background:#fef3c7;color:#92400e;border-color:#fde68a">'  
-        + safe(a.employeeName) + '（' + a.days.map(d=>"周"+d).join("、") + '）</span>';  
-    }  
-  });  
-  box.innerHTML = html;  
-}  
+function renderAnomalyBox(rows){
+  // ✅ V5.4：上方异常列表已取消；异常只在下方表格中显示
+  return;
+}
 async function loadWeekRecords(){
   if(!state.week || !empId){
     currentWeekRecords = [];
-    renderAnomalyBox([]);
     renderWeekRecords([]);
     return;
   }
   if(!requireAuth(false)){
     currentWeekRecords = [];
-    renderAnomalyBox([]);
     renderWeekRecords([], "身份验证码验证失败，禁止读取记录。");
     return;
   }
@@ -1831,11 +1799,9 @@ async function loadWeekRecords(){
       return new Date(a.submitTime || 0) - new Date(b.submitTime || 0);
     });
     currentWeekRecords = rows;
-    renderAnomalyBox(rows);
     renderWeekRecords(rows);
   }catch(e){
     currentWeekRecords = [];
-    renderAnomalyBox([]);
     renderWeekRecords([], "本周记录读取失败：" + e.message);
   }
 }
@@ -1903,6 +1869,7 @@ function renderWeekRecords(rows, err=""){
     totalEveningOt += num(record.otWeekday);
     totalWeekendOt += num(record.otWeekend);
   });
+
   // ✅ 管理员主表补入“整周未提交”的名单人员，让异常真正综合到本周明细表里
   if(isAdmin()){
     Object.keys(adminAnomalies).forEach(id=>{
@@ -2340,81 +2307,85 @@ function exportDateText(){
   const mi = String(d.getMinutes()).padStart(2,"0");
   return yyyy + mm + dd + "_" + hh + mi;
 }
-function buildSelectedWeekExportSummary(rows){  
-  const result = {};  
-  Object.keys(employeeMap).forEach(id=>{  
-    if(id === ADMIN_ID) return;  
-    result[id] = {  
-      employeeId:id,  
-      employeeName:employeeMap[id],  
-      days:{},  
-      totalRegular:0,  
-      totalOtWeekday:0,  
-      totalOtWeekend:0,  
-      anomaly:[],  
-      levels:{},  
-      level:0,  
-      hasAnyRecord:false  
-    };  
-    weekdayOptions.forEach(day=>{  
-      result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};  
-    });  
-  });  
-  rows.forEach(record=>{  
-    const id = String(record.employeeId || "");  
-    const name = record.employeeName || employeeMap[id] || id;  
-    if(!result[id]){  
-      result[id] = {  
-        employeeId:id,  
-        employeeName:name,  
-        days:{},  
-        totalRegular:0,  
-        totalOtWeekday:0,  
-        totalOtWeekend:0,  
-        anomaly:[],  
-        levels:{},  
-        level:0,  
-        hasAnyRecord:false  
-      };  
-      weekdayOptions.forEach(day=>{  
-        result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};  
-      });  
-    }  
-    result[id].hasAnyRecord = true;  
-    const day = record.weekday;  
-    if(result[id].days[day]){  
-      result[id].days[day].regular += num(record.regularHours);  
-      result[id].days[day].otWeekday += num(record.otWeekday);  
-      result[id].days[day].otWeekend += num(record.otWeekend);  
-      result[id].days[day].hasRecord = true;  
-    }  
-    result[id].totalRegular += num(record.regularHours);  
-    result[id].totalOtWeekday += num(record.otWeekday);  
-    result[id].totalOtWeekend += num(record.otWeekend);  
-  });  
-  Object.keys(result).forEach(id=>{  
-    const emp = result[id];  
-    if(!emp.hasAnyRecord){  
-      emp.anomaly.push("整周未提交");  
-      emp.level = 2;  
-      return;  
-    }  
-    ["一","二","三","四","五"].forEach(day=>{  
-      const d = emp.days[day];  
-      if(!d || !d.hasRecord) return;  
-      const regularLevel = getRegularLevel(d.regular);  
-      const otLevel = getOTLevel(d.otWeekday);  
-      const dayLevel = maxLevel(regularLevel, otLevel);  
-      if(dayLevel > 0){  
-        emp.levels[day] = dayLevel;  
-        emp.level = Math.max(emp.level, dayLevel);  
-      }  
-      if(regularLevel > 0) emp.anomaly.push("周" + day + "正常=" + d.regular + "h" + (regularLevel === 1 ? "（轻微）" : "（严重）"));  
-      if(otLevel > 0) emp.anomaly.push("周" + day + "工作日加班=" + d.otWeekday + "h" + (otLevel === 1 ? "（轻微）" : "（严重）"));  
-    });  
-  });  
-  return result;  
-}  
+function buildSelectedWeekExportSummary(rows){
+  const result = {};
+
+  // ✅ 管理员导出：先把名单内所有员工放进去，整周未提交也会导出
+  Object.keys(employeeMap).forEach(id=>{
+    if(id === ADMIN_ID) return;
+    result[id] = {
+      employeeId:id,
+      employeeName:employeeMap[id],
+      days:{},
+      totalRegular:0,
+      totalOtWeekday:0,
+      totalOtWeekend:0,
+      anomaly:[],
+      levels:{},
+      level:0,
+      hasAnyRecord:false
+    };
+    weekdayOptions.forEach(day=>{
+      result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};
+    });
+  });
+
+  rows.forEach(record=>{
+    const id = String(record.employeeId || "");
+    const name = record.employeeName || employeeMap[id] || id;
+    if(!result[id]){
+      result[id] = {
+        employeeId:id,
+        employeeName:name,
+        days:{},
+        totalRegular:0,
+        totalOtWeekday:0,
+        totalOtWeekend:0,
+        anomaly:[],
+        levels:{},
+        level:0,
+        hasAnyRecord:false
+      };
+      weekdayOptions.forEach(day=>{
+        result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};
+      });
+    }
+    result[id].hasAnyRecord = true;
+    const day = record.weekday;
+    if(result[id].days[day]){
+      result[id].days[day].regular += num(record.regularHours);
+      result[id].days[day].otWeekday += num(record.otWeekday);
+      result[id].days[day].otWeekend += num(record.otWeekend);
+      result[id].days[day].hasRecord = true;
+    }
+    result[id].totalRegular += num(record.regularHours);
+    result[id].totalOtWeekday += num(record.otWeekday);
+    result[id].totalOtWeekend += num(record.otWeekend);
+  });
+
+  Object.keys(result).forEach(id=>{
+    const emp = result[id];
+    if(!emp.hasAnyRecord){
+      emp.anomaly.push("整周未提交");
+      emp.level = 2;
+      return;
+    }
+    ["一","二","三","四","五"].forEach(day=>{
+      const d = emp.days[day];
+      if(!d || !d.hasRecord) return;
+      const regularLevel = getRegularLevel(d.regular);
+      const otLevel = getOTLevel(d.otWeekday);
+      const dayLevel = maxLevel(regularLevel, otLevel);
+      if(dayLevel > 0){
+        emp.levels[day] = dayLevel;
+        emp.level = Math.max(emp.level, dayLevel);
+      }
+      if(regularLevel > 0) emp.anomaly.push("周" + day + "正常=" + d.regular + "h" + (regularLevel === 1 ? "（轻微）" : "（严重）"));
+      if(otLevel > 0) emp.anomaly.push("周" + day + "工作日加班=" + d.otWeekday + "h" + (otLevel === 1 ? "（轻微）" : "（严重）"));
+    });
+  });
+  return result;
+}
 function exportSelectedWeekExcel(){
   if(!isAdmin()){
     alert("只有管理员可以导出所选 Week 数据。");
@@ -2426,6 +2397,11 @@ function exportSelectedWeekExcel(){
   }
 
   const rows = currentWeekRecords || [];
+  if(!rows.length){
+    alert("当前所选 Week 没有可导出的数据。");
+    return;
+  }
+
   const summary = buildSelectedWeekExportSummary(rows);
   const ids = Object.keys(summary).sort((a,b)=>String(summary[a].employeeName || "").localeCompare(String(summary[b].employeeName || ""), "zh-Hans-CN"));
 
