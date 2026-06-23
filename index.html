@@ -1,4 +1,4 @@
-<!-- VERSION: V4.8 FINAL - ANOMALY FILTER + UI FIX -->
+<!-- VERSION: V5.1 FINAL - ADMIN ANOMALY TABLE INTEGRATION FIX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -611,6 +611,11 @@
   content:none !important;
 }
     .filter-btn{
+      width:auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
       border:none;
       border-radius:10px;
       padding:8px 12px;
@@ -625,6 +630,15 @@
       color:#92400e;
       box-shadow:0 2px 8px rgba(146,64,14,.18);
     }
+
+    .missing-row td{  
+      background:#fff1f2!important;  
+      color:#991b1b!important;  
+      font-weight:900;  
+    }  
+    .filter-area.hidden{  
+      display:none!important;  
+    }  
     .filter-note{
       font-size:12px;
       color:#64748b;
@@ -748,12 +762,10 @@
       
         <button class="admin-btn export-btn" onclick="exportSelectedWeekExcel()">📥 导出所选 Week 数据</button>
       </div>     <div id="anomalyFilterArea" class="filter-area hidden">
-      </div>
-      <div id="anomalyBox" class="anomaly-box"></div>
-      <div
         <button id="anomalyFilterBtn" class="filter-btn" onclick="toggleAnomalyFilter()">只显示异常行</button>
         <span class="filter-note">筛选后：本周明细和原始记录只保留异常行</span>
       </div>
+      <div id="anomalyBox" class="anomaly-box"></div>  
       <div class="sec-title">本周已提交工时明细</div>
       <div id="recordList">
         <div class="record-empty">正在加载 Week...</div>
@@ -1303,39 +1315,35 @@ async function fetchAllWeekRows(week){
   const rows = await fetchRows();
   return rows.filter(row=>String(row.week || "") === String(week));
 }
-async function loadAllWeeks(){
-  try{
-    const rows = await fetchRows();
-    if(rows.length) LOCK_FIELD = detectLockField(rows[0]);
-    refreshLockedWeeks(rows);
-
-    const set = new Set();
-    rows.forEach(r=>{ if(r.week) set.add(r.week); });
-
-    const current = getCurrentWeek();
-    const currentNum = Number(current.replace("W", ""));
-
-    // ✅ 管理员和员工都显示：当前周前后各4周
-    for(let i=-4;i<=0;i++){
-      const w = currentNum + i;
-      if(w > 0) set.add("W" + w);
-    }
-
-    allWeeks = Array.from(set).sort((a,b)=>weekNum(a)-weekNum(b));
-  }catch(e){
-    const current = getCurrentWeek();
-    const currentNum = Number(current.replace("W", ""));
-    const arr = [];
-
-    for(let i=-4;i<=4;i++){
-      const w = currentNum + i;
-      if(w > 0) arr.push("W" + w);
-    }
-
-    allWeeks = arr;
-    showMsg("读取历史周失败，仅显示当前周前后4周：" + e.message, false);
-  }
-}
+async function loadAllWeeks(){  
+  try{  
+    const rows = await fetchRows();  
+    if(rows.length) LOCK_FIELD = detectLockField(rows[0]);  
+    refreshLockedWeeks(rows);  
+    const set = new Set();  
+    rows.forEach(r=>{ if(r.week) set.add(r.week); });  
+    const current = getCurrentWeek();  
+    const currentNum = Number(current.replace("W", ""));  
+    // ✅ 只显示当前周及之前4周；不显示本周后面的 Week  
+    for(let i=-4;i<=0;i++){  
+      const w = currentNum + i;  
+      if(w > 0) set.add("W" + w);  
+    }  
+    allWeeks = Array.from(set)  
+      .filter(w=>weekNum(w) <= currentNum)  
+      .sort((a,b)=>weekNum(a)-weekNum(b));  
+  }catch(e){  
+    const current = getCurrentWeek();  
+    const currentNum = Number(current.replace("W", ""));  
+    const arr = [];  
+    for(let i=-4;i<=0;i++){  
+      const w = currentNum + i;  
+      if(w > 0) arr.push("W" + w);  
+    }  
+    allWeeks = arr;  
+    showMsg("读取历史周失败，仅显示当前周及之前4周：" + e.message, false);  
+  }  
+}  
 function getWeekOptions(){ return allWeeks; }
 
 function initEmployee(){
@@ -1689,104 +1697,116 @@ function calcEmployeeDailyTotals(rows){
   });
   return map;
 }
-function calcEmployeeAnomalies(rows){
-  const totals = calcEmployeeDailyTotals(rows);
-  const anomalies = {};
-
-  Object.keys(employeeMap).forEach(id=>{
-    if(id === ADMIN_ID) return;
-    const item = totals[id];
-    if(!item) return;
-
-    let hasAnyRecord = false;
-    weekdayOptions.forEach(day=>{
-      const d = item.days[day];
-      if(d && d.hasRecord) hasAnyRecord = true;
-    });
-
-    if(!hasAnyRecord){
-      anomalies[id]={employeeId:id,employeeName:item.employeeName,days:["整周未提交"],levels:{},level:2,missingAllWeek:true};
-      return;
-    }
-
-    const badDays=[];const levels={};let maxBadLevel=0;
-    ["一","二","三","四","五"].forEach(day=>{
-      const d=item.days[day];
-      if(!d||!d.hasRecord) return;
-      const level=Math.max(getRegularLevel(d.regular),getOTLevel(d.otWeekday));
-      if(level>0){badDays.push(day);levels[day]=level;maxBadLevel=Math.max(maxBadLevel,level);}    
-    });
-
-    if(badDays.length){
-      anomalies[id]={employeeId:id,employeeName:item.employeeName,days:badDays,levels:levels,level:maxBadLevel,missingAllWeek:false};
-    }
-  });
-
-  return anomalies;
-}
-function setAnomalyFilterButtonText(){
-  const btn = $("anomalyFilterBtn");
-  if(!btn) return;
-  btn.innerText = onlyShowAnomaly ? "显示全部记录" : "只显示异常行";
-  btn.className = "filter-btn" + (onlyShowAnomaly ? " active" : "");
-}
+function calcEmployeeAnomalies(rows){  
+  const totals = calcEmployeeDailyTotals(rows);  
+  const anomalies = {};  
+  Object.keys(employeeMap).forEach(id=>{  
+    if(id === ADMIN_ID) return;  
+    const item = totals[id];  
+    if(!item) return;  
+    let hasAnyRecord = false;  
+    weekdayOptions.forEach(day=>{  
+      const d = item.days[day];  
+      if(d && d.hasRecord) hasAnyRecord = true;  
+    });  
+    // ✅ 名单里有，但所选 Week 整周一条都没提交 = 严重异常  
+    if(!hasAnyRecord){  
+      anomalies[id] = {  
+        employeeId:id,  
+        employeeName:item.employeeName,  
+        days:["整周未提交"],  
+        levels:{},  
+        level:2,  
+        missingAllWeek:true  
+      };  
+      return;  
+    }  
+    const badDays = [];  
+    const levels = {};  
+    let maxBadLevel = 0;  
+    ["一","二","三","四","五"].forEach(day=>{  
+      const d = item.days[day];  
+      // ✅ 有提交记录的日期才判断工时异常，避免没填的日期都被误判为0小时  
+      if(!d || !d.hasRecord) return;  
+      const regularLevel = getRegularLevel(d.regular);  
+      const overtimeLevel = getOTLevel(d.otWeekday);  
+      const level = maxLevel(regularLevel, overtimeLevel);  
+      if(level > 0){  
+        badDays.push(day);  
+        levels[day] = level;  
+        maxBadLevel = Math.max(maxBadLevel, level);  
+      }  
+    });  
+    if(badDays.length){  
+      anomalies[id] = {  
+        employeeId:id,  
+        employeeName:item.employeeName,  
+        days:badDays,  
+        levels:levels,  
+        level:maxBadLevel,  
+        missingAllWeek:false  
+      };  
+    }  
+  });  
+  return anomalies;  
+}  
+function setAnomalyFilterButtonText(){  
+  const area = $("anomalyFilterArea");  
+  const btn = $("anomalyFilterBtn");  
+  if(area){  
+    if(isAdmin()) area.classList.remove("hidden");  
+    else area.classList.add("hidden");  
+  }  
+  if(!btn) return;  
+  btn.innerText = onlyShowAnomaly ? "显示全部记录" : "只显示异常行";  
+  btn.className = "filter-btn" + (onlyShowAnomaly ? " active" : "");  
+}  
 function toggleAnomalyFilter(){
   onlyShowAnomaly = !onlyShowAnomaly;
   setAnomalyFilterButtonText();
   renderWeekRecords(currentWeekRecords);
 }
 
-function renderAnomalyBox(rows){
-  const box = $("anomalyBox");
-  if(!box) return;
-
-  if(!isAdmin()){
-    box.style.display = "none";
-    box.innerHTML = "";
-    return;
-  }
-
-  const anomalies = calcEmployeeAnomalies(rows);
-  const ids = Object.keys(anomalies);
-
-  if(!ids.length){
-    box.style.display = "block";
-    box.innerHTML = '<div class="anomaly-title">✅ 当前所选 Week 未发现异常人员</div>';
-    box.style.background = "#ecfdf5";
-    box.style.borderColor = "#bbf7d0";
-    box.style.color = "#166534";
-    return;
-  }
-
-  box.style.display = "block";
-  box.style.background = "#fff1f2";
-  box.style.borderColor = "#fecaca";
-  box.style.color = "#991b1b";
-
-  let html = '<div class="anomaly-title">⚠ 异常人员列表（红色=未提交，黄色=工时异常）</div>';
-
-  ids.sort((a,b)=>{
-    const A = anomalies[a].missingAllWeek ? 1 : 0;
-    const B = anomalies[b].missingAllWeek ? 1 : 0;
-    return B - A;
-  });
-
-  ids.forEach(id=>{
-    const a = anomalies[id];
-
-    if(a.missingAllWeek){
-      html += '<span class="anomaly-item" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5">'
-        + safe(a.employeeName) + '（整周未提交）</span>';
-    }else{
-      html += '<span class="anomaly-item" style="background:#fef3c7;color:#92400e;border-color:#fde68a">'
-        + safe(a.employeeName) + '（'
-        + a.days.map(d=>'周'+d).join('、')
-        + '）</span>';
-    }
-  });
-
-  box.innerHTML = html;
-}
+function renderAnomalyBox(rows){  
+  const box = $("anomalyBox");  
+  if(!box) return;  
+  if(!isAdmin()){  
+    box.style.display = "none";  
+    box.innerHTML = "";  
+    return;  
+  }  
+  const anomalies = calcEmployeeAnomalies(rows);  
+  const ids = Object.keys(anomalies);  
+  if(!ids.length){  
+    box.style.display = "block";  
+    box.innerHTML = '<div class="anomaly-title">✅ 当前所选 Week 未发现异常人员</div>';  
+    box.style.background = "#ecfdf5";  
+    box.style.borderColor = "#bbf7d0";  
+    box.style.color = "#166534";  
+    return;  
+  }  
+  ids.sort((a,b)=>{  
+    const A = anomalies[a].missingAllWeek ? 1 : 0;  
+    const B = anomalies[b].missingAllWeek ? 1 : 0;  
+    return B - A;  
+  });  
+  box.style.display = "block";  
+  box.style.background = "#fff1f2";  
+  box.style.borderColor = "#fecaca";  
+  box.style.color = "#991b1b";  
+  let html = '<div class="anomaly-title">⚠ 异常人员列表（红色=未提交，黄色=工时异常）</div>';  
+  ids.forEach(id=>{  
+    const a = anomalies[id];  
+    if(a.missingAllWeek){  
+      html += '<span class="anomaly-item" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5">'  
+        + safe(a.employeeName) + '（整周未提交）</span>';  
+    }else{  
+      html += '<span class="anomaly-item" style="background:#fef3c7;color:#92400e;border-color:#fde68a">'  
+        + safe(a.employeeName) + '（' + a.days.map(d=>"周"+d).join("、") + '）</span>';  
+    }  
+  });  
+  box.innerHTML = html;  
+}  
 async function loadWeekRecords(){
   if(!state.week || !empId){
     currentWeekRecords = [];
@@ -1830,11 +1850,11 @@ function renderWeekRecords(rows, err=""){
     box.innerHTML = '<div class="record-empty">请选择 Week 查看记录</div>';
     return;
   }
-  if(!rows.length){
+  const adminAnomalies = isAdmin() ? calcEmployeeAnomalies(rows) : {};
+  if(!rows.length && !isAdmin()){
     box.innerHTML = '<div class="record-empty">当前 Week 没有提交记录</div>';
     return;
   }
-  const adminAnomalies = isAdmin() ? calcEmployeeAnomalies(rows) : {};
   if(onlyShowAnomaly && isAdmin() && !Object.keys(adminAnomalies).length){
     box.innerHTML = '<div class="record-empty">当前 Week 没有异常记录</div>';
     return;
@@ -1883,16 +1903,45 @@ function renderWeekRecords(rows, err=""){
     totalEveningOt += num(record.otWeekday);
     totalWeekendOt += num(record.otWeekend);
   });
+  // ✅ 管理员主表补入“整周未提交”的名单人员，让异常真正综合到本周明细表里
+  if(isAdmin()){
+    Object.keys(adminAnomalies).forEach(id=>{
+      const a = adminAnomalies[id];
+      if(!a || !a.missingAllWeek) return;
+      const key = String(id) + "||__MISSING_ALL_WEEK__";
+      if(grouped.has(key)) return;
+      const days = {};
+      weekdayOptions.forEach(day=>days[day]={regular:"",overtime:""});
+      grouped.set(key,{
+        employeeId:id,
+        employeeName:a.employeeName,
+        task:"未提交",
+        project:"",
+        unit:"",
+        remark:"整周未提交",
+        days:days,
+        totalRegular:0,
+        totalEveningOt:0,
+        totalWeekendOt:0,
+        missingAllWeek:true
+      });
+    });
+  }
   const employeeHead = isAdmin() ? '<th rowspan="2">员工</th><th rowspan="2">工号</th>' : '';
   const head = '<thead><tr>' + employeeHead + '<th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>' + ['周一','周二','周三','周四','周五'].map(x=>'<th colspan="2">'+x+'</th>').join('') + '<th>周六</th><th>周日</th><th colspan="3">汇总</th></tr><tr>' + Array(5).fill('<th>正常<br>出勤</th><th>实际<br>加班</th>').join('') + '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr></thead>';
   let body = "";
-  grouped.forEach(row=>{
+  Array.from(grouped.values()).sort((a,b)=>{
+    const am = a.missingAllWeek ? 1 : 0;
+    const bm = b.missingAllWeek ? 1 : 0;
+    if(am !== bm) return bm - am;
+    return String(a.employeeName || "").localeCompare(String(b.employeeName || ""), "zh-Hans-CN");
+  }).forEach(row=>{
     const anomaly = adminAnomalies[String(row.employeeId || "")];
     const hasError = !!anomaly;
     if(onlyShowAnomaly && isAdmin() && !hasError) return;
     const empLevel = anomaly ? anomaly.level : 0;
     const empCells = isAdmin() ? '<td'+mergeClass(empLevel)+'>'+safe(row.employeeName)+'</td><td'+mergeClass(empLevel)+'>'+safe(row.employeeId)+'</td>' : '';
-    body += '<tr>' + empCells + '<td class="cell-left">'+safe(row.task)+'</td><td>'+safe(row.project)+'</td><td>'+safe(row.unit)+'</td><td>'+safe(row.remark)+'</td>' + ['一','二','三','四','五'].map(day=>{
+    body += '<tr' + (row.missingAllWeek ? ' class="missing-row"' : '') + '>' + empCells + '<td class="cell-left">'+safe(row.task)+'</td><td>'+safe(row.project)+'</td><td>'+safe(row.unit)+'</td><td>'+safe(row.remark)+'</td>' + ['一','二','三','四','五'].map(day=>{
       const level = anomaly && anomaly.levels ? (anomaly.levels[day] || 0) : 0;
       const cls = tdClass(level);
       return '<td'+cls+'>'+(row.days[day].regular || "")+'</td><td'+cls+'>'+(row.days[day].overtime || "")+'</td>';
@@ -1924,6 +1973,10 @@ function renderWeekRecords(rows, err=""){
     }
     rawRows += '<tr>' + empCells + '<td'+mergeClass(rowDayLevel)+'>'+safe(record.weekday)+'</td><td class="cell-left">'+safe(record.task)+'</td><td>'+safe(record.project)+'</td><td>'+safe(record.unit)+'</td><td'+mergeClass(rowDayLevel)+'>'+num(record.regularHours)+'</td><td'+mergeClass(rowDayLevel)+'>'+num(record.otWeekday)+'</td><td>'+num(record.otWeekend)+'</td><td>'+safe(record.remark || "")+'</td>' + lockCell + '<td>'+actionCell+'</td></tr>';
   });
+  if(!rawRows){
+    const rawColspan = isAdmin() ? 12 : 10;
+    rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
+  }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
   box.innerHTML = '<div class="table-scroll"><table>'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
 }
@@ -2287,63 +2340,81 @@ function exportDateText(){
   const mi = String(d.getMinutes()).padStart(2,"0");
   return yyyy + mm + dd + "_" + hh + mi;
 }
-function buildSelectedWeekExportSummary(rows){
-  const result = {};
-
-  rows.forEach(record=>{
-    const id = String(record.employeeId || "");
-    const name = record.employeeName || employeeMap[id] || id;
-
-    if(!result[id]){
-      result[id] = {
-        employeeId:id,
-        employeeName:name,
-        days:{},
-        totalRegular:0,
-        totalOtWeekday:0,
-        totalOtWeekend:0,
-        anomaly:[],
-        levels:{},
-        level:0
-      };
-      weekdayOptions.forEach(day=>{
-        result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};
-      });
-    }
-
-    const day = record.weekday;
-    if(result[id].days[day]){
-      result[id].days[day].regular += num(record.regularHours);
-      result[id].days[day].otWeekday += num(record.otWeekday);
-      result[id].days[day].otWeekend += num(record.otWeekend);
-      result[id].days[day].hasRecord = true;
-    }
-
-    result[id].totalRegular += num(record.regularHours);
-    result[id].totalOtWeekday += num(record.otWeekday);
-    result[id].totalOtWeekend += num(record.otWeekend);
-  });
-
-  Object.keys(result).forEach(id=>{
-    const emp = result[id];
-    ["一","二","三","四","五"].forEach(day=>{
-      const d = emp.days[day];
-      if(!d || !d.hasRecord) return;
-      const regularLevel = getRegularLevel(d.regular);
-      const otLevel = getOTLevel(d.otWeekday);
-      const dayLevel = maxLevel(regularLevel, otLevel);
-      if(dayLevel > 0){
-        emp.levels[day] = dayLevel;
-        emp.level = Math.max(emp.level, dayLevel);
-      }
-      if(regularLevel > 0) emp.anomaly.push("周" + day + "正常=" + d.regular + "h" + (regularLevel === 1 ? "（轻微）" : "（严重）"));
-      if(otLevel > 0) emp.anomaly.push("周" + day + "工作日加班=" + d.otWeekday + "h" + (otLevel === 1 ? "（轻微）" : "（严重）"));
-    });
-  });
-
-  return result;
-}
-
+function buildSelectedWeekExportSummary(rows){  
+  const result = {};  
+  Object.keys(employeeMap).forEach(id=>{  
+    if(id === ADMIN_ID) return;  
+    result[id] = {  
+      employeeId:id,  
+      employeeName:employeeMap[id],  
+      days:{},  
+      totalRegular:0,  
+      totalOtWeekday:0,  
+      totalOtWeekend:0,  
+      anomaly:[],  
+      levels:{},  
+      level:0,  
+      hasAnyRecord:false  
+    };  
+    weekdayOptions.forEach(day=>{  
+      result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};  
+    });  
+  });  
+  rows.forEach(record=>{  
+    const id = String(record.employeeId || "");  
+    const name = record.employeeName || employeeMap[id] || id;  
+    if(!result[id]){  
+      result[id] = {  
+        employeeId:id,  
+        employeeName:name,  
+        days:{},  
+        totalRegular:0,  
+        totalOtWeekday:0,  
+        totalOtWeekend:0,  
+        anomaly:[],  
+        levels:{},  
+        level:0,  
+        hasAnyRecord:false  
+      };  
+      weekdayOptions.forEach(day=>{  
+        result[id].days[day] = {regular:0, otWeekday:0, otWeekend:0, hasRecord:false};  
+      });  
+    }  
+    result[id].hasAnyRecord = true;  
+    const day = record.weekday;  
+    if(result[id].days[day]){  
+      result[id].days[day].regular += num(record.regularHours);  
+      result[id].days[day].otWeekday += num(record.otWeekday);  
+      result[id].days[day].otWeekend += num(record.otWeekend);  
+      result[id].days[day].hasRecord = true;  
+    }  
+    result[id].totalRegular += num(record.regularHours);  
+    result[id].totalOtWeekday += num(record.otWeekday);  
+    result[id].totalOtWeekend += num(record.otWeekend);  
+  });  
+  Object.keys(result).forEach(id=>{  
+    const emp = result[id];  
+    if(!emp.hasAnyRecord){  
+      emp.anomaly.push("整周未提交");  
+      emp.level = 2;  
+      return;  
+    }  
+    ["一","二","三","四","五"].forEach(day=>{  
+      const d = emp.days[day];  
+      if(!d || !d.hasRecord) return;  
+      const regularLevel = getRegularLevel(d.regular);  
+      const otLevel = getOTLevel(d.otWeekday);  
+      const dayLevel = maxLevel(regularLevel, otLevel);  
+      if(dayLevel > 0){  
+        emp.levels[day] = dayLevel;  
+        emp.level = Math.max(emp.level, dayLevel);  
+      }  
+      if(regularLevel > 0) emp.anomaly.push("周" + day + "正常=" + d.regular + "h" + (regularLevel === 1 ? "（轻微）" : "（严重）"));  
+      if(otLevel > 0) emp.anomaly.push("周" + day + "工作日加班=" + d.otWeekday + "h" + (otLevel === 1 ? "（轻微）" : "（严重）"));  
+    });  
+  });  
+  return result;  
+}  
 function exportSelectedWeekExcel(){
   if(!isAdmin()){
     alert("只有管理员可以导出所选 Week 数据。");
@@ -2355,11 +2426,6 @@ function exportSelectedWeekExcel(){
   }
 
   const rows = currentWeekRecords || [];
-  if(!rows.length){
-    alert("当前所选 Week 没有可导出的数据。");
-    return;
-  }
-
   const summary = buildSelectedWeekExportSummary(rows);
   const ids = Object.keys(summary).sort((a,b)=>String(summary[a].employeeName || "").localeCompare(String(summary[b].employeeName || ""), "zh-Hans-CN"));
 
@@ -2458,11 +2524,15 @@ async function init(){
   initEmployee();
 
   $("adminPanel").classList.remove("show");
+  $("anomalyFilterArea").classList.add("hidden");
   if(isAdmin()){
     $("inputArea").classList.add("hidden");
     $("adminPanel").classList.add("show");
     $("anomalyFilterArea").classList.remove("hidden");
     setAnomalyFilterButtonText();
+  }else{
+    onlyShowAnomaly = false;
+    $("anomalyFilterArea").classList.add("hidden");
   }
 
   await loadAllWeeks();
@@ -2489,6 +2559,7 @@ async function init(){
   renderRemarkQuick();
   refreshDisplays();
   renderActive();
+  if(!isAdmin()) $("anomalyFilterArea").classList.add("hidden");
   await loadWeekRecords();
 }
 init();
