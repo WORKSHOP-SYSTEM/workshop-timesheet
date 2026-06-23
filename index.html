@@ -1689,24 +1689,50 @@ function calcEmployeeDailyTotals(rows){
 function calcEmployeeAnomalies(rows){
   const totals = calcEmployeeDailyTotals(rows);
   const anomalies = {};
-  Object.keys(totals).forEach(id=>{
+
+  Object.keys(employeeMap).forEach(id=>{
+    if(id === ADMIN_ID) return;
+
     const item = totals[id];
+
+    let hasAnyRecord = false;
+    Object.values(item.days).forEach(d=>{
+      if(d.hasRecord) hasAnyRecord = true;
+    });
+
+    // ✅ 1. 完全没填（新增逻辑）
+    if(!hasAnyRecord){
+      anomalies[id] = {
+        employeeId:id,
+        employeeName:item.employeeName,
+        days:["整周未提交"],
+        levels:{},
+        level:2   // 红色严重异常
+      };
+      return;
+    }
+
+    // ✅ 2. 已有逻辑（原来的）
     const badDays = [];
     const levels = {};
     let maxBadLevel = 0;
+
     ["一","二","三","四","五"].forEach(day=>{
       const d = item.days[day];
-      // ✅ 没有任何记录的日期不做异常判断，避免 0 被误标红
+
       if(!d || !d.hasRecord) return;
+
       const regularLevel = getRegularLevel(d.regular);
       const overtimeLevel = getOTLevel(d.otWeekday);
-      const level = maxLevel(regularLevel, overtimeLevel);
+      const level = Math.max(regularLevel, overtimeLevel);
+
       if(level > 0){
         badDays.push(day);
         levels[day] = level;
         maxBadLevel = Math.max(maxBadLevel, level);
       }
     });
+
     if(badDays.length){
       anomalies[id] = {
         employeeId:id,
@@ -1717,6 +1743,7 @@ function calcEmployeeAnomalies(rows){
       };
     }
   });
+
   return anomalies;
 }
 
