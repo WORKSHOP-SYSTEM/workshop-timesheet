@@ -1,4 +1,4 @@
-<!-- VERSION: V5.6 FINAL - MISSING WORKDAY + EXPORT PAGE DETAIL TABLE -->
+<!-- VERSION: V5.7 FINAL - WEEK FILTER API + CLEAN EXCEL EXPORT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1175,6 +1175,7 @@ function showMsg(text, ok=true){
 }
 function isWeekendDay(day){ return day === "六" || day === "日"; }
 function shouldCheckMissingWorkdays(){
+  // ✅ 只有已过去的 Week 才把未填写的工作日判定为异常；本周未到的日期不提前标红
   if(!state.week) return false;
   return weekNum(state.week) < weekNum(getCurrentWeek());
 }
@@ -1214,6 +1215,16 @@ function needsUnit(){ return needsUnitByTask(state.task); }
 
 function apiUrl(){
   return "https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/?user_field_names=true&size=200";
+}
+function apiUrlWithParams(params={}){
+  const base = "https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/";
+  const q = new URLSearchParams();
+  q.set("user_field_names", "true");
+  q.set("size", "200");
+  Object.keys(params || {}).forEach(k=>{
+    if(params[k] !== undefined && params[k] !== null && params[k] !== "") q.set(k, params[k]);
+  });
+  return base + "?" + q.toString();
 }
 
 function rowUrl(id){
@@ -1291,32 +1302,38 @@ function refreshLockedWeeks(rows){
 function isWeekLocked(week){
   return lockedWeeks.has(String(week || ""));
 }
-async function fetchRows(){
+async function fetchRowsFromUrl(url){
   let all = [];
-  let url = apiUrl();
-
   while(url){
     const res = await fetch(url, { headers:headers() });
     if(!res.ok) throw new Error("读取记录失败：" + res.status);
-
     const data = await res.json();
-
     if(Array.isArray(data)){
       all = all.concat(data);
       break;
     }
-
     const rows = data.results || [];
     all = all.concat(rows);
     url = data.next || "";
   }
-
   return all;
 }
-
+async function fetchRows(){
+  return fetchRowsFromUrl(apiUrl());
+}
+async function fetchRowsByWeek(week){
+  // ✅ 性能优化：优先让 Baserow 只返回当前 Week，避免每次切换 Week 都全量读取历史数据
+  // 如果某些 Baserow 字段过滤设置不兼容，则自动回退到全量读取后前端过滤，不影响使用。
+  try{
+    const rows = await fetchRowsFromUrl(apiUrlWithParams({["filter__week__equal"]: String(week || "")}));
+    return rows.filter(row=>String(row.week || "") === String(week));
+  }catch(e){
+    const rows = await fetchRows();
+    return rows.filter(row=>String(row.week || "") === String(week));
+  }
+}
 async function fetchAllWeekRows(week){
-  const rows = await fetchRows();
-  return rows.filter(row=>String(row.week || "") === String(week));
+  return fetchRowsByWeek(week);
 }
 async function loadAllWeeks(){
   try{
@@ -1801,9 +1818,8 @@ async function loadWeekRecords(){
     return;
   }
   try{
-    const rowsAll = await fetchRows();
-    if(rowsAll.length) LOCK_FIELD = detectLockField(rowsAll[0]);
-    let rows = rowsAll.filter(row=>String(row.week || "") === String(state.week));
+    let rows = await fetchRowsByWeek(state.week);
+    if(rows.length) LOCK_FIELD = detectLockField(rows[0]);
     if(!isAdmin()) rows = rows.filter(row=>String(row.employeeId || "") === String(empId));
     rows.sort((a,b)=>{
       const ea = String(a.employeeId || "").localeCompare(String(b.employeeId || ""));
@@ -1909,13 +1925,25 @@ function renderWeekRecords(rows, err=""){
       });
     });
   }
-  // ✅ 员工界面：已过去 Week 整周未填，也显示红色未提交行
+  // ✅ 员工界面：如果已过去的 Week 整周未填，也在本周明细表中显示红色“未提交”行
   if(!isAdmin() && employeeMissingAllWeek){
     const key = String(empId) + "||__EMPLOYEE_MISSING_ALL_WEEK__";
     if(!grouped.has(key)){
       const days = {};
       weekdayOptions.forEach(day=>days[day]={regular:"",overtime:""});
-      grouped.set(key,{employeeId:empId,employeeName:empName,task:"未提交",project:"",unit:"",remark:"整周未提交",days:days,totalRegular:0,totalEveningOt:0,totalWeekendOt:0,missingAllWeek:true});
+      grouped.set(key,{
+        employeeId:empId,
+        employeeName:empName,
+        task:"未提交",
+        project:"",
+        unit:"",
+        remark:"整周未提交",
+        days:days,
+        totalRegular:0,
+        totalEveningOt:0,
+        totalWeekendOt:0,
+        missingAllWeek:true
+      });
     }
   }
 
@@ -1946,8 +1974,14 @@ function renderWeekRecords(rows, err=""){
     let regularLevel = 0;
     let otLevel = 0;
     if(!isAdmin()){
-      if(missingLevel > 0 && !hasData){ regularLevel = 2; otLevel = 2; }
-      else if(hasData){ regularLevel = getRegularLevel(summary[day].regular); otLevel = getOTLevel(summary[day].overtime); }
+      if(missingLevel > 0 && !hasData){
+        // ✅ 已过去 Week 的工作日完全没填：正常/加班两个格子都标红，提醒缺填
+        regularLevel = 2;
+        otLevel = 2;
+      }else if(hasData){
+        regularLevel = getRegularLevel(summary[day].regular);
+        otLevel = getOTLevel(summary[day].overtime);
+      }
     }
     return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime || 0)+'</td>';
   }).join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
@@ -2435,28 +2469,48 @@ function exportSelectedWeekExcel(){
   let totalEveningOt = 0;
   let totalWeekendOt = 0;
 
+  // ✅ 导出逻辑与页面“本周已提交工时明细”保持一致：员工 + 工时类别 + 项目号 + 单元号 + 备注分行
   rows.forEach(record=>{
     const empPart = String(record.employeeId || "") + "||" + String(record.employeeName || employeeMap[record.employeeId] || "");
     const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
     if(!grouped.has(key)){
       const days = {};
       weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0});
-      grouped.set(key,{employeeId:record.employeeId || "",employeeName:record.employeeName || employeeMap[record.employeeId] || "",task:record.task || "",project:record.project || "",unit:record.unit || "",remark:String(record.remark || "").trim(),days:days,totalRegular:0,totalEveningOt:0,totalWeekendOt:0,missingAllWeek:false});
+      grouped.set(key,{
+        employeeId:record.employeeId || "",
+        employeeName:record.employeeName || employeeMap[record.employeeId] || "",
+        task:record.task || "",
+        project:record.project || "",
+        unit:record.unit || "",
+        remark:String(record.remark || "").trim(),
+        days:days,
+        totalRegular:0,
+        totalEveningOt:0,
+        totalWeekendOt:0,
+        missingAllWeek:false
+      });
     }
     const row = grouped.get(key);
     const day = record.weekday;
     const regular = num(record.regularHours);
     const overtime = num(record.otWeekday) + num(record.otWeekend);
-    if(row.days[day]){ row.days[day].regular += regular; row.days[day].overtime += overtime; }
+    if(row.days[day]){
+      row.days[day].regular += regular;
+      row.days[day].overtime += overtime;
+    }
     row.totalRegular += regular;
     row.totalEveningOt += num(record.otWeekday);
     row.totalWeekendOt += num(record.otWeekend);
-    if(summary[day]){ summary[day].regular += regular; summary[day].overtime += overtime; }
+    if(summary[day]){
+      summary[day].regular += regular;
+      summary[day].overtime += overtime;
+    }
     totalRegular += regular;
     totalEveningOt += num(record.otWeekday);
     totalWeekendOt += num(record.otWeekend);
   });
 
+  // ✅ 与页面一致：整周未提交作为红色“未提交”行导出
   Object.keys(adminAnomalies).forEach(id=>{
     const a = adminAnomalies[id];
     if(!a || !a.missingAllWeek) return;
@@ -2464,33 +2518,55 @@ function exportSelectedWeekExcel(){
     if(grouped.has(key)) return;
     const days = {};
     weekdayOptions.forEach(day=>days[day]={regular:"",overtime:""});
-    grouped.set(key,{employeeId:id,employeeName:a.employeeName,task:"未提交",project:"",unit:"",remark:"整周未提交",days:days,totalRegular:0,totalEveningOt:0,totalWeekendOt:0,missingAllWeek:true});
+    grouped.set(key,{
+      employeeId:id,
+      employeeName:a.employeeName,
+      task:"未提交",
+      project:"",
+      unit:"",
+      remark:"整周未提交",
+      days:days,
+      totalRegular:0,
+      totalEveningOt:0,
+      totalWeekendOt:0,
+      missingAllWeek:true
+    });
   });
 
-  function excelClassForLevel(level){ level = num(level); if(level === 1) return "soft"; if(level >= 2) return "bad"; return ""; }
-  function exportCell(value, className=""){ return '<td class="' + className + '">' + excelEscape(value) + '</td>'; }
+  function excelClassForLevel(level){
+    level = num(level);
+    if(level === 1) return "soft";
+    if(level >= 2) return "bad";
+    return "";
+  }
+  function exportCell(value, className=""){
+    return '<td class="' + className + '">' + excelEscape(value) + '</td>';
+  }
 
   let html = '';
   html += '<html><head><meta charset="UTF-8">';
   html += '<style>';
-  html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;}';
+  html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111827;}';
   html += 'table{border-collapse:collapse;font-size:12px;}';
-  html += 'th,td{border:1px solid #444;padding:5px;text-align:center;mso-number-format:"\\@";}';
-  html += 'th{background:#f3f4f6;font-weight:bold;}';
-  html += '.title{font-size:18px;font-weight:bold;text-align:left;background:#ffffff;}';
-  html += '.subTitle{font-size:14px;font-weight:bold;text-align:left;background:#f8fafc;}';
+  html += 'th,td{border:1px solid #9ca3af;padding:4px 6px;text-align:center;font-weight:400;}';
+  html += 'th{background:#f8fafc;font-weight:400;}';
+  html += '.title{font-size:16px;font-weight:400;text-align:left;background:#ffffff;}';
+  html += '.subTitle{font-size:12px;font-weight:400;text-align:left;background:#ffffff;}';
   html += '.left{text-align:left;}';
-  html += '.soft{background:#fff3cd;color:#92400e;font-weight:bold;}';
-  html += '.bad{background:#fee2e2;color:#991b1b;font-weight:bold;}';
-  html += '.missing td{background:#fff1f2;color:#991b1b;font-weight:bold;}';
+  html += '.soft{background:#fff7ed;color:#92400e;font-weight:400;}';
+  html += '.bad{background:#fff1f2;color:#991b1b;font-weight:400;}';
+  html += '.missing td{background:#fff1f2;color:#991b1b;font-weight:400;}';
   html += '</style></head><body>';
   html += '<table>';
   html += '<tr><td class="title" colspan="21">车间工时明细 - ' + excelEscape(state.week) + '</td></tr>';
   html += '<tr><td class="subTitle" colspan="21">导出时间：' + excelEscape(new Date().toLocaleString()) + '</td></tr>';
   html += '<tr><td colspan="21"></td></tr>';
-  html += '<tr><th rowspan="2">员工</th><th rowspan="2">工号</th><th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>';
+
+  html += '<tr>';
+  html += '<th rowspan="2">员工</th><th rowspan="2">工号</th><th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>';
   ['周一','周二','周三','周四','周五'].forEach(day=>{ html += '<th colspan="2">' + day + '</th>'; });
-  html += '<th>周六</th><th>周日</th><th colspan="3">汇总</th></tr><tr>';
+  html += '<th>周六</th><th>周日</th><th colspan="3">汇总</th></tr>';
+  html += '<tr>';
   for(let i=0;i<5;i++) html += '<th>正常<br>出勤</th><th>实际<br>加班</th>';
   html += '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr>';
 
@@ -2525,8 +2601,11 @@ function exportSelectedWeekExcel(){
     html += '</tr>';
   });
 
-  html += '<tr><td></td><td></td><td></td><td></td><td></td><td><b>汇总</b></td>';
-  ['一','二','三','四','五'].forEach(day=>{ html += exportCell(summary[day].regular || 0); html += exportCell(summary[day].overtime || 0); });
+  html += '<tr><td></td><td></td><td></td><td></td><td></td><td>汇总</td>';
+  ['一','二','三','四','五'].forEach(day=>{
+    html += exportCell(summary[day].regular || 0);
+    html += exportCell(summary[day].overtime || 0);
+  });
   html += exportCell(summary['六'].overtime || 0);
   html += exportCell(summary['日'].overtime || 0);
   html += exportCell(totalRegular || 0);
