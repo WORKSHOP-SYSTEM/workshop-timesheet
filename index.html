@@ -1,4 +1,4 @@
-<!-- VERSION: V5.8 FINAL - EXCEL HTML NO WARNING + PAGE STYLE EXPORT -->
+<!-- VERSION: V5.8.1 FINAL - AUTO REMAINING REGULAR HOURS -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1619,13 +1619,33 @@ function maxHours(field){
   if(field === "otWeekend") return 8;
   return 8;
 }
+function submittedRegularHoursForCurrentDay(){
+  if(!state.week || !state.weekday || !empId) return 0;
+  return (currentWeekRecords || []).reduce((sum, record)=>{
+    if(String(record.employeeId || "") !== String(empId)) return sum;
+    if(String(record.week || "") !== String(state.week)) return sum;
+    if(String(record.weekday || "") !== String(state.weekday)) return sum;
+    return sum + num(record.regularHours);
+  }, 0);
+}
+function remainingRegularHoursForCurrentDay(){
+  if(!state.weekday || isWeekendDay(state.weekday)) return 0;
+  const remain = 8 - submittedRegularHoursForCurrentDay();
+  return Math.max(0, Math.min(8, Math.round(remain * 2) / 2));
+}
+function maxSubmitHours(field){
+  if(field === "regularHours") return remainingRegularHoursForCurrentDay();
+  return maxHours(field);
+}
 function changeNumber(field, delta){
+  const max = maxSubmitHours(field);
   let next = Math.round((num(state[field]) + delta) * 2) / 2;
-  state[field] = Math.max(0, Math.min(next, maxHours(field)));
+  state[field] = Math.max(0, Math.min(next, max));
   refreshDisplays();
 }
 function setNumber(field, value){
-  state[field] = Math.max(0, Math.min(num(value), maxHours(field)));
+  const max = maxSubmitHours(field);
+  state[field] = Math.max(0, Math.min(num(value), max));
   refreshDisplays();
 }
 function disableRegularInputs(disabled){
@@ -1653,8 +1673,9 @@ function applyAutoHoursByWeekday(){
     $("weekendOTCard").classList.remove("hidden");
     disableRegularInputs(true);
   }else{
-    // ✅ 工作日：自动默认正常工时8h，周末加班自动归零，只显示工作日加班
-    state.regularHours = 8;
+    // ✅ 工作日：正常工时自动填“当天剩余可填工时”
+    // 例：当天已提交3h，则默认填5h；当天已提交8h，则默认填0h。
+    state.regularHours = remainingRegularHoursForCurrentDay();
     state.otWeekend = 0;
     state.otWeekday = Math.max(0, Math.min(num(state.otWeekday), maxHours("otWeekday")));
     $("weekdayOTCard").classList.remove("hidden");
@@ -1826,6 +1847,7 @@ async function loadWeekRecords(){
       return new Date(a.submitTime || 0) - new Date(b.submitTime || 0);
     });
     currentWeekRecords = rows;
+    if(!isAdmin()) syncHourSectionByWeekday();
     renderWeekRecords(rows);
   }catch(e){
     currentWeekRecords = [];
