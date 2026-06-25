@@ -1,4 +1,4 @@
-<!-- VERSION: V5.9 FINAL - BATCH ROW TIMESHEET INPUT -->
+<!-- VERSION: V5.9.1 FINAL - INTEGRATED INPUT AND SUMMARY TABLE -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -709,98 +709,81 @@
     }
 
 
-    .batch-toolbar{
+    .integrated-action-bar{
       display:flex;
       gap:8px;
       align-items:center;
       flex-wrap:wrap;
       margin:8px 0 10px;
     }
-    .batch-note{
+    .integrated-note{
       color:#64748b;
       font-size:12px;
       font-weight:900;
       line-height:1.5;
     }
-    .batch-table-wrap{
-      overflow-x:auto;
-      border:1px solid #d7dde5;
-      border-radius:12px;
-      background:#fff;
-      margin-top:8px;
+    .integrated-input-row td{
+      background:#f8fbff!important;
+      vertical-align:middle;
     }
-    table.batch-input-table{
-      border-collapse:collapse;
-      min-width:1180px;
-      width:max-content;
-      font-size:12px;
-    }
-    .batch-input-table th,
-    .batch-input-table td{
-      border:1px solid #333;
-      padding:3px 4px;
-      text-align:center;
-      min-width:46px;
-      height:34px;
-      line-height:1.2;
-      background:#fff;
-    }
-    .batch-input-table th{
-      background:#f5f5f5;
-      font-weight:900;
-    }
-    .batch-input-table .desc-col{min-width:118px;}
-    .batch-input-table .project-col{min-width:132px;}
-    .batch-input-table .unit-col{min-width:86px;}
-    .batch-input-table .remark-col{min-width:150px;}
-    .batch-input-table select,
-    .batch-input-table input{
+    .integrated-input-row select,
+    .integrated-input-row input{
       width:100%;
-      min-width:0;
-      border:1px solid #cbd5e1;
-      border-radius:6px;
+      min-width:48px;
+      border:1px solid #bcd0e5;
+      border-radius:7px;
       padding:5px 4px;
       font-size:12px;
       font-family:inherit;
-      background:#fff;
+      background:#ffffff;
     }
-    .batch-input-table input.hour-input{
-      width:50px;
+    .integrated-input-row input.hour-input{
+      width:48px;
       text-align:center;
-      padding:4px 2px;
       font-weight:900;
+      padding:4px 2px;
     }
-    .batch-input-table input.hour-input:focus,
-    .batch-input-table select:focus,
-    .batch-input-table input.remark-input:focus{
+    .integrated-input-row input.remark-input{
+      min-width:130px;
+    }
+    .integrated-input-row select:focus,
+    .integrated-input-row input:focus{
       outline:2px solid #16a34a;
       border-color:#16a34a;
     }
-    .batch-input-table .readonly-cell{
-      background:#f8fafc;
+    .integrated-meta-cell{min-width:105px;}
+    .integrated-project-cell{min-width:128px;}
+    .integrated-unit-cell{min-width:82px;}
+    .integrated-remark-cell{min-width:160px;}
+    .integrated-total-cell{
+      background:#eef6ff!important;
       font-weight:900;
-      color:#0f172a;
+      color:#111827;
     }
-    .batch-input-table .dim-cell{background:#f3f4f6;color:#94a3b8;}
-    .batch-input-table .row-actions{min-width:62px;}
-    .batch-mini-btn{
+    .integrated-row-tag{
+      display:inline-block;
+      background:#dcfce7;
+      color:#166534;
+      border-radius:999px;
+      padding:2px 6px;
+      margin-bottom:4px;
+      font-size:11px;
+      font-weight:900;
+    }
+    .integrated-mini-btn{
       border:none;
       border-radius:8px;
-      padding:6px 8px;
+      padding:7px 10px;
       font-size:12px;
       font-weight:900;
       cursor:pointer;
     }
-    .batch-add-btn{background:#dbeafe;color:#1d4ed8;}
-    .batch-del-btn{background:#fee2e2;color:#991b1b;}
-    .batch-submit-btn{background:var(--brand);color:#fff;}
-    .batch-submit-area{margin-top:12px;}
-    .batch-summary-label{font-weight:900;background:#f8fafc!important;}
+    .integrated-add-btn{background:#dbeafe;color:#1d4ed8;}
+    .integrated-del-btn{background:#fee2e2;color:#991b1b;margin-top:4px;}
     @media(max-width:560px){
-      .batch-table-wrap{border-radius:10px;}
-      table.batch-input-table{font-size:11px;min-width:1080px;}
-      .batch-input-table th,.batch-input-table td{padding:2px;min-width:42px;height:32px;}
-      .batch-input-table input.hour-input{width:46px;}
+      .integrated-input-row select,
+      .integrated-input-row input{font-size:11px;padding:4px 3px;}
+      .integrated-input-row input.hour-input{width:44px;}
     }
     @media(max-width:560px){
       .wrap{padding:0 8px 18px;}
@@ -865,15 +848,6 @@
       </div>
 
       <div id="inputArea">
-        <div class="sec-title">填写工时</div>
-        <div class="batch-toolbar">
-          <button type="button" class="batch-mini-btn batch-add-btn" onclick="addBatchRow()">＋ 新增一行</button>
-          <span class="batch-note">同一行代表相同的工时类别 / 项目号 / 单元号 / 备注；每天只需要在对应日期的工时格中填写小时数。不同前置信息请新增一行。</span>
-        </div>
-        <div id="batchInputBox"></div>
-        <div class="batch-submit-area">
-          <button id="batchSubmitBtn" class="btn btn-primary" onclick="submitBatchForm()" disabled>提交工时</button>
-        </div>
         <div id="legacyInputHidden" class="hidden">
           <div id="weekdayChips"></div>
           <div id="taskChips"></div>
@@ -1907,11 +1881,9 @@ async function loadWeekRecords(){
     currentWeekRecords = rows;
     if(!isAdmin()) syncHourSectionByWeekday();
     renderWeekRecords(rows);
-    renderBatchInput();
   }catch(e){
     currentWeekRecords = [];
     renderWeekRecords([], "本周记录读取失败：" + e.message);
-    renderBatchInput();
   }
 }
 function renderWeekRecords(rows, err=""){
@@ -1930,8 +1902,7 @@ function renderWeekRecords(rows, err=""){
   const employeeAnomaly = !isAdmin() ? allAnomalies[String(empId)] : null;
   const employeeMissingAllWeek = !isAdmin() && employeeAnomaly && employeeAnomaly.missingAllWeek;
   if(!rows.length && !isAdmin() && !employeeMissingAllWeek){
-    box.innerHTML = '<div class="record-empty">当前 Week 没有提交记录</div>';
-    return;
+    // 员工没有提交记录时，也直接显示集成填写表，避免进入空白状态。
   }
   if(onlyShowAnomaly && isAdmin() && !Object.keys(adminAnomalies).length){
     box.innerHTML = '<div class="record-empty">当前 Week 没有异常记录</div>';
@@ -2048,6 +2019,9 @@ function renderWeekRecords(rows, err=""){
       return '<td'+cls+'>'+(row.days[day].regular || "")+'</td><td'+cls+'>'+(row.days[day].overtime || "")+'</td>';
     }).join('') + '<td>'+(row.days['六'].overtime || "")+'</td><td>'+(row.days['日'].overtime || "")+'</td><td>'+(row.totalRegular || "")+'</td><td>'+(row.totalEveningOt || "")+'</td><td>'+(row.totalWeekendOt || "")+'</td></tr>';
   });
+  if(!isAdmin()){
+    body += buildIntegratedInputRowsHtml();
+  }
   const blankPrefix = isAdmin() ? '<td></td><td></td>' : '';
   const sumRow = '<tr>' + blankPrefix + '<td></td><td></td><td></td><td><b>汇总</b></td>' + ['一','二','三','四','五'].map(day=>{
     const hasData = summary[day].regular > 0 || summary[day].overtime > 0;
@@ -2064,8 +2038,10 @@ function renderWeekRecords(rows, err=""){
         otLevel = getOTLevel(summary[day].overtime);
       }
     }
-    return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime || 0)+'</td>';
-  }).join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
+    const draftRegular = !isAdmin() ? integratedDraftGrand(day,'regular') : 0;
+    const draftOt = !isAdmin() ? integratedDraftGrand(day,'otWeekday') : 0;
+    return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular + draftRegular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime + draftOt || 0)+'</td>';
+  }).join('') + '<td>'+((summary['六'].overtime || 0) + (!isAdmin()?integratedDraftGrand('六','otWeekend'):0))+'</td><td>'+((summary['日'].overtime || 0) + (!isAdmin()?integratedDraftGrand('日','otWeekend'):0))+'</td><td>'+((totalRegular || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowRegularTotal(row),0):0))+'</td><td>'+((totalEveningOt || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowEveningTotal(row),0):0))+'</td><td>'+((totalWeekendOt || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowWeekendTotal(row),0):0))+'</td></tr>';
   let rawRows = "";
   rows.forEach(record=>{
     const locked = isLocked(record);
@@ -2090,15 +2066,16 @@ function renderWeekRecords(rows, err=""){
     rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
-  box.innerHTML = '<div class="table-scroll"><table>'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
+  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" class="integrated-mini-btn integrated-add-btn" onclick="addIntegratedRow()">＋ 新增填写行</button><button type="button" class="btn btn-primary" style="width:auto;padding:10px 18px;font-size:15px" onclick="submitIntegratedRows()">提交本表填写内容</button><span class="integrated-note">同一个工时类别 / 项目号 / 单元号 / 备注可以填在同一行；不同前置信息请新增一行。上方汇总会把已提交和本次填写一起计算。</span></div>' : '';
+  box.innerHTML = inputActions + '<div class="table-scroll"><table>'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
 }
 
-let batchRows = [];
-function createBatchRow(){
+let integratedRows = [];
+function createIntegratedRow(){
   const days = {};
   weekdayOptions.forEach(day=>days[day]={regular:"",otWeekday:"",otWeekend:""});
   return {
-    id:"B" + Date.now() + "_" + Math.random().toString(16).slice(2),
+    id:"I" + Date.now() + "_" + Math.random().toString(16).slice(2),
     task:"",
     project:"",
     unit:"",
@@ -2106,13 +2083,13 @@ function createBatchRow(){
     days:days
   };
 }
-function ensureBatchRows(){
-  if(!batchRows.length) batchRows.push(createBatchRow());
+function ensureIntegratedRows(){
+  if(!integratedRows.length) integratedRows.push(createIntegratedRow());
 }
 function optionHtml(value, selected){
   return '<option value="' + safe(value) + '"' + (String(value)===String(selected)?' selected':'') + '>' + safe(value) + '</option>';
 }
-function batchExistingTotals(day){
+function integratedExistingTotals(day){
   const totals = {regular:0, otWeekday:0, otWeekend:0};
   (currentWeekRecords || []).forEach(record=>{
     if(String(record.employeeId || "") !== String(empId)) return;
@@ -2124,9 +2101,9 @@ function batchExistingTotals(day){
   });
   return totals;
 }
-function batchPlannedTotals(day, excludeRowId="", excludeField=""){
+function integratedDraftTotals(day, excludeRowId="", excludeField=""){
   const totals = {regular:0, otWeekday:0, otWeekend:0};
-  batchRows.forEach(row=>{
+  integratedRows.forEach(row=>{
     const d = row.days && row.days[day] ? row.days[day] : {};
     if(!(String(row.id)===String(excludeRowId) && excludeField === "regular")) totals.regular += num(d.regular);
     if(!(String(row.id)===String(excludeRowId) && excludeField === "otWeekday")) totals.otWeekday += num(d.otWeekday);
@@ -2134,12 +2111,12 @@ function batchPlannedTotals(day, excludeRowId="", excludeField=""){
   });
   return totals;
 }
-function batchMaxForCell(day, field, rowId){
-  const existed = batchExistingTotals(day);
-  const planned = batchPlannedTotals(day, rowId, field);
-  if(field === "regular") return Math.max(0, 8 - existed.regular - planned.regular);
-  if(field === "otWeekday") return Math.max(0, 4 - existed.otWeekday - planned.otWeekday);
-  if(field === "otWeekend") return Math.max(0, 8 - existed.otWeekend - planned.otWeekend);
+function integratedMaxForCell(day, field, rowId){
+  const existed = integratedExistingTotals(day);
+  const draft = integratedDraftTotals(day, rowId, field);
+  if(field === "regular") return Math.max(0, 8 - existed.regular - draft.regular);
+  if(field === "otWeekday") return Math.max(0, 4 - existed.otWeekday - draft.otWeekday);
+  if(field === "otWeekend") return Math.max(0, 8 - existed.otWeekend - draft.otWeekend);
   return 0;
 }
 function clampHalfHour(v, max){
@@ -2147,89 +2124,29 @@ function clampHalfHour(v, max){
   n = Math.max(0, Math.min(n, max));
   return n === 0 ? "" : String(n);
 }
-function rowHasAnyHours(row){
+function integratedRowHasHours(row){
   return weekdayOptions.some(day=>{
     const d = row.days[day];
-    return num(d.regular) > 0 || num(d.otWeekday) > 0 || num(d.otWeekend) > 0;
+    return num(d.regular)>0 || num(d.otWeekday)>0 || num(d.otWeekend)>0;
   });
 }
-function rowTotal(row, key){
-  return weekdayOptions.reduce((sum, day)=>sum + num(row.days[day][key]), 0);
+function integratedRowRegularTotal(row){
+  return ["一","二","三","四","五"].reduce((s,day)=>s+num(row.days[day].regular),0);
 }
-function rowEveningTotal(row){
-  return ["一","二","三","四","五"].reduce((sum, day)=>sum + num(row.days[day].otWeekday), 0);
+function integratedRowEveningTotal(row){
+  return ["一","二","三","四","五"].reduce((s,day)=>s+num(row.days[day].otWeekday),0);
 }
-function rowWeekendTotal(row){
-  return ["六","日"].reduce((sum, day)=>sum + num(row.days[day].otWeekend), 0);
+function integratedRowWeekendTotal(row){
+  return ["六","日"].reduce((s,day)=>s+num(row.days[day].otWeekend),0);
 }
-function batchGrand(day, field){
-  return batchRows.reduce((sum,row)=>sum + num(row.days[day][field]), 0);
+function integratedDraftGrand(day, field){
+  return integratedRows.reduce((s,row)=>s+num(row.days[day][field]),0);
 }
-function renderBatchInput(){
-  const box = $("batchInputBox");
-  if(!box) return;
-  ensureBatchRows();
-  const taskOptionsHtml = '<option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t, "")).join('');
-  let html = '<div class="batch-table-wrap"><table class="batch-input-table"><thead>';
-  html += '<tr><th rowspan="2">序号</th><th rowspan="2" class="desc-col">工时类别</th><th rowspan="2" class="project-col">项目号</th><th rowspan="2" class="unit-col">单元号</th><th rowspan="2" class="remark-col">备注</th>';
-  ['周一','周二','周三','周四','周五'].forEach(day=>{ html += '<th colspan="2">' + day + '</th>'; });
-  html += '<th>周六</th><th>周日</th><th colspan="3">汇总</th><th rowspan="2" class="row-actions">操作</th></tr>';
-  html += '<tr>';
-  for(let i=0;i<5;i++) html += '<th>正常<br>出勤</th><th>加班</th>';
-  html += '<th>加班</th><th>加班</th><th>正常<br>出勤</th><th>晚上<br>加班</th><th>周末<br>加班</th></tr></thead><tbody>';
-
-  batchRows.forEach((row, index)=>{
-    const projectNeeded = needsProjectByTask(row.task);
-    const unitNeeded = needsUnitByTask(row.task);
-    const projects = Object.keys(projectUnits);
-    const units = row.project && projectUnits[row.project] ? projectUnits[row.project] : [];
-    html += '<tr>';
-    html += '<td>' + (index+1) + '</td>';
-    html += '<td><select onchange="updateBatchMeta(\''+row.id+'\',\'task\',this.value)"><option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t,row.task)).join('') + '</select></td>';
-    html += '<td><select ' + (!projectNeeded ? 'disabled' : '') + ' onchange="updateBatchMeta(\''+row.id+'\',\'project\',this.value)"><option value="">' + (projectNeeded?'请选择':'无需项目') + '</option>' + projects.map(p=>optionHtml(p,row.project)).join('') + '</select></td>';
-    html += '<td><select ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onchange="updateBatchMeta(\''+row.id+'\',\'unit\',this.value)"><option value="">' + (unitNeeded?(row.project?'请选择':'先选项目'):'无需单元') + '</option>' + units.map(u=>optionHtml(u,row.unit)).join('') + '</select></td>';
-    html += '<td><input class="remark-input" value="' + safe(row.remark || "") + '" placeholder="必填备注" oninput="updateBatchMeta(\''+row.id+'\',\'remark\',this.value)"></td>';
-    ['一','二','三','四','五'].forEach(day=>{
-      const d = row.days[day];
-      const maxR = batchMaxForCell(day, 'regular', row.id);
-      const maxOt = batchMaxForCell(day, 'otWeekday', row.id);
-      html += '<td><input class="hour-input" type="number" step="0.5" min="0" max="'+maxR+'" value="'+safe(d.regular)+'" placeholder="0" oninput="updateBatchHour(\''+row.id+'\',\''+day+'\',\'regular\',this.value)"></td>';
-      html += '<td><input class="hour-input" type="number" step="0.5" min="0" max="'+maxOt+'" value="'+safe(d.otWeekday)+'" placeholder="0" oninput="updateBatchHour(\''+row.id+'\',\''+day+'\',\'otWeekday\',this.value)"></td>';
-    });
-    ['六','日'].forEach(day=>{
-      const d = row.days[day];
-      const maxOt = batchMaxForCell(day, 'otWeekend', row.id);
-      html += '<td><input class="hour-input" type="number" step="0.5" min="0" max="'+maxOt+'" value="'+safe(d.otWeekend)+'" placeholder="0" oninput="updateBatchHour(\''+row.id+'\',\''+day+'\',\'otWeekend\',this.value)"></td>';
-    });
-    html += '<td class="readonly-cell">' + (rowTotal(row,'regular') || '') + '</td>';
-    html += '<td class="readonly-cell">' + (rowEveningTotal(row) || '') + '</td>';
-    html += '<td class="readonly-cell">' + (rowWeekendTotal(row) || '') + '</td>';
-    html += '<td><button type="button" class="batch-mini-btn batch-del-btn" onclick="deleteBatchRow(\''+row.id+'\')">删除</button></td>';
-    html += '</tr>';
-  });
-
-  html += '<tr>';
-  html += '<td></td><td></td><td></td><td></td><td class="batch-summary-label">汇总</td>';
-  ['一','二','三','四','五'].forEach(day=>{
-    html += '<td class="readonly-cell">' + (batchGrand(day,'regular') || 0) + '</td>';
-    html += '<td class="readonly-cell">' + (batchGrand(day,'otWeekday') || 0) + '</td>';
-  });
-  html += '<td class="readonly-cell">' + (batchGrand('六','otWeekend') || 0) + '</td>';
-  html += '<td class="readonly-cell">' + (batchGrand('日','otWeekend') || 0) + '</td>';
-  html += '<td class="readonly-cell">' + (batchRows.reduce((s,row)=>s+rowTotal(row,'regular'),0) || 0) + '</td>';
-  html += '<td class="readonly-cell">' + (batchRows.reduce((s,row)=>s+rowEveningTotal(row),0) || 0) + '</td>';
-  html += '<td class="readonly-cell">' + (batchRows.reduce((s,row)=>s+rowWeekendTotal(row),0) || 0) + '</td>';
-  html += '<td></td></tr>';
-  html += '</tbody></table></div>';
-  box.innerHTML = html;
-  const btn = $("batchSubmitBtn");
-  if(btn) btn.disabled = !(empId && empName && employeeAuthorized && !isAdmin());
-}
-function updateBatchMeta(rowId, field, value){
-  const row = batchRows.find(r=>String(r.id)===String(rowId));
+function updateIntegratedMeta(rowId, field, value){
+  const row = integratedRows.find(r=>String(r.id)===String(rowId));
   if(!row) return;
   row[field] = value;
-  if(field === 'task'){
+  if(field === "task"){
     if(!needsProjectByTask(value)){
       row.project = "";
       row.unit = "";
@@ -2237,31 +2154,64 @@ function updateBatchMeta(rowId, field, value){
       row.unit = "";
     }
   }
-  if(field === 'project') row.unit = "";
-  renderBatchInput();
+  if(field === "project") row.unit = "";
+  renderWeekRecords(currentWeekRecords || []);
 }
-function updateBatchHour(rowId, day, field, value){
-  const row = batchRows.find(r=>String(r.id)===String(rowId));
+function updateIntegratedHour(rowId, day, field, value){
+  const row = integratedRows.find(r=>String(r.id)===String(rowId));
   if(!row || !row.days[day]) return;
-  row.days[day][field] = clampHalfHour(value, batchMaxForCell(day, field, rowId));
-  renderBatchInput();
+  row.days[day][field] = clampHalfHour(value, integratedMaxForCell(day, field, rowId));
+  renderWeekRecords(currentWeekRecords || []);
 }
-function addBatchRow(){
-  batchRows.push(createBatchRow());
-  renderBatchInput();
+function addIntegratedRow(){
+  integratedRows.push(createIntegratedRow());
+  renderWeekRecords(currentWeekRecords || []);
 }
-function deleteBatchRow(rowId){
-  if(batchRows.length <= 1){
-    batchRows = [createBatchRow()];
+function deleteIntegratedRow(rowId){
+  if(integratedRows.length <= 1){
+    integratedRows = [createIntegratedRow()];
   }else{
-    batchRows = batchRows.filter(r=>String(r.id)!==String(rowId));
+    integratedRows = integratedRows.filter(row=>String(row.id)!==String(rowId));
   }
-  renderBatchInput();
+  renderWeekRecords(currentWeekRecords || []);
 }
-function buildBatchPayloads(){
-  const payloads = [];
-  batchRows.forEach((row, index)=>{
-    if(!rowHasAnyHours(row)) return;
+function buildIntegratedInputRowsHtml(){
+  if(isAdmin()) return "";
+  ensureIntegratedRows();
+  let html = "";
+  integratedRows.forEach((row, index)=>{
+    const projectNeeded = needsProjectByTask(row.task);
+    const unitNeeded = needsUnitByTask(row.task);
+    const projects = Object.keys(projectUnits);
+    const units = row.project && projectUnits[row.project] ? projectUnits[row.project] : [];
+    html += '<tr class="integrated-input-row">';
+    html += '<td class="integrated-meta-cell"><span class="integrated-row-tag">填写行 ' + (index+1) + '</span><select onchange="updateIntegratedMeta(\''+row.id+'\',\'task\',this.value)"><option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t,row.task)).join('') + '</select></td>';
+    html += '<td class="integrated-project-cell"><select ' + (!projectNeeded ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'project\',this.value)"><option value="">' + (projectNeeded?'请选择':'无需项目') + '</option>' + projects.map(p=>optionHtml(p,row.project)).join('') + '</select></td>';
+    html += '<td class="integrated-unit-cell"><select ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'unit\',this.value)"><option value="">' + (unitNeeded?(row.project?'请选择':'先选项目'):'无需单元') + '</option>' + units.map(u=>optionHtml(u,row.unit)).join('') + '</select></td>';
+    html += '<td class="integrated-remark-cell"><input class="remark-input" value="' + safe(row.remark || "") + '" placeholder="必填备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)"><button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除本行</button></td>';
+    ["一","二","三","四","五"].forEach(day=>{
+      const d = row.days[day];
+      const maxR = integratedMaxForCell(day, "regular", row.id);
+      const maxOt = integratedMaxForCell(day, "otWeekday", row.id);
+      html += '<td><input class="hour-input" type="number" step="0.5" min="0" max="'+maxR+'" value="'+safe(d.regular)+'" placeholder="0" oninput="updateIntegratedHour(\''+row.id+'\',\''+day+'\',\'regular\',this.value)"></td>';
+      html += '<td><input class="hour-input" type="number" step="0.5" min="0" max="'+maxOt+'" value="'+safe(d.otWeekday)+'" placeholder="0" oninput="updateIntegratedHour(\''+row.id+'\',\''+day+'\',\'otWeekday\',this.value)"></td>';
+    });
+    ["六","日"].forEach(day=>{
+      const d = row.days[day];
+      const maxOt = integratedMaxForCell(day, "otWeekend", row.id);
+      html += '<td><input class="hour-input" type="number" step="0.5" min="0" max="'+maxOt+'" value="'+safe(d.otWeekend)+'" placeholder="0" oninput="updateIntegratedHour(\''+row.id+'\',\''+day+'\',\'otWeekend\',this.value)"></td>';
+    });
+    html += '<td class="integrated-total-cell">' + (integratedRowRegularTotal(row) || '') + '</td>';
+    html += '<td class="integrated-total-cell">' + (integratedRowEveningTotal(row) || '') + '</td>';
+    html += '<td class="integrated-total-cell">' + (integratedRowWeekendTotal(row) || '') + '</td>';
+    html += '</tr>';
+  });
+  return html;
+}
+function buildIntegratedPayloads(){
+  const items = [];
+  integratedRows.forEach((row, index)=>{
+    if(!integratedRowHasHours(row)) return;
     weekdayOptions.forEach(day=>{
       const d = row.days[day];
       const weekend = isWeekendDay(day);
@@ -2269,7 +2219,7 @@ function buildBatchPayloads(){
       const otWeekday = weekend ? 0 : num(d.otWeekday);
       const otWeekend = weekend ? num(d.otWeekend) : 0;
       if(regular === 0 && otWeekday === 0 && otWeekend === 0) return;
-      payloads.push({
+      items.push({
         rowIndex:index+1,
         payload:{
           submitTime:new Date().toISOString(),
@@ -2288,42 +2238,37 @@ function buildBatchPayloads(){
       });
     });
   });
-  return payloads;
+  return items;
 }
-async function submitBatchForm(){
+async function submitIntegratedRows(){
   if(isAdmin()) return showMsg("管理员账号不允许填报工时。",false);
   if(isSubmitting) return showMsg("正在提交中，请勿重复点击。",false);
   if(!requireAuth(false)) return;
   if(isWeekLocked(state.week)) return showMsg("该 Week 已被管理员锁定，禁止新增、修改或删除。",false);
-  const batchItems = buildBatchPayloads();
-  if(!batchItems.length) return showMsg("请至少填写一个工时格。", false);
+  const items = buildIntegratedPayloads();
+  if(!items.length) return showMsg("请至少填写一个工时格。", false);
   const seen = new Set();
-  for(const item of batchItems){
+  for(const item of items){
     const err = validatePayload(item.payload, "");
-    if(err) return showMsg("第 " + item.rowIndex + " 行 / 周" + item.payload.weekday + "：" + err, false);
+    if(err) return showMsg("填写行 " + item.rowIndex + " / 周" + item.payload.weekday + "：" + err, false);
     const sig = signature(item.payload);
-    if(seen.has(sig)) return showMsg("第 " + item.rowIndex + " 行 / 周" + item.payload.weekday + "：存在重复记录，请合并或删除重复输入。", false);
+    if(seen.has(sig)) return showMsg("填写行 " + item.rowIndex + " / 周" + item.payload.weekday + "：存在重复记录，请合并或删除重复输入。", false);
     seen.add(sig);
   }
   try{
     isSubmitting = true;
-    const btn = $("batchSubmitBtn");
-    if(btn) btn.disabled = true;
     showMsg("正在提交，请稍候…", true);
-    for(const item of batchItems){
+    for(const item of items){
       const res = await fetch(apiUrl(), {method:"POST",headers:headers(),body:JSON.stringify(item.payload)});
-      if(!res.ok) throw new Error("第 " + item.rowIndex + " 行 / 周" + item.payload.weekday + " 提交失败：" + res.status);
+      if(!res.ok) throw new Error("填写行 " + item.rowIndex + " / 周" + item.payload.weekday + " 提交失败：" + res.status);
     }
-    showMsg("✅ 提交成功，共提交 " + batchItems.length + " 条记录。", true);
-    batchRows = [createBatchRow()];
+    showMsg("✅ 提交成功，共提交 " + items.length + " 条记录。", true);
+    integratedRows = [createIntegratedRow()];
     await loadWeekRecords();
-    renderBatchInput();
   }catch(e){
     showMsg("❌ 提交失败：" + e.message, false);
   }finally{
     isSubmitting = false;
-    const btn = $("batchSubmitBtn");
-    if(btn) btn.disabled = !(empId && empName && employeeAuthorized && !isAdmin());
   }
 }
 function dayTotals(week, day, excludeRowId){
@@ -2980,7 +2925,6 @@ async function init(){
   refreshDisplays();
   renderActive();
   if(!isAdmin()) $("anomalyFilterArea").classList.add("hidden");
-  renderBatchInput();
   await loadWeekRecords();
 }
 init();
