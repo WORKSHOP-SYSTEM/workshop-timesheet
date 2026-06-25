@@ -1,4 +1,4 @@
-<!-- VERSION: V6.6 FINAL - MAIN TABLE WIDTH MATCH RAW TABLE -->
+<!-- VERSION: V6.7 FINAL - FIXED LEFT COLUMN WIDTHS -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1019,6 +1019,121 @@
       .remark-custom-wrap{align-items:flex-start!important;}
       .remark-custom-input{min-height:28px!important;height:auto!important;}
     }
+
+    /* V6.7：主功能区左侧4列固定宽度：工时类别4汉字、项目号P+数字、单元号NIN-53040、备注4汉字 */
+    .main-timesheet-table{
+      table-layout:fixed!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(1),
+    .main-timesheet-table tbody td:nth-child(1){
+      width:58px!important;
+      min-width:58px!important;
+      max-width:58px!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      word-break:keep-all!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(2),
+    .main-timesheet-table tbody td:nth-child(2){
+      width:78px!important;
+      min-width:78px!important;
+      max-width:78px!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      word-break:keep-all!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(3),
+    .main-timesheet-table tbody td:nth-child(3){
+      width:86px!important;
+      min-width:86px!important;
+      max-width:86px!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      word-break:keep-all!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(4),
+    .main-timesheet-table tbody td:nth-child(4){
+      width:58px!important;
+      min-width:58px!important;
+      max-width:58px!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      word-break:keep-all!important;
+    }
+    .main-timesheet-table tbody td:nth-child(4) .remark-custom-wrap{
+      width:100%!important;
+      min-width:0!important;
+      gap:2px!important;
+    }
+    .main-timesheet-table tbody td:nth-child(4) .remark-custom-input{
+      width:34px!important;
+      min-width:34px!important;
+      max-width:34px!important;
+      flex:0 0 34px!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      padding:2px!important;
+      font-size:11px!important;
+    }
+    .main-timesheet-table tbody td:nth-child(4) .remark-select-btn{
+      width:22px!important;
+      min-width:22px!important;
+      max-width:22px!important;
+      padding:2px!important;
+      font-size:10px!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      white-space:nowrap!important;
+    }
+    .main-timesheet-table .project-picker-btn,
+    .main-timesheet-table .unit-picker-btn,
+    .main-timesheet-table .task-picker-btn{
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      word-break:keep-all!important;
+      width:100%!important;
+      max-width:100%!important;
+      height:28px!important;
+      line-height:1.2!important;
+      padding:3px 2px!important;
+      box-sizing:border-box!important;
+    }
+    @media(max-width:760px){
+      .main-timesheet-table thead tr:first-child th:nth-child(1),
+      .main-timesheet-table tbody td:nth-child(1){
+        left:0!important;
+        width:58px!important;
+        min-width:58px!important;
+        max-width:58px!important;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(2),
+      .main-timesheet-table tbody td:nth-child(2){
+        left:58px!important;
+        width:78px!important;
+        min-width:78px!important;
+        max-width:78px!important;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(3),
+      .main-timesheet-table tbody td:nth-child(3){
+        left:136px!important;
+        width:86px!important;
+        min-width:86px!important;
+        max-width:86px!important;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(4),
+      .main-timesheet-table tbody td:nth-child(4){
+        left:222px!important;
+        width:58px!important;
+        min-width:58px!important;
+        max-width:58px!important;
+      }
+    }
 </style>
 </head>
 <body>
@@ -1353,7 +1468,7 @@ const projectUnits = {
     "NIN-53063",
     "NIN-53062"
   ],
-    "销售订单": [
+    "销售": [
     "NIN-53111",
     "NIN-53086",
     "NIN-53085",
