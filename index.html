@@ -1,4 +1,4 @@
-<!-- VERSION: V5.9.4 FINAL - INLINE EDIT WITH VALIDATION AND PATCH -->
+<!-- VERSION: V5.9.5 FINAL - REMARK OPTIONS BY TASK -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -838,6 +838,8 @@
       font-weight:900;
       line-height:1.5;
     }
+
+    .integrated-remark-cell datalist{display:none;}
 </style>
 </head>
 <body>
@@ -1193,14 +1195,13 @@ const quickHoursMap = {
 };
 const remarkTemplates = {
   
-  "机械组装":["下料、组对、组装","焊接","压力测试","配件打磨","气管安装"],
-  "保温作业":["管道补漆","保温预制下料","保温安装","保温发泡","保温清理"],
+  "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
+  "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
   "电气安装":["桥架安装","布线接线"],
-  "额外工时":["设计更改返工","增加额外支架等返工","项目组特殊要求返工","供应商问题返工","FAT帮忙","内部问题返工"],
-  "其它作业":["整理、打扫、5S等","培训等","早会","精益生产改善工作","其它","车间管理"],
-  "其它工作":["整理、打扫、5S等","培训等","早会","精益生产改善工作","其它","车间管理"],
+  "额外工时":["设计更改","额外作业","组特殊要求","供应商问题","FAT帮忙","内部问题"],
+  "其它作业":["整理5S等","培训等","早会","精益改善","其它","车间管理"],
   "请假":["年假","病假","事假","出差"],
-  "仓库作业":["点料、入库","发料、退料","装箱发货","仓库帮忙"]
+  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"]
 };
 const state = {
   week:"",
@@ -1927,6 +1928,24 @@ async function loadWeekRecords(){
   }
 }
 
+
+const remarkOptionsByTask = {
+  "仓库作业":["点料、入库","发料、退料","装箱发货","仓库帮忙"],
+  "机械组装":["下料、组对、组装","焊接","压力测试","配件打磨","气管安装"],
+  "保温作业":["管道补漆","保温预制下料","保温安装","保温发泡","保温清理"],
+  "电气安装":["桥架安装","布线","端子接线","电气检测 FAT"],
+  "额外工时":["设计问题返修","特殊支架等","供应商问题返修","FAT帮忙","内部问题返工"],
+  "其它作业":["整理、打扫、5S等","培训","早会","精益生产改善工作","其它","车间管理"],
+  "请假":["年假","病假","事假","出差"]
+};
+function remarkOptionsForTask(task){
+  return remarkOptionsByTask[String(task || "").trim()] || [];
+}
+function remarkDatalistHtml(listId, task){
+  const opts = remarkOptionsForTask(task);
+  if(!opts.length) return '';
+  return '<datalist id="' + safe(listId) + '">' + opts.map(v=>'<option value="' + safe(v) + '"></option>').join('') + '</datalist>';
+}
 let inlineEditDrafts = {};
 let inlineEditMeta = {};
 function inlineEditKey(rowKey, day, field){
@@ -2396,7 +2415,8 @@ function buildIntegratedInputRowsHtml(){
     html += '<td class="integrated-meta-cell"><select onchange="updateIntegratedMeta(\''+row.id+'\',\'task\',this.value)"><option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t,row.task)).join('') + '</select></td>';
     html += '<td class="integrated-project-cell"><select ' + (!projectNeeded ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'project\',this.value)"><option value="">' + (projectNeeded?'请选择':'无需项目') + '</option>' + projects.map(p=>optionHtml(p,row.project)).join('') + '</select></td>';
     html += '<td class="integrated-unit-cell"><select ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'unit\',this.value)"><option value="">' + (unitNeeded?(row.project?'请选择':'先选项目'):'无需单元') + '</option>' + units.map(u=>optionHtml(u,row.unit)).join('') + '</select></td>';
-    html += '<td class="integrated-remark-cell"><input class="remark-input" value="' + safe(row.remark || "") + '" placeholder="必填备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)"><button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除本行</button></td>';
+    const remarkListId = 'remark_list_' + row.id;
+    html += '<td class="integrated-remark-cell"><input class="remark-input" list="'+remarkListId+'" value="' + safe(row.remark || "") + '" placeholder="必填备注，可手动输入" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)">' + remarkDatalistHtml(remarkListId, row.task) + '<button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除本行</button></td>';
     ["一","二","三","四","五"].forEach(day=>{
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
