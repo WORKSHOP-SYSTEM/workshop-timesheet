@@ -1,4 +1,4 @@
-<!-- VERSION: V5.9.3 FINAL - INLINE EDIT EXISTING CELLS -->
+<!-- VERSION: V5.9.4 FINAL - INLINE EDIT WITH VALIDATION AND PATCH -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1936,17 +1936,43 @@ function inlineDraftValue(rowKey, day, field, originalValue){
   const k = inlineEditKey(rowKey, day, field);
   return Object.prototype.hasOwnProperty.call(inlineEditDrafts, k) ? inlineEditDrafts[k] : originalValue;
 }
+function inlineDayTotal(day, field){
+  return (currentWeekRecords || []).reduce((sum, record)=>{
+    if(String(record.employeeId || "") !== String(empId)) return sum;
+    if(String(record.week || "") !== String(state.week)) return sum;
+    if(String(record.weekday || "") !== String(day)) return sum;
+    if(field === "regular") return sum + num(record.regularHours);
+    if(field === "otWeekday") return sum + num(record.otWeekday);
+    if(field === "otWeekend") return sum + num(record.otWeekend);
+    return sum;
+  }, 0);
+}
+function inlineLimitFor(day, field){
+  if(field === "regular") return isWeekendDay(day) ? 0 : 8;
+  if(field === "otWeekday") return isWeekendDay(day) ? 0 : 4;
+  if(field === "otWeekend") return isWeekendDay(day) ? 8 : 0;
+  return 0;
+}
+function inlineMaxValue(rowKey, day, field, originalValue){
+  const limit = inlineLimitFor(day, field);
+  const total = inlineDayTotal(day, field);
+  const max = num(originalValue) + Math.max(0, limit - total);
+  return Math.max(0, Math.min(limit, Math.round(max * 2) / 2));
+}
 function inlineCellInput(rowKey, day, field, originalValue, className){
   if(isAdmin()) return '<td'+className+'>'+(originalValue || "")+'</td>';
+  const max = inlineMaxValue(rowKey, day, field, originalValue);
   const k = inlineEditKey(rowKey, day, field);
   const v = inlineDraftValue(rowKey, day, field, originalValue);
   const pending = Object.prototype.hasOwnProperty.call(inlineEditDrafts, k) && num(inlineEditDrafts[k]) !== num(originalValue);
-  return '<td'+className+'><input class="inline-hour-input '+(pending?'pending':'')+'" type="number" step="0.5" min="0" value="'+safe(v || "")+'" placeholder="0" onchange="updateInlineEdit(\''+safe(rowKey)+'\',\''+day+'\',\''+field+'\',this.value,'+num(originalValue)+')"></td>';
+  return '<td'+className+'><input class="inline-hour-input '+(pending?'pending':'')+'" type="number" step="0.5" min="0" max="'+max+'" value="'+safe(v || "")+'" placeholder="0" onchange="updateInlineEdit(\''+safe(rowKey)+'\',\''+day+'\',\''+field+'\',this.value,'+num(originalValue)+')"></td>';
 }
 function updateInlineEdit(rowKey, day, field, value, originalValue){
   const k = inlineEditKey(rowKey, day, field);
+  const max = inlineMaxValue(rowKey, day, field, originalValue);
   let v = Math.round(num(value) * 2) / 2;
   if(v < 0) v = 0;
+  if(v > max) v = max;
   inlineEditDrafts[k] = v === 0 ? "" : String(v);
   renderWeekRecords(currentWeekRecords || []);
 }
@@ -1962,15 +1988,24 @@ function collectInlineChanges(){
     const rowKey = parts.join("||");
     const meta = inlineEditMeta[rowKey];
     if(!meta) return;
-    const original = num(meta.originals && meta.originals[day] ? meta.originals[day][field] : 0);
+    const dayMeta = meta.originals && meta.originals[day] ? meta.originals[day] : {};
+    const original = num(dayMeta[field]);
     const next = num(inlineEditDrafts[k]);
     if(next === original) return;
-    if(next < original){
-      items.push({error:"已有工时减少请在下方“原始记录管理”中点修改；表格直接输入目前用于新增/补加工时。"});
+    const recs = dayMeta[field + "Records"] || [];
+    if(recs.length === 1){
+      const patch = {};
+      if(field === "regular") patch.regularHours = next;
+      if(field === "otWeekday") patch.otWeekday = next;
+      if(field === "otWeekend") patch.otWeekend = next;
+      items.push({patchId:recs[0].id, patchBody:patch, weekday:day});
       return;
     }
-    const delta = Math.round((next - original) * 2) / 2;
-    if(delta <= 0) return;
+    if(recs.length > 1){
+      items.push({error:"该格子由多条原始记录合并而来，请在下方“原始记录管理”中修改具体记录。"});
+      return;
+    }
+    if(next <= 0) return;
     const payload = {
       submitTime:new Date().toISOString(),
       employeeId:empId,
@@ -1985,9 +2020,9 @@ function collectInlineChanges(){
       otWeekend:0,
       remark:meta.remark || ""
     };
-    if(field === "regular") payload.regularHours = delta;
-    if(field === "otWeekday") payload.otWeekday = delta;
-    if(field === "otWeekend") payload.otWeekend = delta;
+    if(field === "regular") payload.regularHours = next;
+    if(field === "otWeekday") payload.otWeekday = next;
+    if(field === "otWeekend") payload.otWeekend = next;
     items.push({payload});
   });
   return items;
@@ -2005,6 +2040,7 @@ async function submitInlineAndIntegratedRows(){
   if(!all.length) return showMsg("请先在表格中填写需要提交的工时。", false);
   const seen = new Set();
   for(const item of all){
+    if(item.patchId) continue;
     const payload = item.payload;
     const err = validatePayload(payload, "");
     if(err) return showMsg("周" + payload.weekday + "：" + err, false);
@@ -2016,8 +2052,14 @@ async function submitInlineAndIntegratedRows(){
     isSubmitting = true;
     showMsg("正在提交，请稍候…", true);
     for(const item of all){
-      const res = await fetch(apiUrl(), {method:"POST",headers:headers(),body:JSON.stringify(item.payload)});
-      if(!res.ok) throw new Error("周" + item.payload.weekday + " 提交失败：" + res.status);
+      let res;
+      if(item.patchId){
+        res = await fetch(rowUrl(item.patchId), {method:"PATCH",headers:headers(),body:JSON.stringify(item.patchBody)});
+        if(!res.ok) throw new Error("周" + item.weekday + " 修改失败：" + res.status);
+      }else{
+        res = await fetch(apiUrl(), {method:"POST",headers:headers(),body:JSON.stringify(item.payload)});
+        if(!res.ok) throw new Error("周" + item.payload.weekday + " 提交失败：" + res.status);
+      }
     }
     showMsg("✅ 提交成功，共提交 " + all.length + " 条记录。", true);
     inlineEditDrafts = {};
@@ -2063,7 +2105,7 @@ function renderWeekRecords(rows, err=""){
     const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
     if(!grouped.has(key)){
       const days = {};
-      weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0,regularOriginal:0,otWeekdayOriginal:0,otWeekendOriginal:0});
+      weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0,regularOriginal:0,otWeekdayOriginal:0,otWeekendOriginal:0,regularRecords:[],otWeekdayRecords:[],otWeekendRecords:[]});
       grouped.set(key, {
         rowKey:key,
         employeeId:record.employeeId || "",
@@ -2088,6 +2130,9 @@ function renderWeekRecords(rows, err=""){
       row.days[day].regularOriginal += regular;
       row.days[day].otWeekdayOriginal += num(record.otWeekday);
       row.days[day].otWeekendOriginal += num(record.otWeekend);
+      if(regular > 0) row.days[day].regularRecords.push(record);
+      if(num(record.otWeekday) > 0) row.days[day].otWeekdayRecords.push(record);
+      if(num(record.otWeekend) > 0) row.days[day].otWeekendRecords.push(record);
     }
     row.totalRegular += regular;
     row.totalEveningOt += num(record.otWeekday);
@@ -2167,7 +2212,10 @@ function renderWeekRecords(rows, err=""){
       originals[d] = {
         regular: row.days[d] ? num(row.days[d].regularOriginal || row.days[d].regular) : 0,
         otWeekday: row.days[d] ? num(row.days[d].otWeekdayOriginal) : 0,
-        otWeekend: row.days[d] ? num(row.days[d].otWeekendOriginal) : 0
+        otWeekend: row.days[d] ? num(row.days[d].otWeekendOriginal) : 0,
+        regularRecords: row.days[d] ? (row.days[d].regularRecords || []) : [],
+        otWeekdayRecords: row.days[d] ? (row.days[d].otWeekdayRecords || []) : [],
+        otWeekendRecords: row.days[d] ? (row.days[d].otWeekendRecords || []) : []
       };
     });
     registerInlineMeta(rowKey, {task:row.task, project:row.project, unit:row.unit, remark:row.remark, originals:originals});
@@ -2345,7 +2393,7 @@ function buildIntegratedInputRowsHtml(){
     const projects = Object.keys(projectUnits);
     const units = row.project && projectUnits[row.project] ? projectUnits[row.project] : [];
     html += '<tr class="integrated-input-row">';
-    html += '<td class="integrated-meta-cell"><span class="integrated-row-tag">新增' + (index+1) + '</span><select onchange="updateIntegratedMeta(\''+row.id+'\',\'task\',this.value)"><option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t,row.task)).join('') + '</select></td>';
+    html += '<td class="integrated-meta-cell"><select onchange="updateIntegratedMeta(\''+row.id+'\',\'task\',this.value)"><option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t,row.task)).join('') + '</select></td>';
     html += '<td class="integrated-project-cell"><select ' + (!projectNeeded ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'project\',this.value)"><option value="">' + (projectNeeded?'请选择':'无需项目') + '</option>' + projects.map(p=>optionHtml(p,row.project)).join('') + '</select></td>';
     html += '<td class="integrated-unit-cell"><select ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'unit\',this.value)"><option value="">' + (unitNeeded?(row.project?'请选择':'先选项目'):'无需单元') + '</option>' + units.map(u=>optionHtml(u,row.unit)).join('') + '</select></td>';
     html += '<td class="integrated-remark-cell"><input class="remark-input" value="' + safe(row.remark || "") + '" placeholder="必填备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)"><button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除本行</button></td>';
