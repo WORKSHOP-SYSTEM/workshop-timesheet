@@ -1485,8 +1485,8 @@ async function loadAllWeeks(){
     rows.forEach(r=>{ if(r.week) set.add(r.week); });
     const current = getCurrentWeek();
     const currentNum = Number(current.replace("W", ""));
-    // ✅ 只显示当前周及之前4周；不显示本周后面的 Week
-    for(let i=-4;i<=0;i++){
+    // ✅ 只显示当前周及之前3周；不显示本周后面的 Week
+    for(let i=-3;i<=0;i++){
       const w = currentNum + i;
       if(w > 0) set.add("W" + w);
     }
