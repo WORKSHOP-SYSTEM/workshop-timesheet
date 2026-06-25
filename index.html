@@ -1,4 +1,4 @@
-<!-- VERSION: V5.9.6 FINAL - MOBILE STICKY LEFT + TODAY + ROW DELETE -->
+<!-- VERSION: V5.9.7 FINAL - MOBILE COMPACT STICKY + SCROLL KEEP + UNIT GROUP -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -841,94 +841,54 @@
 
     .integrated-remark-cell datalist{display:none;}
 
-    /* V5.9.6：手机端固定左侧前置信息列，防止横向滑动后填错行 */
-    .today-badge{
-      display:inline-block;
-      margin-top:2px;
-      padding:1px 5px;
-      border-radius:999px;
-      background:#0078d4;
-      color:#fff;
-      font-size:11px;
-      font-weight:900;
-      line-height:1.2;
-      white-space:nowrap;
-    }
-    .main-timesheet-table{
-      table-layout:auto;
-    }
-    .main-timesheet-table .integrated-input-row select,
-    .main-timesheet-table .integrated-input-row input{
-      box-sizing:border-box;
-      max-width:100%;
-    }
-    .main-timesheet-table .integrated-input-row .integrated-mini-btn{
-      padding:5px 7px;
-      font-size:11px;
-      border-radius:7px;
-      white-space:nowrap;
+    /* V5.9.7：手机端更紧凑固定列 + 更小工时格，右侧可看到更多天 */
+    .unit-option.unit-type{background:#eaf4ff;color:#0f4c81;}
+    .unit-option.container-type{background:#fff3e0;color:#8a4b00;}
+    .main-timesheet-table .inline-hour-input,
+    .main-timesheet-table .integrated-input-row input.hour-input{
+      width:38px!important;
+      min-width:38px!important;
+      max-width:38px!important;
     }
     @media(max-width:760px){
       .main-timesheet-table{
-        border-collapse:separate;
-        border-spacing:0;
-        table-layout:fixed;
+        border-collapse:separate!important;
+        border-spacing:0!important;
+        table-layout:fixed!important;
       }
       .main-timesheet-table th,
       .main-timesheet-table td{
-        white-space:nowrap;
+        white-space:nowrap!important;
+        padding:2px!important;
+        font-size:11px!important;
       }
       .main-timesheet-table thead tr:first-child th:nth-child(1),
       .main-timesheet-table tbody td:nth-child(1){
-        position:sticky;
-        left:0;
-        z-index:8;
-        width:64px!important;
-        min-width:64px!important;
-        max-width:64px!important;
-        background:#fff;
-        overflow:hidden;
-        text-overflow:ellipsis;
+        position:sticky!important; left:0!important; z-index:20!important;
+        width:48px!important; min-width:48px!important; max-width:48px!important;
+        background:#fff!important; overflow:hidden!important; text-overflow:ellipsis!important;
       }
       .main-timesheet-table thead tr:first-child th:nth-child(2),
       .main-timesheet-table tbody td:nth-child(2){
-        position:sticky;
-        left:64px;
-        z-index:8;
-        width:70px!important;
-        min-width:70px!important;
-        max-width:70px!important;
-        background:#fff;
-        overflow:hidden;
-        text-overflow:ellipsis;
+        position:sticky!important; left:48px!important; z-index:20!important;
+        width:56px!important; min-width:56px!important; max-width:56px!important;
+        background:#fff!important; overflow:hidden!important; text-overflow:ellipsis!important;
       }
       .main-timesheet-table thead tr:first-child th:nth-child(3),
       .main-timesheet-table tbody td:nth-child(3){
-        position:sticky;
-        left:134px;
-        z-index:8;
-        width:52px!important;
-        min-width:52px!important;
-        max-width:52px!important;
-        background:#fff;
-        overflow:hidden;
-        text-overflow:ellipsis;
+        position:sticky!important; left:104px!important; z-index:20!important;
+        width:40px!important; min-width:40px!important; max-width:40px!important;
+        background:#fff!important; overflow:hidden!important; text-overflow:ellipsis!important;
       }
       .main-timesheet-table thead tr:first-child th:nth-child(4),
       .main-timesheet-table tbody td:nth-child(4){
-        position:sticky;
-        left:186px;
-        z-index:8;
-        width:96px!important;
-        min-width:96px!important;
-        max-width:96px!important;
-        background:#fff;
-        overflow:hidden;
-        text-overflow:ellipsis;
+        position:sticky!important; left:144px!important; z-index:20!important;
+        width:66px!important; min-width:66px!important; max-width:66px!important;
+        background:#fff!important; overflow:hidden!important; text-overflow:ellipsis!important;
       }
       .main-timesheet-table thead tr:first-child th:nth-child(-n+4){
-        z-index:12;
-        background:#f5f7fa;
+        z-index:30!important;
+        background:#f5f7fa!important;
       }
       .main-timesheet-table tbody tr.integrated-input-row td:nth-child(-n+4){
         background:#f8fbff!important;
@@ -941,21 +901,28 @@
       }
       .main-timesheet-table .integrated-input-row select,
       .main-timesheet-table .integrated-input-row input.remark-input{
-        height:28px;
-        padding:3px 2px!important;
-        font-size:10.5px!important;
+        height:26px!important;
+        padding:2px!important;
+        font-size:10px!important;
       }
       .main-timesheet-table .integrated-input-row input.hour-input,
       .main-timesheet-table .inline-hour-input{
-        width:42px!important;
-        min-width:42px!important;
-        height:28px;
-        padding:2px!important;
+        width:36px!important;
+        min-width:36px!important;
+        max-width:36px!important;
+        height:26px!important;
+        padding:1px!important;
+        font-size:11px!important;
+      }
+      .main-timesheet-table th:not(:nth-child(-n+4)),
+      .main-timesheet-table td:not(:nth-child(-n+4)){
+        min-width:38px!important;
+        max-width:42px!important;
       }
       .integrated-action-bar .btn,
       .integrated-action-bar .integrated-mini-btn{
-        padding:8px 10px!important;
-        font-size:13px!important;
+        padding:7px 9px!important;
+        font-size:12px!important;
       }
     }
 </style>
@@ -1313,13 +1280,13 @@ const quickHoursMap = {
 };
 const remarkTemplates = {
   
+  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
   "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
   "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
-  "电气安装":["桥架安装","布线接线"],
-  "额外工时":["设计更改","额外作业","特殊要求","供应商问题","FAT帮忙","内部问题"],
-  "其它作业":["整理5S等","培训等","早会","精益改善","其它","车间管理"],
-  "请假":["年假","病假","事假","出差"],
-  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"]
+  "电气安装":["桥架安装","布线","端子接线"],
+  "额外工时":["设计问题","特殊支架","供应商问题","FAT帮忙","内部问题"],
+  "其它作业":["整理5S等","培训","早会","精益改善","其它","车间管理"],
+  "请假":["年假","病假","事假","出差"]
 };
 const state = {
   week:"",
@@ -2048,13 +2015,13 @@ async function loadWeekRecords(){
 
 
 const remarkOptionsByTask = {
+  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
   "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
   "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
-  "电气安装":["桥架安装","布线接线"],
-  "额外工时":["设计更改","额外作业","特殊要求","供应商问题","FAT帮忙","内部问题"],
-  "其它作业":["整理5S等","培训等","早会","精益改善","其它","车间管理"],
-  "请假":["年假","病假","事假","出差"],
-  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"]
+  "电气安装":["桥架安装","布线","端子接线"],
+  "额外工时":["设计问题","特殊支架","供应商问题","FAT帮忙","内部问题"],
+  "其它作业":["整理5S等","培训","早会","精益改善","其它","车间管理"],
+  "请假":["年假","病假","事假","出差"]
 };
 function remarkOptionsForTask(task){
   return remarkOptionsByTask[String(task || "").trim()] || [];
@@ -2063,6 +2030,38 @@ function remarkDatalistHtml(listId, task){
   const opts = remarkOptionsForTask(task);
   if(!opts.length) return '';
   return '<datalist id="' + safe(listId) + '">' + opts.map(v=>'<option value="' + safe(v) + '"></option>').join('') + '</datalist>';
+}
+
+function mainTableScroller(){
+  const table = document.querySelector(".main-timesheet-table");
+  return table ? table.closest(".table-scroll") : null;
+}
+function renderWeekRecordsKeepScroll(){
+  const sc = mainTableScroller();
+  const left = sc ? sc.scrollLeft : 0;
+  const top = sc ? sc.scrollTop : 0;
+  renderWeekRecords(currentWeekRecords || []);
+  requestAnimationFrame(()=>{
+    const sc2 = mainTableScroller();
+    if(sc2){
+      sc2.scrollLeft = left;
+      sc2.scrollTop = top;
+    }
+  });
+}
+function isContainerUnit(value){
+  const v = String(value || "").trim().toUpperCase();
+  return !!v && !v.startsWith("U");
+}
+function unitOptionsHtml(units, selected){
+  const arr = (units || []).slice();
+  const unitList = arr.filter(u=>!isContainerUnit(u));
+  const containerList = arr.filter(u=>isContainerUnit(u));
+  const make = (list, cls)=>list.map(u=>'<option class="unit-option '+cls+'" style="background:'+(cls==='unit-type'?'#eaf4ff':'#fff3e0')+';" value="'+safe(u)+'"'+(String(u)===String(selected)?' selected':'')+'>'+safe(u)+'</option>').join('');
+  let html = '';
+  if(unitList.length) html += '<optgroup label="单元类" style="background:#eaf4ff;color:#0f4c81;">' + make(unitList,'unit-type') + '</optgroup>';
+  if(containerList.length) html += '<optgroup label="容器类" style="background:#fff3e0;color:#8a4b00;">' + make(containerList,'container-type') + '</optgroup>';
+  return html;
 }
 let inlineEditDrafts = {};
 let inlineEditMeta = {};
@@ -2111,7 +2110,7 @@ function updateInlineEdit(rowKey, day, field, value, originalValue){
   if(v < 0) v = 0;
   if(v > max) v = max;
   inlineEditDrafts[k] = v === 0 ? "" : String(v);
-  renderWeekRecords(currentWeekRecords || []);
+  renderWeekRecordsKeepScroll();
 }
 function registerInlineMeta(rowKey, meta){
   inlineEditMeta[String(rowKey)] = meta;
@@ -2209,7 +2208,6 @@ async function submitInlineAndIntegratedRows(){
     isSubmitting = false;
   }
 }
-
 function todayWeekdayChar(){
   return ["日","一","二","三","四","五","六"][new Date().getDay()];
 }
@@ -2507,22 +2505,22 @@ function updateIntegratedMeta(rowId, field, value){
     }
   }
   if(field === "project") row.unit = "";
-  renderWeekRecords(currentWeekRecords || []);
+  renderWeekRecordsKeepScroll();
 }
 function updateIntegratedHour(rowId, day, field, value){
   const row = integratedRows.find(r=>String(r.id)===String(rowId));
   if(!row || !row.days[day]) return;
   row.days[day][field] = clampHalfHour(value, integratedMaxForCell(day, field, rowId));
-  renderWeekRecords(currentWeekRecords || []);
+  renderWeekRecordsKeepScroll();
 }
 function addIntegratedRow(){
   integratedRows.push(createIntegratedRow());
-  renderWeekRecords(currentWeekRecords || []);
+  renderWeekRecordsKeepScroll();
 }
 function deleteIntegratedRow(rowId){
-  // V5.9.6：直接移除新增行；即使只剩一行，也不再重置为空白行。
+  // V5.9.7：删除新增行时直接移除整行，不再清空后保留空白行。
   integratedRows = integratedRows.filter(row=>String(row.id)!==String(rowId));
-  renderWeekRecords(currentWeekRecords || []);
+  renderWeekRecordsKeepScroll();
 }
 function buildIntegratedInputRowsHtml(){
   if(isAdmin()) return "";
@@ -2536,9 +2534,9 @@ function buildIntegratedInputRowsHtml(){
     html += '<tr class="integrated-input-row">';
     html += '<td class="integrated-meta-cell"><select onchange="updateIntegratedMeta(\''+row.id+'\',\'task\',this.value)"><option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t,row.task)).join('') + '</select></td>';
     html += '<td class="integrated-project-cell"><select ' + (!projectNeeded ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'project\',this.value)"><option value="">' + (projectNeeded?'请选择':'无需项目') + '</option>' + projects.map(p=>optionHtml(p,row.project)).join('') + '</select></td>';
-    html += '<td class="integrated-unit-cell"><select ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'unit\',this.value)"><option value="">' + (unitNeeded?(row.project?'请选择':'先选项目'):'无需单元') + '</option>' + units.map(u=>optionHtml(u,row.unit)).join('') + '</select></td>';
+    html += '<td class="integrated-unit-cell"><select ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onchange="updateIntegratedMeta(''+row.id+'','unit',this.value)"><option value="">' + (unitNeeded?(row.project?'请选择':'先选项目'):'无需单元') + '</option>' + unitOptionsHtml(units,row.unit) + '</select></td>';
     const remarkListId = 'remark_list_' + row.id;
-    html += '<td class="integrated-remark-cell"><input class="remark-input" list="'+remarkListId+'" value="' + safe(row.remark || "") + '" placeholder="必填备注，可手动输入" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)">' + remarkDatalistHtml(remarkListId, row.task) + '<button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
+    html += '<td class="integrated-remark-cell"><input class="remark-input" list="'+remarkListId+'" value="' + safe(row.remark || "") + '" placeholder="必填备注，可手动输入" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)">' + remarkDatalistHtml(remarkListId, row.task) + '<button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除本行</button></td>';
     ["一","二","三","四","五"].forEach(day=>{
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
