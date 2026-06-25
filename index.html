@@ -1,4 +1,4 @@
-<!-- VERSION: V5.9.5 FINAL - REMARK OPTIONS BY TASK -->
+<!-- VERSION: V5.9.6 FINAL - MOBILE STICKY LEFT + TODAY + ROW DELETE -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -840,6 +840,124 @@
     }
 
     .integrated-remark-cell datalist{display:none;}
+
+    /* V5.9.6：手机端固定左侧前置信息列，防止横向滑动后填错行 */
+    .today-badge{
+      display:inline-block;
+      margin-top:2px;
+      padding:1px 5px;
+      border-radius:999px;
+      background:#0078d4;
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      line-height:1.2;
+      white-space:nowrap;
+    }
+    .main-timesheet-table{
+      table-layout:auto;
+    }
+    .main-timesheet-table .integrated-input-row select,
+    .main-timesheet-table .integrated-input-row input{
+      box-sizing:border-box;
+      max-width:100%;
+    }
+    .main-timesheet-table .integrated-input-row .integrated-mini-btn{
+      padding:5px 7px;
+      font-size:11px;
+      border-radius:7px;
+      white-space:nowrap;
+    }
+    @media(max-width:760px){
+      .main-timesheet-table{
+        border-collapse:separate;
+        border-spacing:0;
+        table-layout:fixed;
+      }
+      .main-timesheet-table th,
+      .main-timesheet-table td{
+        white-space:nowrap;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(1),
+      .main-timesheet-table tbody td:nth-child(1){
+        position:sticky;
+        left:0;
+        z-index:8;
+        width:64px!important;
+        min-width:64px!important;
+        max-width:64px!important;
+        background:#fff;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(2),
+      .main-timesheet-table tbody td:nth-child(2){
+        position:sticky;
+        left:64px;
+        z-index:8;
+        width:70px!important;
+        min-width:70px!important;
+        max-width:70px!important;
+        background:#fff;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(3),
+      .main-timesheet-table tbody td:nth-child(3){
+        position:sticky;
+        left:134px;
+        z-index:8;
+        width:52px!important;
+        min-width:52px!important;
+        max-width:52px!important;
+        background:#fff;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(4),
+      .main-timesheet-table tbody td:nth-child(4){
+        position:sticky;
+        left:186px;
+        z-index:8;
+        width:96px!important;
+        min-width:96px!important;
+        max-width:96px!important;
+        background:#fff;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(-n+4){
+        z-index:12;
+        background:#f5f7fa;
+      }
+      .main-timesheet-table tbody tr.integrated-input-row td:nth-child(-n+4){
+        background:#f8fbff!important;
+      }
+      .main-timesheet-table tbody tr.missing-row td:nth-child(-n+4){
+        background:#fff1f2!important;
+      }
+      .main-timesheet-table tbody tr:last-child td:nth-child(-n+4){
+        background:#f8fafc!important;
+      }
+      .main-timesheet-table .integrated-input-row select,
+      .main-timesheet-table .integrated-input-row input.remark-input{
+        height:28px;
+        padding:3px 2px!important;
+        font-size:10.5px!important;
+      }
+      .main-timesheet-table .integrated-input-row input.hour-input,
+      .main-timesheet-table .inline-hour-input{
+        width:42px!important;
+        min-width:42px!important;
+        height:28px;
+        padding:2px!important;
+      }
+      .integrated-action-bar .btn,
+      .integrated-action-bar .integrated-mini-btn{
+        padding:8px 10px!important;
+        font-size:13px!important;
+      }
+    }
 </style>
 </head>
 <body>
@@ -1198,7 +1316,7 @@ const remarkTemplates = {
   "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
   "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
   "电气安装":["桥架安装","布线接线"],
-  "额外工时":["设计更改","额外作业","组特殊要求","供应商问题","FAT帮忙","内部问题"],
+  "额外工时":["设计更改","额外作业","特殊要求","供应商问题","FAT帮忙","内部问题"],
   "其它作业":["整理5S等","培训等","早会","精益改善","其它","车间管理"],
   "请假":["年假","病假","事假","出差"],
   "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"]
@@ -1930,13 +2048,13 @@ async function loadWeekRecords(){
 
 
 const remarkOptionsByTask = {
-  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
   "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
   "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
-  "电气安装":["桥架安装","布线","端子接线"],
-  "额外工时":["设计问题","特殊支架","供应商问题","FAT帮忙","内部问题"],
-  "其它作业":["整理5S等","培训","早会","精益改善","其它","车间管理"],
-  "请假":["年假","病假","事假","出差"]
+  "电气安装":["桥架安装","布线接线"],
+  "额外工时":["设计更改","额外作业","特殊要求","供应商问题","FAT帮忙","内部问题"],
+  "其它作业":["整理5S等","培训等","早会","精益改善","其它","车间管理"],
+  "请假":["年假","病假","事假","出差"],
+  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"]
 };
 function remarkOptionsForTask(task){
   return remarkOptionsByTask[String(task || "").trim()] || [];
@@ -2091,6 +2209,13 @@ async function submitInlineAndIntegratedRows(){
     isSubmitting = false;
   }
 }
+
+function todayWeekdayChar(){
+  return ["日","一","二","三","四","五","六"][new Date().getDay()];
+}
+function dayHeaderLabel(label, dayChar){
+  return label + (todayWeekdayChar() === dayChar ? '<br><span class="today-badge">今日</span>' : '');
+}
 function renderWeekRecords(rows, err=""){
   setAnomalyFilterButtonText();
   const box = $("recordList");
@@ -2212,7 +2337,7 @@ function renderWeekRecords(rows, err=""){
   }
 
   const employeeHead = isAdmin() ? '<th rowspan="2">员工</th><th rowspan="2">工号</th>' : '';
-  const head = '<thead><tr>' + employeeHead + '<th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>' + ['周一','周二','周三','周四','周五'].map(x=>'<th colspan="2">'+x+'</th>').join('') + '<th>周六</th><th>周日</th><th colspan="3">汇总</th></tr><tr>' + Array(5).fill('<th>正常<br>出勤</th><th>实际<br>加班</th>').join('') + '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr></thead>';
+  const head = '<thead><tr>' + employeeHead + '<th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>' + ['一','二','三','四','五'].map(x=>'<th colspan="2">'+dayHeaderLabel('周'+x,x)+'</th>').join('') + '<th>'+dayHeaderLabel('周六','六')+'</th><th>'+dayHeaderLabel('周日','日')+'</th><th colspan="3">汇总</th></tr><tr>' + Array(5).fill('<th>正常<br>出勤</th><th>实际<br>加班</th>').join('') + '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr></thead>';
   let body = "";
   Array.from(grouped.values()).sort((a,b)=>{
     const am = a.missingAllWeek ? 1 : 0;
@@ -2293,7 +2418,7 @@ function renderWeekRecords(rows, err=""){
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
   const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" class="integrated-mini-btn integrated-add-btn" onclick="addIntegratedRow()">＋ 新增一条工时</button><button type="button" class="btn btn-primary" style="width:auto;padding:10px 18px;font-size:15px" onclick="submitInlineAndIntegratedRows()">提交本表修改/新增</button><span class="integrated-note">点击已有行的空白工时格可直接新增工时；如需不同工时类别 / 项目号 / 单元号 / 备注，点击＋新增一行。</span></div>' : '';
-  box.innerHTML = inputActions + '<div class="table-scroll"><table>'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
+  box.innerHTML = inputActions + '<div class="table-scroll"><table class="main-timesheet-table">'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table class="raw-record-table"><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
 }
 
 let integratedRows = [];
@@ -2395,11 +2520,8 @@ function addIntegratedRow(){
   renderWeekRecords(currentWeekRecords || []);
 }
 function deleteIntegratedRow(rowId){
-  if(integratedRows.length <= 1){
-    integratedRows = [createIntegratedRow()];
-  }else{
-    integratedRows = integratedRows.filter(row=>String(row.id)!==String(rowId));
-  }
+  // V5.9.6：直接移除新增行；即使只剩一行，也不再重置为空白行。
+  integratedRows = integratedRows.filter(row=>String(row.id)!==String(rowId));
   renderWeekRecords(currentWeekRecords || []);
 }
 function buildIntegratedInputRowsHtml(){
@@ -2416,7 +2538,7 @@ function buildIntegratedInputRowsHtml(){
     html += '<td class="integrated-project-cell"><select ' + (!projectNeeded ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'project\',this.value)"><option value="">' + (projectNeeded?'请选择':'无需项目') + '</option>' + projects.map(p=>optionHtml(p,row.project)).join('') + '</select></td>';
     html += '<td class="integrated-unit-cell"><select ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onchange="updateIntegratedMeta(\''+row.id+'\',\'unit\',this.value)"><option value="">' + (unitNeeded?(row.project?'请选择':'先选项目'):'无需单元') + '</option>' + units.map(u=>optionHtml(u,row.unit)).join('') + '</select></td>';
     const remarkListId = 'remark_list_' + row.id;
-    html += '<td class="integrated-remark-cell"><input class="remark-input" list="'+remarkListId+'" value="' + safe(row.remark || "") + '" placeholder="必填备注，可手动输入" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)">' + remarkDatalistHtml(remarkListId, row.task) + '<button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除本行</button></td>';
+    html += '<td class="integrated-remark-cell"><input class="remark-input" list="'+remarkListId+'" value="' + safe(row.remark || "") + '" placeholder="必填备注，可手动输入" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)">' + remarkDatalistHtml(remarkListId, row.task) + '<button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
     ["一","二","三","四","五"].forEach(day=>{
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
