@@ -1,4 +1,4 @@
-<!-- VERSION: V5.9.2 FINAL - INTEGRATED INPUT TABLE NO DEFAULT ROW -->
+<!-- VERSION: V5.9.3 FINAL - INLINE EDIT EXISTING CELLS -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -729,7 +729,7 @@
     .integrated-input-row select,
     .integrated-input-row input{
       width:100%;
-      min-width:38px;
+      min-width:48px;
       border:1px solid #bcd0e5;
       border-radius:7px;
       padding:5px 4px;
@@ -738,7 +738,7 @@
       background:#ffffff;
     }
     .integrated-input-row input.hour-input{
-      width:42px;
+      width:48px;
       text-align:center;
       font-weight:900;
       padding:4px 2px;
@@ -751,10 +751,10 @@
       outline:2px solid #16a34a;
       border-color:#16a34a;
     }
-    .integrated-meta-cell{min-width:82px;max-width:96px;}
-    .integrated-project-cell{min-width:92px;max-width:110px;}
-    .integrated-unit-cell{min-width:62px;max-width:78px;}
-    .integrated-remark-cell{min-width:112px;max-width:136px;}
+    .integrated-meta-cell{min-width:105px;}
+    .integrated-project-cell{min-width:128px;}
+    .integrated-unit-cell{min-width:82px;}
+    .integrated-remark-cell{min-width:160px;}
     .integrated-total-cell{
       background:#eef6ff!important;
       font-weight:900;
@@ -799,13 +799,11 @@
       th,td{min-width:42px;height:28px;padding:2px;}
     }
   
-    /* V5.9.2：进一步压缩左侧前置信息列，减少空白 */
+    /* V5.9.3：压缩前置列 + 已提交行可直接点击输入 */
     .integrated-input-row td:nth-child(1),
     .integrated-input-row td:nth-child(2),
     .integrated-input-row td:nth-child(3),
-    .integrated-input-row td:nth-child(4){
-      padding:2px 3px!important;
-    }
+    .integrated-input-row td:nth-child(4){padding:2px 3px!important;}
     .integrated-input-row td:nth-child(1){min-width:82px!important;max-width:96px!important;}
     .integrated-input-row td:nth-child(2){min-width:92px!important;max-width:110px!important;}
     .integrated-input-row td:nth-child(3){min-width:62px!important;max-width:78px!important;}
@@ -813,6 +811,33 @@
     .integrated-input-row select,
     .integrated-input-row input{padding:4px 3px!important;font-size:11px!important;}
     .integrated-input-row input.hour-input{width:42px!important;min-width:42px!important;}
+    .inline-hour-input{
+      width:44px;
+      min-width:44px;
+      border:1px solid #cbd5e1;
+      border-radius:6px;
+      padding:3px 2px;
+      text-align:center;
+      font-size:12px;
+      font-weight:900;
+      background:#ffffff;
+      color:#111827;
+    }
+    .inline-hour-input:focus{
+      outline:2px solid #16a34a;
+      border-color:#16a34a;
+      background:#f0fdf4;
+    }
+    .inline-hour-input.pending{
+      background:#dcfce7;
+      border-color:#16a34a;
+    }
+    .inline-edit-note{
+      color:#64748b;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.5;
+    }
 </style>
 </head>
 <body>
@@ -1901,6 +1926,110 @@ async function loadWeekRecords(){
     renderWeekRecords([], "本周记录读取失败：" + e.message);
   }
 }
+
+let inlineEditDrafts = {};
+let inlineEditMeta = {};
+function inlineEditKey(rowKey, day, field){
+  return String(rowKey) + "||" + String(day) + "||" + String(field);
+}
+function inlineDraftValue(rowKey, day, field, originalValue){
+  const k = inlineEditKey(rowKey, day, field);
+  return Object.prototype.hasOwnProperty.call(inlineEditDrafts, k) ? inlineEditDrafts[k] : originalValue;
+}
+function inlineCellInput(rowKey, day, field, originalValue, className){
+  if(isAdmin()) return '<td'+className+'>'+(originalValue || "")+'</td>';
+  const k = inlineEditKey(rowKey, day, field);
+  const v = inlineDraftValue(rowKey, day, field, originalValue);
+  const pending = Object.prototype.hasOwnProperty.call(inlineEditDrafts, k) && num(inlineEditDrafts[k]) !== num(originalValue);
+  return '<td'+className+'><input class="inline-hour-input '+(pending?'pending':'')+'" type="number" step="0.5" min="0" value="'+safe(v || "")+'" placeholder="0" onchange="updateInlineEdit(\''+safe(rowKey)+'\',\''+day+'\',\''+field+'\',this.value,'+num(originalValue)+')"></td>';
+}
+function updateInlineEdit(rowKey, day, field, value, originalValue){
+  const k = inlineEditKey(rowKey, day, field);
+  let v = Math.round(num(value) * 2) / 2;
+  if(v < 0) v = 0;
+  inlineEditDrafts[k] = v === 0 ? "" : String(v);
+  renderWeekRecords(currentWeekRecords || []);
+}
+function registerInlineMeta(rowKey, meta){
+  inlineEditMeta[String(rowKey)] = meta;
+}
+function collectInlineChanges(){
+  const items = [];
+  Object.keys(inlineEditDrafts).forEach(k=>{
+    const parts = k.split("||");
+    const field = parts.pop();
+    const day = parts.pop();
+    const rowKey = parts.join("||");
+    const meta = inlineEditMeta[rowKey];
+    if(!meta) return;
+    const original = num(meta.originals && meta.originals[day] ? meta.originals[day][field] : 0);
+    const next = num(inlineEditDrafts[k]);
+    if(next === original) return;
+    if(next < original){
+      items.push({error:"已有工时减少请在下方“原始记录管理”中点修改；表格直接输入目前用于新增/补加工时。"});
+      return;
+    }
+    const delta = Math.round((next - original) * 2) / 2;
+    if(delta <= 0) return;
+    const payload = {
+      submitTime:new Date().toISOString(),
+      employeeId:empId,
+      employeeName:empName,
+      week:state.week,
+      weekday:day,
+      task:meta.task,
+      project:meta.project,
+      unit:meta.unit,
+      regularHours:0,
+      otWeekday:0,
+      otWeekend:0,
+      remark:meta.remark || ""
+    };
+    if(field === "regular") payload.regularHours = delta;
+    if(field === "otWeekday") payload.otWeekday = delta;
+    if(field === "otWeekend") payload.otWeekend = delta;
+    items.push({payload});
+  });
+  return items;
+}
+async function submitInlineAndIntegratedRows(){
+  if(isAdmin()) return showMsg("管理员账号不允许填报工时。",false);
+  if(isSubmitting) return showMsg("正在提交中，请勿重复点击。",false);
+  if(!requireAuth(false)) return;
+  if(isWeekLocked(state.week)) return showMsg("该 Week 已被管理员锁定，禁止新增、修改或删除。",false);
+  const inlineItems = collectInlineChanges();
+  const errItem = inlineItems.find(x=>x.error);
+  if(errItem) return showMsg(errItem.error, false);
+  const inputItems = typeof buildIntegratedPayloads === "function" ? buildIntegratedPayloads() : [];
+  const all = inlineItems.concat(inputItems);
+  if(!all.length) return showMsg("请先在表格中填写需要提交的工时。", false);
+  const seen = new Set();
+  for(const item of all){
+    const payload = item.payload;
+    const err = validatePayload(payload, "");
+    if(err) return showMsg("周" + payload.weekday + "：" + err, false);
+    const sig = signature(payload);
+    if(seen.has(sig)) return showMsg("存在重复记录，请合并或删除重复输入。", false);
+    seen.add(sig);
+  }
+  try{
+    isSubmitting = true;
+    showMsg("正在提交，请稍候…", true);
+    for(const item of all){
+      const res = await fetch(apiUrl(), {method:"POST",headers:headers(),body:JSON.stringify(item.payload)});
+      if(!res.ok) throw new Error("周" + item.payload.weekday + " 提交失败：" + res.status);
+    }
+    showMsg("✅ 提交成功，共提交 " + all.length + " 条记录。", true);
+    inlineEditDrafts = {};
+    inlineEditMeta = {};
+    if(typeof integratedRows !== "undefined") integratedRows = [];
+    await loadWeekRecords();
+  }catch(e){
+    showMsg("❌ 提交失败：" + e.message, false);
+  }finally{
+    isSubmitting = false;
+  }
+}
 function renderWeekRecords(rows, err=""){
   setAnomalyFilterButtonText();
   const box = $("recordList");
@@ -1934,8 +2063,9 @@ function renderWeekRecords(rows, err=""){
     const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
     if(!grouped.has(key)){
       const days = {};
-      weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0});
+      weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0,regularOriginal:0,otWeekdayOriginal:0,otWeekendOriginal:0});
       grouped.set(key, {
+        rowKey:key,
         employeeId:record.employeeId || "",
         employeeName:record.employeeName || employeeMap[record.employeeId] || "",
         task:record.task || "",
@@ -1955,6 +2085,9 @@ function renderWeekRecords(rows, err=""){
     if(row.days[day]){
       row.days[day].regular += regular;
       row.days[day].overtime += overtime;
+      row.days[day].regularOriginal += regular;
+      row.days[day].otWeekdayOriginal += num(record.otWeekday);
+      row.days[day].otWeekendOriginal += num(record.otWeekend);
     }
     row.totalRegular += regular;
     row.totalEveningOt += num(record.otWeekday);
@@ -2028,11 +2161,22 @@ function renderWeekRecords(rows, err=""){
     if(onlyShowAnomaly && isAdmin() && !hasError) return;
     const empLevel = anomaly ? anomaly.level : 0;
     const empCells = isAdmin() ? '<td'+mergeClass(empLevel)+'>'+safe(row.employeeName)+'</td><td'+mergeClass(empLevel)+'>'+safe(row.employeeId)+'</td>' : '';
+    const rowKey = row.rowKey || [row.employeeId || "", row.task || "", row.project || "", row.unit || "", row.remark || ""].join("||");
+    const originals = {};
+    weekdayOptions.forEach(d=>{
+      originals[d] = {
+        regular: row.days[d] ? num(row.days[d].regularOriginal || row.days[d].regular) : 0,
+        otWeekday: row.days[d] ? num(row.days[d].otWeekdayOriginal) : 0,
+        otWeekend: row.days[d] ? num(row.days[d].otWeekendOriginal) : 0
+      };
+    });
+    registerInlineMeta(rowKey, {task:row.task, project:row.project, unit:row.unit, remark:row.remark, originals:originals});
     body += '<tr' + (row.missingAllWeek ? ' class="missing-row"' : '') + '>' + empCells + '<td class="cell-left">'+safe(row.task)+'</td><td>'+safe(row.project)+'</td><td>'+safe(row.unit)+'</td><td>'+safe(row.remark)+'</td>' + ['一','二','三','四','五'].map(day=>{
       const level = anomaly && anomaly.levels ? (anomaly.levels[day] || 0) : 0;
       const cls = tdClass(level);
-      return '<td'+cls+'>'+(row.days[day].regular || "")+'</td><td'+cls+'>'+(row.days[day].overtime || "")+'</td>';
-    }).join('') + '<td>'+(row.days['六'].overtime || "")+'</td><td>'+(row.days['日'].overtime || "")+'</td><td>'+(row.totalRegular || "")+'</td><td>'+(row.totalEveningOt || "")+'</td><td>'+(row.totalWeekendOt || "")+'</td></tr>';
+      const r = row.days[day] || {};
+      return inlineCellInput(rowKey, day, 'regular', num(r.regularOriginal || r.regular), cls) + inlineCellInput(rowKey, day, 'otWeekday', num(r.otWeekdayOriginal), cls);
+    }).join('') + inlineCellInput(rowKey, '六', 'otWeekend', num((row.days['六']||{}).otWeekendOriginal || (row.days['六']||{}).overtime), '') + inlineCellInput(rowKey, '日', 'otWeekend', num((row.days['日']||{}).otWeekendOriginal || (row.days['日']||{}).overtime), '') + '<td>'+(row.totalRegular || "")+'</td><td>'+(row.totalEveningOt || "")+'</td><td>'+(row.totalWeekendOt || "")+'</td></tr>';
   });
   if(!isAdmin()){
     body += buildIntegratedInputRowsHtml();
@@ -2081,7 +2225,7 @@ function renderWeekRecords(rows, err=""){
     rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
-  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" class="integrated-mini-btn integrated-add-btn" onclick="addIntegratedRow()">＋ 新增一条工时</button><button type="button" class="btn btn-primary" style="width:auto;padding:10px 18px;font-size:15px" onclick="submitIntegratedRows()">提交本表填写内容</button><span class="integrated-note">点击＋后在本表新增一行；先选择工时类别 / 项目号 / 单元号 / 备注，再直接在对应日期的正常出勤或加班格中填写小时数。</span></div>' : '';
+  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" class="integrated-mini-btn integrated-add-btn" onclick="addIntegratedRow()">＋ 新增一条工时</button><button type="button" class="btn btn-primary" style="width:auto;padding:10px 18px;font-size:15px" onclick="submitInlineAndIntegratedRows()">提交本表修改/新增</button><span class="integrated-note">点击已有行的空白工时格可直接新增工时；如需不同工时类别 / 项目号 / 单元号 / 备注，点击＋新增一行。</span></div>' : '';
   box.innerHTML = inputActions + '<div class="table-scroll"><table>'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
 }
 
@@ -2099,7 +2243,7 @@ function createIntegratedRow(){
   };
 }
 function ensureIntegratedRows(){
-  // V5.9.2：不默认生成填写行，必须点击“＋ 新增填写行”才出现。
+  // 不默认生成填写行，必须点击“＋ 新增一条工时”才出现。
   return;
 }
 function optionHtml(value, selected){
