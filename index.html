@@ -1,4 +1,4 @@
-<!-- VERSION: V6.4 FINAL - CARD PICKER TASK REMARK -->
+<!-- VERSION: V6.5 FINAL - ADAPTIVE PROJECT UNIT + CUSTOM REMARK -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -920,11 +920,38 @@
       .picker-card.task,.picker-card.remark{font-size:17px;min-height:48px;}
       .picker-card.remark{padding:12px 10px;}
     }
-    
-.integrated-note {
-  display:none !important;
-}
 
+    /* V6.5：隐藏防错提示 + 手机端项目信息自适应 + 备注保留自定义输入 */
+    .integrated-note{display:none!important;}
+    .remark-custom-wrap{display:flex;gap:4px;align-items:center;width:100%;}
+    .remark-custom-input{
+      flex:1;
+      min-width:72px!important;
+      height:28px!important;
+      padding:3px 5px!important;
+      font-size:12px!important;
+      border:1px solid #bcd0e5!important;
+      border-radius:7px!important;
+    }
+    .remark-select-btn{
+      width:auto!important;
+      min-width:40px!important;
+      max-width:46px!important;
+      flex:0 0 auto;
+      padding:3px 5px!important;
+      font-size:12px!important;
+    }
+    @media(max-width:760px){
+      /* 覆盖之前过窄的固定列：项目号/单元号允许换行显示完整内容 */
+      .main-timesheet-table thead tr:first-child th:nth-child(1),.main-timesheet-table tbody td:nth-child(1){width:52px!important;min-width:52px!important;max-width:52px!important;left:0!important;white-space:normal!important;word-break:break-all!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(2),.main-timesheet-table tbody td:nth-child(2){width:auto!important;min-width:76px!important;max-width:96px!important;left:52px!important;white-space:normal!important;word-break:break-all!important;overflow:visible!important;text-overflow:clip!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(3),.main-timesheet-table tbody td:nth-child(3){width:auto!important;min-width:78px!important;max-width:104px!important;left:128px!important;white-space:normal!important;word-break:break-all!important;overflow:visible!important;text-overflow:clip!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(4),.main-timesheet-table tbody td:nth-child(4){width:auto!important;min-width:104px!important;max-width:140px!important;left:206px!important;white-space:normal!important;word-break:break-all!important;overflow:visible!important;text-overflow:clip!important;}
+      .main-timesheet-table .integrated-project-cell,.main-timesheet-table .integrated-unit-cell{width:auto!important;max-width:none!important;}
+      .project-picker-btn,.unit-picker-btn{white-space:normal!important;word-break:break-all!important;height:auto!important;min-height:28px!important;line-height:1.2!important;padding:3px 3px!important;}
+      .remark-custom-input{font-size:12px!important;height:28px!important;min-width:76px!important;}
+      .remark-select-btn{font-size:12px!important;height:28px!important;}
+    }
 </style>
 </head>
 <body>
@@ -1259,7 +1286,7 @@ const projectUnits = {
     "NIN-53063",
     "NIN-53062"
   ],
-    "销售": [
+    "After_sales_销售": [
     "NIN-53111",
     "NIN-53086",
     "NIN-53085",
@@ -2663,7 +2690,7 @@ function buildIntegratedInputRowsHtml(){
     html += '<td class="integrated-project-cell"><button type="button" class="picker-btn project-picker-btn" ' + (!projectNeeded ? 'disabled' : '') + ' onclick="openProjectPicker(\''+row.id+'\')">' + safe(projectNeeded ? (row.project || '请选择') : '无需项目') + '</button></td>';
     html += '<td class="integrated-unit-cell"><button type="button" class="picker-btn unit-picker-btn" ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onclick="openUnitPicker(\''+row.id+'\')">' + safe(unitNeeded ? (row.project ? (row.unit || '请选择') : '先选项目') : '无需单元') + '</button></td>';
     const remarkListId = 'remark_list_' + row.id;
-    html += '<td class="integrated-remark-cell"><button type="button" class="picker-btn remark-picker-btn" onclick="openRemarkPicker(\''+row.id+'\')">' + safe(row.remark || (row.task ? '请选择备注' : '先选类别')) + '</button><button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
+    html += '<td class="integrated-remark-cell"><div class="remark-custom-wrap"><input class="remark-custom-input" value="' + safe(row.remark || "") + '" placeholder="自定义备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)"><button type="button" class="picker-btn remark-picker-btn remark-select-btn" onclick="openRemarkPicker(\''+row.id+'\')">选择</button></div><button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
     ["一","二","三","四","五"].forEach(day=>{
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
