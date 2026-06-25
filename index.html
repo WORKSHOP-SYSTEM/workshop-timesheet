@@ -1,4 +1,4 @@
-<!-- VERSION: V6.3 FINAL - UNIFIED INPUT GUARDRAILS -->
+<!-- VERSION: V6.4 FINAL - CARD PICKER TASK REMARK -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -909,11 +909,17 @@
     .inline-hour-input.maxed{background:#f3f4f6!important;color:#9ca3af!important;border-color:#cbd5e1!important;}
     .hour-input.pending,
     .inline-hour-input.pending{background:#dcfce7!important;border-color:#16a34a!important;color:#111827!important;}
-    
-.integrated-note{
-  display:none !important;
-}
 
+    /* V6.4：工时类别/备注也改为卡片选择器 */
+    .task-picker-btn,.remark-picker-btn{font-size:12px!important;}
+    .picker-card.task{background:#f0f9ff;color:#075985;border-color:#bae6fd;}
+    .picker-card.remark{background:#f8fafc;color:#0f172a;border-color:#d7dde5;align-items:flex-start;justify-content:flex-start;text-align:left;line-height:1.35;}
+    .picker-card.remark.active,.picker-card.task.active{background:#dbeafe!important;color:#075985!important;border-color:#0078d4!important;}
+    @media(max-width:560px){
+      .task-picker-btn,.remark-picker-btn{font-size:13px!important;height:28px!important;padding:3px 2px!important;}
+      .picker-card.task,.picker-card.remark{font-size:17px;min-height:48px;}
+      .picker-card.remark{padding:12px 10px;}
+    }
 </style>
 </head>
 <body>
@@ -2599,6 +2605,45 @@ function openUnitPicker(rowId){
   openPickerPanel("选择单元号", html);
 }
 function chooseUnitForRow(rowId, unit){ const row = rowById(rowId); if(!row) return; row.unit = unit; closePickerPanel(); renderWeekRecordsKeepScroll(); }
+
+function openTaskPicker(rowId){
+  const row = rowById(rowId);
+  if(!row) return;
+  const cards = taskOptions.map(t=>'<div class="picker-card task '+(String(row.task)===String(t)?'active':'')+'" onclick="chooseTaskForRow(\''+safe(rowId)+'\',\''+safe(t)+'\')">'+safe(t)+'</div>').join('');
+  openPickerPanel("选择工时类别", '<div class="picker-grid">'+cards+'</div>');
+}
+function chooseTaskForRow(rowId, task){
+  const row = rowById(rowId);
+  if(!row) return;
+  row.task = task;
+  row.project = "";
+  row.unit = "";
+  row.remark = "";
+  closePickerPanel();
+  renderWeekRecordsKeepScroll();
+}
+function openRemarkPicker(rowId){
+  const row = rowById(rowId);
+  if(!row) return;
+  if(!row.task){
+    openPickerPanel("选择备注", '<div class="picker-empty">请先选择工时类别</div>');
+    return;
+  }
+  const remarks = remarkOptionsForTask(row.task);
+  if(!remarks.length){
+    openPickerPanel("选择备注", '<div class="picker-empty">当前工时类别暂无预设备注</div>');
+    return;
+  }
+  const cards = remarks.map(r=>'<div class="picker-card remark '+(String(row.remark)===String(r)?'active':'')+'" onclick="chooseRemarkForRow(\''+safe(rowId)+'\',\''+safe(r)+'\')">'+safe(r)+'</div>').join('');
+  openPickerPanel("选择备注", '<div class="picker-grid">'+cards+'</div>');
+}
+function chooseRemarkForRow(rowId, remark){
+  const row = rowById(rowId);
+  if(!row) return;
+  row.remark = remark;
+  closePickerPanel();
+  renderWeekRecordsKeepScroll();
+}
 function buildIntegratedInputRowsHtml(){
   if(isAdmin()) return "";
   ensureIntegratedRows();
@@ -2609,11 +2654,11 @@ function buildIntegratedInputRowsHtml(){
     const projects = Object.keys(projectUnits);
     const units = row.project && projectUnits[row.project] ? projectUnits[row.project] : [];
     html += '<tr class="integrated-input-row">';
-    html += '<td class="integrated-meta-cell"><select onchange="updateIntegratedMeta(\''+row.id+'\',\'task\',this.value)"><option value="">请选择</option>' + taskOptions.map(t=>optionHtml(t,row.task)).join('') + '</select></td>';
+    html += '<td class="integrated-meta-cell"><button type="button" class="picker-btn task-picker-btn" onclick="openTaskPicker(\''+row.id+'\')">' + safe(row.task || '请选择') + '</button></td>';
     html += '<td class="integrated-project-cell"><button type="button" class="picker-btn project-picker-btn" ' + (!projectNeeded ? 'disabled' : '') + ' onclick="openProjectPicker(\''+row.id+'\')">' + safe(projectNeeded ? (row.project || '请选择') : '无需项目') + '</button></td>';
     html += '<td class="integrated-unit-cell"><button type="button" class="picker-btn unit-picker-btn" ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onclick="openUnitPicker(\''+row.id+'\')">' + safe(unitNeeded ? (row.project ? (row.unit || '请选择') : '先选项目') : '无需单元') + '</button></td>';
     const remarkListId = 'remark_list_' + row.id;
-    html += '<td class="integrated-remark-cell"><input class="remark-input" list="'+remarkListId+'" value="' + safe(row.remark || "") + '" placeholder="必填备注，可手动输入" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)">' + remarkDatalistHtml(remarkListId, row.task) + '<button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
+    html += '<td class="integrated-remark-cell"><button type="button" class="picker-btn remark-picker-btn" onclick="openRemarkPicker(\''+row.id+'\')">' + safe(row.remark || (row.task ? '请选择备注' : '先选类别')) + '</button><button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
     ["一","二","三","四","五"].forEach(day=>{
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
