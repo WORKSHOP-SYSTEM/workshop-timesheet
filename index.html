@@ -1,4 +1,4 @@
-<!-- VERSION: V6.5 FINAL - ADAPTIVE PROJECT UNIT + CUSTOM REMARK -->
+<!-- VERSION: V6.6 FINAL - MAIN TABLE WIDTH MATCH RAW TABLE -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -944,47 +944,80 @@
     @media(max-width:760px){
       /* 覆盖之前过窄的固定列：项目号/单元号允许换行显示完整内容 */
       .main-timesheet-table thead tr:first-child th:nth-child(1),.main-timesheet-table tbody td:nth-child(1){width:52px!important;min-width:52px!important;max-width:52px!important;left:0!important;white-space:normal!important;word-break:break-all!important;}
-      /* ✅ 项目号（跟下面表一致） */
-.main-timesheet-table thead tr:first-child th:nth-child(2),
-.main-timesheet-table tbody td:nth-child(2){
-  width:auto !important;
-  min-width:80px !important;
-  max-width:none !important;
-
-  white-space:normal !important;
-  word-break:break-word !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-}
-
-/* ✅ 单元号（跟下面表一致） */
-.main-timesheet-table thead tr:first-child th:nth-child(3),
-.main-timesheet-table tbody td:nth-child(3){
-  width:auto !important;
-  min-width:90px !important;
-  max-width:none !important;
-
-  white-space:normal !important;
-  word-break:break-word !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-}
-
-/* ✅ 按钮内容允许换行 */
-.project-picker-btn,
-.unit-picker-btn{
-  white-space:normal !important;
-  word-break:break-word !important;
-  height:auto !important;
-  min-height:28px !important;
-  line-height:1.2 !important;
-}
+      .main-timesheet-table thead tr:first-child th:nth-child(2),.main-timesheet-table tbody td:nth-child(2){width:auto!important;min-width:76px!important;max-width:96px!important;left:52px!important;white-space:normal!important;word-break:break-all!important;overflow:visible!important;text-overflow:clip!important;}
       .main-timesheet-table thead tr:first-child th:nth-child(3),.main-timesheet-table tbody td:nth-child(3){width:auto!important;min-width:78px!important;max-width:104px!important;left:128px!important;white-space:normal!important;word-break:break-all!important;overflow:visible!important;text-overflow:clip!important;}
       .main-timesheet-table thead tr:first-child th:nth-child(4),.main-timesheet-table tbody td:nth-child(4){width:auto!important;min-width:104px!important;max-width:140px!important;left:206px!important;white-space:normal!important;word-break:break-all!important;overflow:visible!important;text-overflow:clip!important;}
       .main-timesheet-table .integrated-project-cell,.main-timesheet-table .integrated-unit-cell{width:auto!important;max-width:none!important;}
       .project-picker-btn,.unit-picker-btn{white-space:normal!important;word-break:break-all!important;height:auto!important;min-height:28px!important;line-height:1.2!important;padding:3px 3px!important;}
       .remark-custom-input{font-size:12px!important;height:28px!important;min-width:76px!important;}
       .remark-select-btn{font-size:12px!important;height:28px!important;}
+    }
+
+    /* V6.6：主功能区左侧列宽按“原始记录管理”表的可读宽度统一 */
+    @media(max-width:760px){
+      .main-timesheet-table thead tr:first-child th:nth-child(1),
+      .main-timesheet-table tbody td:nth-child(1){
+        width:64px!important;
+        min-width:64px!important;
+        max-width:64px!important;
+        left:0!important;
+        white-space:normal!important;
+        word-break:break-word!important;
+        overflow:visible!important;
+        text-overflow:clip!important;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(2),
+      .main-timesheet-table tbody td:nth-child(2){
+        width:86px!important;
+        min-width:86px!important;
+        max-width:86px!important;
+        left:64px!important;
+        white-space:normal!important;
+        word-break:break-word!important;
+        overflow:visible!important;
+        text-overflow:clip!important;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(3),
+      .main-timesheet-table tbody td:nth-child(3){
+        width:74px!important;
+        min-width:74px!important;
+        max-width:74px!important;
+        left:150px!important;
+        white-space:normal!important;
+        word-break:break-word!important;
+        overflow:visible!important;
+        text-overflow:clip!important;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(4),
+      .main-timesheet-table tbody td:nth-child(4){
+        width:96px!important;
+        min-width:96px!important;
+        max-width:96px!important;
+        left:224px!important;
+        white-space:normal!important;
+        word-break:break-word!important;
+        overflow:visible!important;
+        text-overflow:clip!important;
+      }
+      .main-timesheet-table .integrated-project-cell,
+      .main-timesheet-table .integrated-unit-cell,
+      .main-timesheet-table .integrated-remark-cell{
+        width:auto!important;
+        max-width:none!important;
+      }
+      .project-picker-btn,
+      .unit-picker-btn,
+      .remark-custom-input{
+        white-space:normal!important;
+        word-break:break-word!important;
+        overflow:visible!important;
+        text-overflow:clip!important;
+        line-height:1.2!important;
+      }
+      .project-picker-btn{min-height:28px!important;height:auto!important;}
+      .unit-picker-btn{min-height:28px!important;height:auto!important;}
+      .remark-custom-wrap{align-items:flex-start!important;}
+      .remark-custom-input{min-height:28px!important;height:auto!important;}
     }
 </style>
 </head>
