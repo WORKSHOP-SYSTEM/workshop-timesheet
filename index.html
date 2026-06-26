@@ -1,4 +1,4 @@
-<!-- VERSION: V6.8 FINAL - COMPACT MAIN TABLE DENSITY -->
+<!-- VERSION: V6.9 FINAL - COMPACT MOBILE + HOUR PICKER -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1255,6 +1255,42 @@
       .main-timesheet-table .project-picker-btn,
       .main-timesheet-table .unit-picker-btn{font-size:11px!important;height:24px!important;min-height:24px!important;padding:1px 2px!important;}
     }
+
+    /* V6.9：手机端进一步压缩 + 工时输入弹窗选择 */
+    .main-timesheet-table{width:max-content!important;min-width:0!important;}
+    .main-timesheet-table th,.main-timesheet-table td{min-width:0!important;}
+    .hour-picker-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:10px;}
+    .hour-picker-panel{width:min(520px,100%);background:#fff;border-radius:18px 18px 12px 12px;box-shadow:0 18px 50px rgba(0,0,0,.22);overflow:hidden;}
+    .hour-picker-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#f8fafc;font-weight:900;color:#0f172a;}
+    .hour-picker-close{border:none;border-radius:9px;padding:6px 10px;background:#e5e7eb;font-weight:900;color:#111827;cursor:pointer;}
+    .hour-picker-body{padding:12px;}
+    .hour-picker-input{width:100%!important;height:42px!important;border:1px solid #bcd0e5!important;border-radius:10px!important;padding:8px 10px!important;font-size:20px!important;font-weight:900!important;text-align:center!important;}
+    .hour-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+    .hour-picker-option{border:1px solid #bcd0e5;border-radius:10px;background:#f8fbff;color:#0f4c81;font-weight:900;min-height:42px;font-size:18px;cursor:pointer;}
+    .hour-picker-option:disabled{background:#f3f4f6;color:#9ca3af;border-color:#e5e7eb;cursor:not-allowed;}
+    .hour-picker-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+    .hour-picker-actions button{border:none;border-radius:10px;min-height:42px;font-size:16px;font-weight:900;cursor:pointer;}
+    .hour-picker-clear{background:#f3f4f6;color:#111827;}
+    .hour-picker-ok{background:#0078d4;color:#fff;}
+    .hour-picker-hint{font-size:12px;color:#64748b;font-weight:900;margin-top:8px;text-align:center;}
+    @media(max-width:760px){
+      .wrap{padding:0 4px 14px!important;}
+      .card{padding:8px 4px 6px!important;border-radius:14px!important;}
+      .table-scroll{border-radius:9px!important;margin-bottom:8px!important;}
+      .main-timesheet-table th,.main-timesheet-table td{padding:0!important;height:23px!important;line-height:1!important;font-size:10.5px!important;}
+      .main-timesheet-table thead th{font-size:10.5px!important;}
+      .main-timesheet-table .picker-btn,.main-timesheet-table .task-picker-btn,.main-timesheet-table .project-picker-btn,.main-timesheet-table .unit-picker-btn{height:22px!important;min-height:22px!important;padding:0 1px!important;border-radius:4px!important;font-size:10px!important;line-height:1!important;}
+      .main-timesheet-table .inline-hour-input,.main-timesheet-table .hour-input{height:22px!important;min-height:22px!important;width:30px!important;min-width:30px!important;max-width:30px!important;padding:0!important;border-radius:4px!important;font-size:10px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(1),.main-timesheet-table tbody td:nth-child(1){left:0!important;width:52px!important;min-width:52px!important;max-width:52px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(2),.main-timesheet-table tbody td:nth-child(2){left:52px!important;width:68px!important;min-width:68px!important;max-width:68px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(3),.main-timesheet-table tbody td:nth-child(3){left:120px!important;width:78px!important;min-width:78px!important;max-width:78px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(4),.main-timesheet-table tbody td:nth-child(4){left:198px!important;width:52px!important;min-width:52px!important;max-width:52px!important;}
+      .main-timesheet-table .remark-custom-input{height:22px!important;min-height:22px!important;width:31px!important;min-width:31px!important;max-width:31px!important;font-size:10px!important;padding:0 1px!important;border-radius:4px!important;}
+      .main-timesheet-table .remark-select-btn{height:22px!important;min-height:22px!important;width:19px!important;min-width:19px!important;max-width:19px!important;font-size:9px!important;padding:0!important;border-radius:4px!important;}
+      .main-timesheet-table .integrated-del-btn{height:18px!important;min-height:18px!important;font-size:9px!important;padding:0 3px!important;margin-top:0!important;border-radius:4px!important;}
+      .hour-picker-grid{grid-template-columns:repeat(4,1fr);gap:7px;}
+      .hour-picker-option{min-height:40px;font-size:17px;}
+    }
 </style>
 </head>
 <body>
@@ -2454,15 +2490,15 @@ function inlineMaxValue(rowKey, day, field, originalValue){
   const limit = fieldLimit(day, field);
   const inlineKey = inlineEditKey(rowKey, day, field);
   const totalExceptThisCell = inlineDayTotal(day, field) - num(originalValue) + inlineDraftAdjustmentTotal(day, field, inlineKey) + integratedDraftFieldTotal(day, field);
-  return Math.max(0, Math.min(limit, Math.round((limit - totalExceptThisCell) * 2) / 2));
+  return Math.max(0, Math.min(limit, Math.round((limit - totalExceptThisCell) * 4) / 4));
 }
 function unifiedMaxForIntegratedCell(day, field, rowId){
   const limit = fieldLimit(day, field);
   const max = limit - inlineDayTotal(day, field) - inlineDraftAdjustmentTotal(day, field) - integratedDraftFieldTotal(day, field, rowId, field);
-  return Math.max(0, Math.min(limit, Math.round(max * 2) / 2));
+  return Math.max(0, Math.min(limit, Math.round(max * 4) / 4));
 }
 function unifiedEffectiveTotal(day, field){
-  return Math.round((inlineDayTotal(day, field) + inlineDraftAdjustmentTotal(day, field) + integratedDraftFieldTotal(day, field)) * 2) / 2;
+  return Math.round((inlineDayTotal(day, field) + inlineDraftAdjustmentTotal(day, field) + integratedDraftFieldTotal(day, field)) * 4) / 4;
 }
 function validateUnifiedDraftTotals(){
   for(const day of weekdayOptions){
@@ -2484,12 +2520,12 @@ function inlineCellInput(rowKey, day, field, originalValue, className){
   const v = inlineDraftValue(rowKey, day, field, originalValue);
   const pending = Object.prototype.hasOwnProperty.call(inlineEditDrafts, k) && num(inlineEditDrafts[k]) !== num(originalValue);
   const maxed = max <= 0 && num(originalValue) <= 0;
-  return '<td'+className+'><input class="inline-hour-input '+(pending?'pending ':'')+(maxed?'maxed':'')+'" type="number" step="0.5" min="0" max="'+max+'" value="'+safe(v || "")+'" placeholder="0" '+(maxed?'disabled':'')+' oninput="updateInlineEdit(\''+safe(rowKey)+'\',\''+day+'\',\''+field+'\',this.value,'+num(originalValue)+')"></td>';
+  return '<td'+className+'><input class="inline-hour-input '+(pending?'pending ':'')+(maxed?'maxed':'')+'" type="text" inputmode="decimal" readonly min="0" max="'+max+'" value="'+safe(v || "")+'" placeholder="0" '+(maxed?'disabled':'')+' onclick="openHourPicker(\'inline\',\''+safe(rowKey)+'\',\''+day+'\',\''+field+'\','+num(originalValue)+',this.value,'+max+')" onfocus="openHourPicker(\'inline\',\''+safe(rowKey)+'\',\''+day+'\',\''+field+'\','+num(originalValue)+',this.value,'+max+')"></td>';
 }
 function updateInlineEdit(rowKey, day, field, value, originalValue){
   const k = inlineEditKey(rowKey, day, field);
   const max = inlineMaxValue(rowKey, day, field, originalValue);
-  let v = Math.round(num(value) * 2) / 2;
+  let v = Math.round(num(value) * 4) / 4;
   if(v < 0) v = 0;
   if(v > max) v = max;
   inlineEditDrafts[k] = v === 0 ? "" : String(v);
@@ -2594,6 +2630,59 @@ async function submitInlineAndIntegratedRows(){
   }
 }
 
+
+let hourPickerContext = null;
+function hourQuickValues(field){
+  if(field === "regular") return [0.25,0.5,1,2,3,4,6,8];
+  return [0.25,0.5,1,2,4];
+}
+function closeHourPicker(){
+  const old = document.getElementById("hourPickerMask");
+  if(old) old.remove();
+  hourPickerContext = null;
+}
+function sanitizeHourInput(v, max){
+  let n = Number(String(v || "").replace(/，/g,".").replace(/[^0-9.]/g,""));
+  if(!Number.isFinite(n)) n = 0;
+  n = Math.round(n * 4) / 4;
+  n = Math.max(0, Math.min(n, num(max)));
+  return n;
+}
+function openHourPicker(kind, rowIdOrKey, day, field, originalValue, currentValue, maxValue){
+  const max = num(maxValue);
+  if(max <= 0 && num(currentValue) <= 0) return;
+  hourPickerContext = {kind, rowIdOrKey, day, field, originalValue:num(originalValue), max};
+  const values = hourQuickValues(field).filter(v=>v <= Math.max(max, num(currentValue)) + 0.0001);
+  const title = (field === "regular" ? "正常出勤" : "加班") + " - 周" + day;
+  const buttons = values.map(v=>'<button type="button" class="hour-picker-option" onclick="setHourPickerValue('+v+')">'+v+'h</button>').join('');
+  const html = '<div id="hourPickerMask" class="hour-picker-mask" onclick="closeHourPicker()">'
+    + '<div class="hour-picker-panel" onclick="event.stopPropagation()">'
+    + '<div class="hour-picker-head"><div>'+safe(title)+'</div><button type="button" class="hour-picker-close" onclick="closeHourPicker()">关闭</button></div>'
+    + '<div class="hour-picker-body">'
+    + '<input id="hourPickerInput" class="hour-picker-input" inputmode="decimal" type="text" value="'+safe(currentValue || "")+'" placeholder="输入数字，如0.5">'
+    + '<div class="hour-picker-grid">'+buttons+'</div>'
+    + '<div class="hour-picker-actions"><button type="button" class="hour-picker-clear" onclick="setHourPickerValue(0)">清零</button><button type="button" class="hour-picker-ok" onclick="confirmHourPicker()">确认</button></div>'
+    + '<div class="hour-picker-hint">可输入0.25、0.5等小数；当前最大可填：'+safe(max)+'h</div>'
+    + '</div></div></div>';
+  closeHourPicker();
+  document.body.insertAdjacentHTML('beforeend', html);
+  setTimeout(()=>{ const input = document.getElementById('hourPickerInput'); if(input){ input.focus(); input.select(); } }, 0);
+}
+function setHourPickerValue(v){
+  const input = document.getElementById('hourPickerInput');
+  if(input) input.value = String(v === 0 ? "" : v);
+}
+function confirmHourPicker(){
+  if(!hourPickerContext) return closeHourPicker();
+  const input = document.getElementById('hourPickerInput');
+  const value = sanitizeHourInput(input ? input.value : 0, hourPickerContext.max);
+  if(hourPickerContext.kind === 'inline'){
+    updateInlineEdit(hourPickerContext.rowIdOrKey, hourPickerContext.day, hourPickerContext.field, value, hourPickerContext.originalValue);
+  }else{
+    updateIntegratedHour(hourPickerContext.rowIdOrKey, hourPickerContext.day, hourPickerContext.field, value);
+  }
+  closeHourPicker();
+}
 function todayWeekdayChar(){
   return ["日","一","二","三","四","五","六"][new Date().getDay()];
 }
@@ -2857,7 +2946,7 @@ function integratedMaxForCell(day, field, rowId){
   return unifiedMaxForIntegratedCell(day, field, rowId);
 }
 function clampHalfHour(v, max){
-  let n = Math.round(num(v) * 2) / 2;
+  let n = Math.round(num(v) * 4) / 4;
   n = Math.max(0, Math.min(n, max));
   return n === 0 ? "" : String(n);
 }
@@ -2998,13 +3087,13 @@ function buildIntegratedInputRowsHtml(){
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
       const maxOt = integratedMaxForCell(day, "otWeekday", row.id);
-      html += '<td><input class="hour-input '+(maxR<=0 && num(d.regular)<=0?'maxed':'')+'" type="number" step="0.5" min="0" max="'+maxR+'" value="'+safe(d.regular)+'" placeholder="0" '+(maxR<=0 && num(d.regular)<=0?'disabled':'')+' oninput="updateIntegratedHour(\''+row.id+'\',\''+day+'\',\'regular\',this.value)"></td>';
-      html += '<td><input class="hour-input '+(maxOt<=0 && num(d.otWeekday)<=0?'maxed':'')+'" type="number" step="0.5" min="0" max="'+maxOt+'" value="'+safe(d.otWeekday)+'" placeholder="0" '+(maxOt<=0 && num(d.otWeekday)<=0?'disabled':'')+' oninput="updateIntegratedHour(\''+row.id+'\',\''+day+'\',\'otWeekday\',this.value)"></td>';
+      html += '<td><input class="hour-input '+(maxR<=0 && num(d.regular)<=0?'maxed':'')+'" type="text" inputmode="decimal" readonly min="0" max="'+maxR+'" value="'+safe(d.regular)+'" placeholder="0" '+(maxR<=0 && num(d.regular)<=0?'disabled':'')+' onclick="openHourPicker(\'integrated\',\''+row.id+'\',\''+day+'\',\'regular\',0,this.value,'+maxR+')" onfocus="openHourPicker(\'integrated\',\''+row.id+'\',\''+day+'\',\'regular\',0,this.value,'+maxR+')"></td>';
+      html += '<td><input class="hour-input '+(maxOt<=0 && num(d.otWeekday)<=0?'maxed':'')+'" type="text" inputmode="decimal" readonly min="0" max="'+maxOt+'" value="'+safe(d.otWeekday)+'" placeholder="0" '+(maxOt<=0 && num(d.otWeekday)<=0?'disabled':'')+' onclick="openHourPicker(\'integrated\',\''+row.id+'\',\''+day+'\',\'otWeekday\',0,this.value,'+maxOt+')" onfocus="openHourPicker(\'integrated\',\''+row.id+'\',\''+day+'\',\'otWeekday\',0,this.value,'+maxOt+')"></td>';
     });
     ["六","日"].forEach(day=>{
       const d = row.days[day];
       const maxOt = integratedMaxForCell(day, "otWeekend", row.id);
-      html += '<td><input class="hour-input '+(maxOt<=0 && num(d.otWeekend)<=0?'maxed':'')+'" type="number" step="0.5" min="0" max="'+maxOt+'" value="'+safe(d.otWeekend)+'" placeholder="0" '+(maxOt<=0 && num(d.otWeekend)<=0?'disabled':'')+' oninput="updateIntegratedHour(\''+row.id+'\',\''+day+'\',\'otWeekend\',this.value)"></td>';
+      html += '<td><input class="hour-input '+(maxOt<=0 && num(d.otWeekend)<=0?'maxed':'')+'" type="text" inputmode="decimal" readonly min="0" max="'+maxOt+'" value="'+safe(d.otWeekend)+'" placeholder="0" '+(maxOt<=0 && num(d.otWeekend)<=0?'disabled':'')+' onclick="openHourPicker(\'integrated\',\''+row.id+'\',\''+day+'\',\'otWeekend\',0,this.value,'+maxOt+')" onfocus="openHourPicker(\'integrated\',\''+row.id+'\',\''+day+'\',\'otWeekend\',0,this.value,'+maxOt+')"></td>';
     });
     html += '<td class="integrated-total-cell">' + (integratedRowRegularTotal(row) || '') + '</td>';
     html += '<td class="integrated-total-cell">' + (integratedRowEveningTotal(row) || '') + '</td>';
