@@ -1,4 +1,4 @@
-<!-- VERSION: V6.7 FINAL - FIXED LEFT COLUMN WIDTHS -->
+<!-- VERSION: V6.8 FINAL - COMPACT MAIN TABLE DENSITY -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1133,6 +1133,127 @@
         min-width:58px!important;
         max-width:58px!important;
       }
+    }
+
+    /* V6.8：主表紧凑密度最终版——对齐原始记录管理，无无效间距 */
+    .main-timesheet-table{
+      table-layout:fixed!important;
+      border-collapse:collapse!important;
+      border-spacing:0!important;
+    }
+    .main-timesheet-table th,
+    .main-timesheet-table td{
+      padding:1px 2px!important;
+      height:26px!important;
+      min-height:26px!important;
+      line-height:1.05!important;
+      vertical-align:middle!important;
+    }
+    .main-timesheet-table thead th{
+      font-size:12px!important;
+      font-weight:900!important;
+    }
+    .main-timesheet-table tbody td{
+      font-size:12px!important;
+    }
+    .main-timesheet-table .picker-btn,
+    .main-timesheet-table .task-picker-btn,
+    .main-timesheet-table .project-picker-btn,
+    .main-timesheet-table .unit-picker-btn,
+    .main-timesheet-table .remark-select-btn{
+      height:24px!important;
+      min-height:24px!important;
+      padding:1px 2px!important;
+      border-radius:5px!important;
+      line-height:1.05!important;
+      font-size:11px!important;
+      box-shadow:none!important;
+    }
+    .main-timesheet-table .hour-input,
+    .main-timesheet-table .inline-hour-input{
+      height:24px!important;
+      min-height:24px!important;
+      width:34px!important;
+      min-width:34px!important;
+      max-width:34px!important;
+      padding:1px!important;
+      border-radius:5px!important;
+      font-size:11px!important;
+      line-height:1!important;
+      box-shadow:none!important;
+    }
+    .main-timesheet-table .integrated-del-btn{
+      height:20px!important;
+      min-height:20px!important;
+      padding:1px 4px!important;
+      margin-top:1px!important;
+      border-radius:5px!important;
+      font-size:10px!important;
+      line-height:1!important;
+    }
+    .main-timesheet-table .remark-custom-wrap{
+      gap:1px!important;
+      align-items:center!important;
+    }
+    .main-timesheet-table .remark-custom-input{
+      height:24px!important;
+      min-height:24px!important;
+      width:34px!important;
+      min-width:34px!important;
+      max-width:34px!important;
+      flex:0 0 34px!important;
+      padding:1px 2px!important;
+      border-radius:5px!important;
+      font-size:11px!important;
+      line-height:1!important;
+      overflow:hidden!important;
+      white-space:nowrap!important;
+      text-overflow:clip!important;
+    }
+    .main-timesheet-table .remark-select-btn{
+      width:22px!important;
+      min-width:22px!important;
+      max-width:22px!important;
+      flex:0 0 22px!important;
+      overflow:hidden!important;
+      white-space:nowrap!important;
+    }
+    /* 左侧四列固定成实际内容宽度：4汉字 / P+8位 / NIN-53040 / 4汉字 */
+    .main-timesheet-table thead tr:first-child th:nth-child(1),
+    .main-timesheet-table tbody td:nth-child(1){
+      width:56px!important;min-width:56px!important;max-width:56px!important;
+      white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(2),
+    .main-timesheet-table tbody td:nth-child(2){
+      width:74px!important;min-width:74px!important;max-width:74px!important;
+      white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(3),
+    .main-timesheet-table tbody td:nth-child(3){
+      width:82px!important;min-width:82px!important;max-width:82px!important;
+      white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(4),
+    .main-timesheet-table tbody td:nth-child(4){
+      width:56px!important;min-width:56px!important;max-width:56px!important;
+      white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;
+    }
+    @media(max-width:760px){
+      .main-timesheet-table th,
+      .main-timesheet-table td{padding:1px 2px!important;height:26px!important;line-height:1.05!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(1),
+      .main-timesheet-table tbody td:nth-child(1){left:0!important;width:56px!important;min-width:56px!important;max-width:56px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(2),
+      .main-timesheet-table tbody td:nth-child(2){left:56px!important;width:74px!important;min-width:74px!important;max-width:74px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(3),
+      .main-timesheet-table tbody td:nth-child(3){left:130px!important;width:82px!important;min-width:82px!important;max-width:82px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(4),
+      .main-timesheet-table tbody td:nth-child(4){left:212px!important;width:56px!important;min-width:56px!important;max-width:56px!important;}
+      .main-timesheet-table .picker-btn,
+      .main-timesheet-table .task-picker-btn,
+      .main-timesheet-table .project-picker-btn,
+      .main-timesheet-table .unit-picker-btn{font-size:11px!important;height:24px!important;min-height:24px!important;padding:1px 2px!important;}
     }
 </style>
 </head>
