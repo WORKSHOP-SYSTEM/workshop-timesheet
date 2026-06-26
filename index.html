@@ -1,4 +1,4 @@
-<!-- VERSION: V8.0 FINAL - MODAL MESSAGE + MOBILE ADMIN COMPACT -->
+<!-- VERSION: V8.1 FINAL - ADMIN ONLY UI FIX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1253,6 +1253,75 @@
       .status-card{width:min(330px,92vw);padding:20px 16px 16px;}
       .status-text{font-size:14px;}
     }
+
+    /* V8.1：管理员专属界面修复 - 员工端彻底隐藏锁定/解锁/导出/筛选 */
+    #adminPanel.admin-panel:not(.show){
+      display:none!important;
+      visibility:hidden!important;
+      height:0!important;
+      margin:0!important;
+      padding:0!important;
+      overflow:hidden!important;
+    }
+    #adminPanel.admin-panel.show{
+      display:flex!important;
+      visibility:visible!important;
+      height:auto!important;
+    }
+    #anomalyFilterArea.hidden{
+      display:none!important;
+      visibility:hidden!important;
+      height:0!important;
+      margin:0!important;
+      padding:0!important;
+      overflow:hidden!important;
+    }
+    #anomalyFilterArea:not(.hidden){
+      display:flex!important;
+      visibility:visible!important;
+      height:auto!important;
+    }
+    @media(max-width:760px){
+      #adminPanel.admin-panel.show{
+        display:grid!important;
+        grid-template-columns:repeat(3,1fr)!important;
+        gap:6px!important;
+        width:100%!important;
+        margin:8px 0!important;
+        overflow:visible!important;
+      }
+      #adminPanel.admin-panel.show .admin-btn{
+        width:100%!important;
+        min-width:0!important;
+        height:36px!important;
+        padding:7px 4px!important;
+        font-size:13px!important;
+        border-radius:11px!important;
+        text-align:center!important;
+        white-space:nowrap!important;
+      }
+      #anomalyFilterArea:not(.hidden){
+        display:grid!important;
+        grid-template-columns:52px 1fr 1fr 1fr 52px!important;
+        gap:6px!important;
+        width:100%!important;
+        margin:8px 0!important;
+        overflow:visible!important;
+        align-items:center!important;
+      }
+      #anomalyFilterArea:not(.hidden) .filter-btn,
+      #anomalyFilterArea:not(.hidden) .admin-filter-select{
+        width:100%!important;
+        min-width:0!important;
+        max-width:none!important;
+        height:34px!important;
+        padding:5px 4px!important;
+        font-size:12px!important;
+        border-radius:10px!important;
+        white-space:nowrap!important;
+      }
+      #filterNote{display:none!important;}
+    }
 </style>
 </head>
 <body>
@@ -1660,6 +1729,17 @@ const empName = empId ? employeeMap[empId] : "";
 function $(id){ return document.getElementById(id); }
 function getParam(name){ return new URL(location.href).searchParams.get(name); }
 function isAdmin(){ return String(empId) === ADMIN_ID; }
+function applyRoleVisibility(){
+  const adminPanel = $("adminPanel");
+  const filterArea = $("anomalyFilterArea");
+  if(isAdmin()){
+    if(adminPanel) adminPanel.classList.add("show");
+    if(filterArea) filterArea.classList.remove("hidden");
+  }else{
+    if(adminPanel) adminPanel.classList.remove("show");
+    if(filterArea) filterArea.classList.add("hidden");
+  }
+}
 function num(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function safe(v){
   return String(v ?? "").replace(/[<>&"]/g, ch => ({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[ch]));
@@ -4021,7 +4101,7 @@ async function init(){
   renderRemarkQuick();
   refreshDisplays();
   renderActive();
-  if(!isAdmin()) $("anomalyFilterArea").classList.add("hidden");
+  applyRoleVisibility();
   await loadWeekRecords();
 }
 init();
