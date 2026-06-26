@@ -1,4 +1,4 @@
-<!-- VERSION: V7.7 FINAL - UI ALIGNMENT -->
+<!-- VERSION: V7.7.1 FINAL - THIN BORDER NORMAL FONT REMARK WIDTH -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -810,7 +810,7 @@
       --pc-project-w:86px;
       --pc-unit-w:94px;
       --pc-remark-w:86px;
-      --m-task-w:40px;
+      --m-task-w:45px;
       --m-project-w:50px;
       --m-unit-w:50px;
       --m-remark-w:60px;
@@ -957,72 +957,135 @@
       .today-badge{font-size:9px!important;padding:1px 2px!important;max-width:26px!important;}
     }
 
-    /* V7.7：UI对齐最终版 - PC端三大区块统一宽度；手机端继续横向滚动兼容 */
-    .wrap{
-      max-width:1120px!important;
-      width:100%!important;
-      margin:14px auto!important;
-      padding:0 10px 24px!important;
+    /* V7.7.1：细线条 + 普通字体 + 异常只填充颜色 + 备注列加宽 */
+    :root{
+      --thin-border:#cfd6df;
+      --thin-border-dark:#9ca3af;
     }
-    .card{
-      width:100%!important;
-      max-width:100%!important;
-      margin:0 auto!important;
-      overflow:hidden!important;
+
+    /* 全局表格线条统一细线，避免电脑端看起来粗重 */
+    table,
+    .main-timesheet-table,
+    .raw-record-table{
+      border-collapse:collapse!important;
+      border-spacing:0!important;
     }
-    .id-row,
-    #weekChips,
-    .filter-area,
-    .table-scroll{
-      width:100%!important;
-      max-width:100%!important;
+    th,
+    td,
+    .main-timesheet-table th,
+    .main-timesheet-table td,
+    .raw-record-table th,
+    .raw-record-table td{
+      border:1px solid var(--thin-border)!important;
+      font-weight:400!important;
     }
-    .table-scroll{
-      margin-left:0!important;
-      margin-right:0!important;
+    th,
+    .main-timesheet-table thead th,
+    .raw-record-table thead th{
+      background:#f3f4f6!important;
+      color:#111827!important;
+      font-weight:600!important;
     }
+
+    /* 按钮保留适度字重，不影响表格正文 */
+    .btn,
+    .filter-btn,
+    .picker-btn,
+    .task-picker-btn,
+    .project-picker-btn,
+    .unit-picker-btn,
+    .remark-select-btn,
+    .integrated-mini-btn,
+    .hour-picker-option,
+    .hour-picker-ok,
+    .hour-picker-clear,
+    .picker-card,
+    .picker-item{
+      font-weight:700!important;
+    }
+
+    /* 异常只显示填充颜色，不改变边框颜色/粗细 */
+    .warn-cell,
+    .warn-soft,
+    .missing-row td,
+    .main-timesheet-table .warn-cell,
+    .main-timesheet-table .warn-soft,
+    .raw-record-table .warn-cell,
+    .raw-record-table .warn-soft{
+      border:1px solid var(--thin-border)!important;
+    }
+    .warn-cell{
+      background:#fee2e2!important;
+      color:#991b1b!important;
+    }
+    .warn-soft{
+      background:#fff7ed!important;
+      color:#9a3412!important;
+    }
+    .missing-row td{
+      background:#fff1f2!important;
+    }
+
+    /* PC端备注列加宽，避免“整周未提交”等内容竖向换行导致行高异常 */
     @media(min-width:761px){
-      /* PC端：主表铺满容器，避免中间窄、上下宽造成视觉断层 */
-      .main-timesheet-table{
-        table-layout:fixed!important;
-        width:100%!important;
-        min-width:100%!important;
-        max-width:100%!important;
-      }
-      .main-timesheet-table th,
-      .main-timesheet-table td{
-        white-space:normal!important;
+      .main-timesheet-table thead tr:first-child th:nth-child(4),
+      .main-timesheet-table tbody td:nth-child(4){
+        width:118px!important;
+        min-width:118px!important;
+        max-width:118px!important;
+        white-space:nowrap!important;
         overflow:hidden!important;
         text-overflow:clip!important;
       }
-      .main-timesheet-table thead tr:first-child th:nth-child(1),
-      .main-timesheet-table tbody td:nth-child(1){width:64px!important;min-width:64px!important;max-width:64px!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(2),
-      .main-timesheet-table tbody td:nth-child(2){width:84px!important;min-width:84px!important;max-width:84px!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(3),
-      .main-timesheet-table tbody td:nth-child(3){width:86px!important;min-width:86px!important;max-width:86px!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(4),
-      .main-timesheet-table tbody td:nth-child(4){width:84px!important;min-width:84px!important;max-width:84px!important;}
-      .main-timesheet-table .inline-hour-input,
-      .main-timesheet-table .hour-input{
-        width:36px!important;
-        min-width:36px!important;
-        max-width:36px!important;
+      .raw-record-table th:nth-child(8),
+      .raw-record-table td:nth-child(8){
+        min-width:120px!important;
+        max-width:180px!important;
+        white-space:nowrap!important;
+        overflow:hidden!important;
+        text-overflow:clip!important;
       }
-      .main-timesheet-table .picker-btn,
-      .main-timesheet-table .task-picker-btn,
-      .main-timesheet-table .project-picker-btn,
-      .main-timesheet-table .unit-picker-btn{
+      .main-timesheet-table .integrated-remark-cell .remark-custom-input,
+      .main-timesheet-table .integrated-remark-cell .remark-select-btn{
+        height:26px!important;
+        min-height:26px!important;
         width:100%!important;
+        min-width:100%!important;
         max-width:100%!important;
+        font-weight:400!important;
       }
     }
+
+    /* 手机端保持V7.6横向兼容，不让右侧压成一团，同时备注不再过窄 */
     @media(max-width:760px){
-      /* 手机端：卡片/表格外框统一100%，表格内部保持V7.6横向展开，防止挤成一团 */
-      .wrap{padding:0 4px 14px!important;margin:8px auto!important;}
-      .card{border-radius:14px!important;padding:8px 4px 6px!important;}
-      .table-scroll{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important;-webkit-overflow-scrolling:touch!important;}
-      .main-timesheet-table{table-layout:auto!important;width:max-content!important;min-width:1120px!important;max-width:none!important;}
+      .main-timesheet-table{
+        table-layout:auto!important;
+        width:max-content!important;
+        min-width:1120px!important;
+        max-width:none!important;
+      }
+      .table-scroll{
+        overflow-x:auto!important;
+        overflow-y:visible!important;
+        -webkit-overflow-scrolling:touch!important;
+      }
+      .main-timesheet-table thead tr:first-child th:nth-child(4),
+      .main-timesheet-table tbody td:nth-child(4){
+        width:74px!important;
+        min-width:74px!important;
+        max-width:74px!important;
+      }
+      .main-timesheet-table .integrated-remark-cell .remark-custom-input,
+      .main-timesheet-table .integrated-remark-cell .remark-select-btn{
+        width:100%!important;
+        min-width:100%!important;
+        max-width:100%!important;
+        font-weight:400!important;
+      }
+      .main-timesheet-table th,
+      .main-timesheet-table td{
+        border:1px solid var(--thin-border)!important;
+      }
     }
 </style>
 </head>
