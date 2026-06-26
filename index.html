@@ -1,4 +1,4 @@
-<!-- VERSION: V7.5 FINAL - ADMIN FILTER EXPORT -->
+<!-- VERSION: V5.7 FINAL - WEEK FILTER API + CLEAN EXCEL EXPORT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -708,83 +708,6 @@
       margin-top:16px;
     }
 
-
-    .integrated-action-bar{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin:8px 0 10px;
-    }
-    .integrated-note{
-      color:#64748b;
-      font-size:12px;
-      font-weight:900;
-      line-height:1.5;
-    }
-    .integrated-input-row td{
-      background:#f8fbff!important;
-      vertical-align:middle;
-    }
-    .integrated-input-row select,
-    .integrated-input-row input{
-      width:100%;
-      min-width:48px;
-      border:1px solid #bcd0e5;
-      border-radius:7px;
-      padding:5px 4px;
-      font-size:12px;
-      font-family:inherit;
-      background:#ffffff;
-    }
-    .integrated-input-row input.hour-input{
-      width:48px;
-      text-align:center;
-      font-weight:900;
-      padding:4px 2px;
-    }
-    .integrated-input-row input.remark-input{
-      min-width:130px;
-    }
-    .integrated-input-row select:focus,
-    .integrated-input-row input:focus{
-      outline:2px solid #16a34a;
-      border-color:#16a34a;
-    }
-    .integrated-meta-cell{min-width:105px;}
-    .integrated-project-cell{min-width:128px;}
-    .integrated-unit-cell{min-width:82px;}
-    .integrated-remark-cell{min-width:160px;}
-    .integrated-total-cell{
-      background:#eef6ff!important;
-      font-weight:900;
-      color:#111827;
-    }
-    .integrated-row-tag{
-      display:inline-block;
-      background:#dcfce7;
-      color:#166534;
-      border-radius:999px;
-      padding:2px 6px;
-      margin-bottom:4px;
-      font-size:11px;
-      font-weight:900;
-    }
-    .integrated-mini-btn{
-      border:none;
-      border-radius:8px;
-      padding:7px 10px;
-      font-size:12px;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .integrated-add-btn{background:#dbeafe;color:#1d4ed8;}
-    .integrated-del-btn{background:#fee2e2;color:#991b1b;margin-top:4px;}
-    @media(max-width:560px){
-      .integrated-input-row select,
-      .integrated-input-row input{font-size:11px;padding:4px 3px;}
-      .integrated-input-row input.hour-input{width:44px;}
-    }
     @media(max-width:560px){
       .wrap{padding:0 8px 18px;}
       .week-grid{grid-template-columns:repeat(4,1fr);}
@@ -798,141 +721,7 @@
       table{font-size:11px;}
       th,td{min-width:42px;height:28px;padding:2px;}
     }
-
-    /* =========================================================
-       V7.3 CLEAN：统一最终样式层
-       说明：旧版多套冲突 CSS 已清理，只保留这一套最终参数。
-       如需手动调手机端前4列宽度，只改下面 :root 里的 --m-* 和 --pc-* 即可。
-       left 会自动按变量计算，不再手算。
-       ========================================================= */
-    :root{
-      --pc-task-w:68px;
-      --pc-project-w:86px;
-      --pc-unit-w:94px;
-      --pc-remark-w:86px;
-      --m-task-w:45px;
-      --m-project-w:50px;
-      --m-unit-w:50px;
-      --m-remark-w:60px;
-      --m-project-left:var(--m-task-w);
-      --m-unit-left:calc(var(--m-task-w) + var(--m-project-w));
-      --m-remark-left:calc(var(--m-task-w) + var(--m-project-w) + var(--m-unit-w));
-    }
-    .integrated-note{display:none!important;}
-    .today-badge{display:inline-block;margin-top:2px;padding:1px 5px;border-radius:999px;background:#0078d4;color:#fff;font-size:11px;font-weight:900;line-height:1.2;white-space:nowrap;}
-    .hour-input.maxed,.inline-hour-input.maxed{background:#f3f4f6!important;color:#9ca3af!important;border-color:#cbd5e1!important;}
-    .hour-input.pending,.inline-hour-input.pending{background:#dcfce7!important;border-color:#16a34a!important;color:#111827!important;}
-    .main-timesheet-table{table-layout:fixed!important;border-collapse:collapse!important;border-spacing:0!important;width:max-content!important;min-width:0!important;}
-    .main-timesheet-table th,.main-timesheet-table td{padding:2px 4px!important;height:28px!important;min-height:28px!important;line-height:1.15!important;font-size:13px!important;vertical-align:middle!important;min-width:0!important;text-align:center;}
-    .main-timesheet-table thead th{font-size:13px!important;font-weight:900!important;background:#f3f4f6!important;}
-    .main-timesheet-table thead tr:first-child th:nth-child(1),.main-timesheet-table tbody td:nth-child(1){width:var(--pc-task-w)!important;min-width:var(--pc-task-w)!important;max-width:var(--pc-task-w)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;}
-    .main-timesheet-table thead tr:first-child th:nth-child(2),.main-timesheet-table tbody td:nth-child(2){width:var(--pc-project-w)!important;min-width:var(--pc-project-w)!important;max-width:var(--pc-project-w)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;}
-    .main-timesheet-table thead tr:first-child th:nth-child(3),.main-timesheet-table tbody td:nth-child(3){width:var(--pc-unit-w)!important;min-width:var(--pc-unit-w)!important;max-width:var(--pc-unit-w)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;}
-    .main-timesheet-table thead tr:first-child th:nth-child(4),.main-timesheet-table tbody td:nth-child(4){width:var(--pc-remark-w)!important;min-width:var(--pc-remark-w)!important;max-width:var(--pc-remark-w)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;word-break:keep-all!important;}
-    .main-timesheet-table .picker-btn,.main-timesheet-table .task-picker-btn,.main-timesheet-table .project-picker-btn,.main-timesheet-table .unit-picker-btn{width:100%!important;max-width:100%!important;height:26px!important;min-height:26px!important;padding:2px 3px!important;border:1px solid #bcd0e5!important;border-radius:6px!important;background:#fff!important;font-size:12px!important;font-weight:900!important;line-height:1.1!important;color:#111827!important;cursor:pointer!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;box-sizing:border-box!important;box-shadow:none!important;}
-    .main-timesheet-table .picker-btn:disabled{background:#f3f4f6!important;color:#9ca3af!important;cursor:not-allowed!important;}
-    .main-timesheet-table .inline-hour-input,.main-timesheet-table .hour-input{height:26px!important;min-height:26px!important;width:38px!important;min-width:38px!important;max-width:38px!important;padding:1px!important;border:1px solid #cbd5e1!important;border-radius:5px!important;text-align:center!important;font-size:12px!important;font-weight:900!important;line-height:1!important;background:#fff!important;box-shadow:none!important;}
-    .main-timesheet-table .inline-hour-input:focus,.main-timesheet-table .hour-input:focus{outline:2px solid #16a34a!important;border-color:#16a34a!important;background:#f0fdf4!important;}
-    .remark-custom-wrap{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;gap:3px!important;width:100%!important;min-width:0!important;max-width:none!important;}
-    .remark-custom-actions{display:flex!important;width:100%!important;min-width:0!important;max-width:none!important;}
-    .main-timesheet-table .integrated-remark-cell{padding:2px 4px!important;}
-    .main-timesheet-table .integrated-remark-cell .remark-custom-input,.main-timesheet-table .integrated-remark-cell .remark-select-btn{width:100%!important;min-width:100%!important;max-width:100%!important;flex:0 0 auto!important;height:26px!important;min-height:26px!important;max-height:26px!important;padding:2px 3px!important;font-size:12px!important;line-height:1.1!important;border-radius:6px!important;text-align:center!important;box-sizing:border-box!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;}
-    .main-timesheet-table .integrated-remark-cell .remark-custom-input{border:1px solid #bcd0e5!important;background:#fff!important;}
-    .main-timesheet-table .integrated-remark-cell .remark-custom-input:focus{outline:2px solid #16a34a!important;border-color:#16a34a!important;background:#f0fdf4!important;}
-    .main-timesheet-table .integrated-remark-cell .remark-select-btn{font-weight:900!important;background:#fff!important;color:#0f4c81!important;border:1px solid #bcd0e5!important;cursor:pointer!important;}
-    .task-del-btn{display:block!important;width:100%!important;height:20px!important;min-height:20px!important;margin-top:2px!important;padding:1px 2px!important;font-size:10px!important;line-height:1!important;border-radius:5px!important;background:#fee2e2!important;color:#991b1b!important;}
-    .picker-mask,.hour-picker-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:10px;}
-    .picker-panel{width:min(880px,100%)!important;max-height:88vh;background:#fff;border-radius:18px 18px 12px 12px;box-shadow:0 18px 50px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column;}
-    .picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#f8fafc;font-weight:900;color:#0f172a;}
-    .picker-close{border:none;border-radius:10px;padding:7px 10px;background:#e5e7eb;color:#111827;font-weight:900;cursor:pointer;}
-    .picker-body{padding:12px;overflow:auto;}
-    .picker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
-    .picker-card{border:1px solid #d7dde5;border-radius:12px;background:#fff;min-height:42px;padding:10px 8px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;color:#0f172a;cursor:pointer;word-break:break-word;box-shadow:0 1px 4px rgba(15,23,42,.06);}
-    .picker-card.active{border-color:#0078d4;background:#eaf4ff;color:#075985;box-shadow:0 0 0 2px rgba(0,120,212,.15);}
-    .picker-card.task{background:#f0f9ff;color:#075985;border-color:#bae6fd;}
-    .picker-card.remark{background:#f8fafc;color:#0f172a;border-color:#d7dde5;align-items:flex-start;justify-content:flex-start;text-align:left;line-height:1.35;}
-    .picker-card.remark.active,.picker-card.task.active{background:#dbeafe!important;color:#075985!important;border-color:#0078d4!important;}
-    .picker-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .picker-col{border:1px solid #d7dde5;border-radius:14px;overflow:hidden;background:#fff;}
-    .picker-col-title{padding:9px 8px;font-size:14px;font-weight:900;text-align:center;border-bottom:1px solid #d7dde5;position:sticky;top:0;z-index:1;}
-    .picker-col.unit .picker-col-title{background:#e8f4ff;color:#0f4c81;}
-    .picker-col.container .picker-col-title{background:#fff4e6;color:#b45309;}
-    .picker-list{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(78px,1fr))!important;gap:4px!important;max-height:62vh!important;overflow:auto!important;padding:5px!important;}
-    .picker-item{min-height:34px!important;padding:6px 4px!important;border:1px solid #e5e7eb!important;border-radius:7px!important;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;cursor:pointer;word-break:break-word;font-size:13px!important;line-height:1.1!important;}
-    .picker-item.unit{background:#f4faff;color:#0f4c81;}
-    .picker-item.container{background:#fffaf2;color:#8a4b00;}
-    .picker-item.active{outline:2px solid #0078d4;outline-offset:-2px;background:#dbeafe!important;color:#075985!important;}
-    .picker-empty{padding:18px 10px;text-align:center;color:#94a3b8;font-weight:900;border-bottom:1px solid #e5e7eb;}
-    .remark-picker-custom{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #e5e7eb;}
-    .remark-picker-input{height:40px!important;border:1px solid #bcd0e5!important;border-radius:10px!important;padding:6px 10px!important;font-size:16px!important;font-weight:900!important;}
-    .remark-picker-apply{border:none;border-radius:10px;padding:0 12px;background:#0078d4;color:#fff;font-weight:900;cursor:pointer;}
-    .remark-picker-section-title{grid-column:1/-1;color:#64748b;font-size:12px;font-weight:900;margin:2px 0 4px;}
-    .hour-picker-panel{width:min(520px,100%);background:#fff;border-radius:18px 18px 12px 12px;box-shadow:0 18px 50px rgba(0,0,0,.22);overflow:hidden;}
-    .hour-picker-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#f8fafc;font-weight:900;color:#0f172a;}
-    .hour-picker-close{border:none;border-radius:9px;padding:6px 10px;background:#e5e7eb;font-weight:900;color:#111827;cursor:pointer;}
-    .hour-picker-body{padding:12px;}
-    .hour-picker-input{width:100%!important;height:42px!important;border:1px solid #bcd0e5!important;border-radius:10px!important;padding:8px 10px!important;font-size:20px!important;font-weight:900!important;text-align:center!important;}
-    .hour-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
-    .hour-picker-option{border:1px solid #bcd0e5;border-radius:10px;background:#f8fbff;color:#0f4c81;font-weight:900;min-height:42px;font-size:18px;cursor:pointer;}
-    .hour-picker-option:active{transform:scale(.98);}
-    .hour-picker-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
-    .hour-picker-actions button{border:none;border-radius:10px;min-height:42px;font-size:16px;font-weight:900;cursor:pointer;}
-    .hour-picker-clear{background:#f3f4f6;color:#111827;}
-    .hour-picker-ok{background:#0078d4;color:#fff;}
-    .hour-picker-hint{font-size:12px;color:#64748b;font-weight:900;margin-top:8px;text-align:center;}
-    @media(max-width:760px){
-      .wrap{padding:0 4px 14px!important;}
-      .card{padding:8px 4px 6px!important;border-radius:14px!important;}
-      .table-scroll{border-radius:9px!important;margin-bottom:8px!important;}
-      .main-timesheet-table th,.main-timesheet-table td{padding:0!important;height:24px!important;min-height:24px!important;line-height:1!important;font-size:10.5px!important;}
-      .main-timesheet-table thead th{font-size:10.5px!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(1),.main-timesheet-table tbody td:nth-child(1){position:sticky!important;left:0!important;z-index:20!important;width:var(--m-task-w)!important;min-width:var(--m-task-w)!important;max-width:var(--m-task-w)!important;background:#fff!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(2),.main-timesheet-table tbody td:nth-child(2){position:sticky!important;left:var(--m-project-left)!important;z-index:20!important;width:var(--m-project-w)!important;min-width:var(--m-project-w)!important;max-width:var(--m-project-w)!important;background:#fff!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(3),.main-timesheet-table tbody td:nth-child(3){position:sticky!important;left:var(--m-unit-left)!important;z-index:20!important;width:var(--m-unit-w)!important;min-width:var(--m-unit-w)!important;max-width:var(--m-unit-w)!important;background:#fff!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(4),.main-timesheet-table tbody td:nth-child(4){position:sticky!important;left:var(--m-remark-left)!important;z-index:20!important;width:var(--m-remark-w)!important;min-width:var(--m-remark-w)!important;max-width:var(--m-remark-w)!important;background:#fff!important;}
-      .main-timesheet-table thead tr:first-child th:nth-child(-n+4){z-index:30!important;background:#f5f7fa!important;}
-      .main-timesheet-table tbody tr.integrated-input-row td:nth-child(-n+4){background:#f8fbff!important;}
-      .main-timesheet-table tbody tr.missing-row td:nth-child(-n+4){background:#fff1f2!important;}
-      .main-timesheet-table tbody tr:last-child td:nth-child(-n+4){background:#f8fafc!important;}
-      .main-timesheet-table .picker-btn,.main-timesheet-table .task-picker-btn,.main-timesheet-table .project-picker-btn,.main-timesheet-table .unit-picker-btn{height:22px!important;min-height:22px!important;padding:0 1px!important;border-radius:4px!important;font-size:10px!important;line-height:1!important;}
-      .main-timesheet-table .inline-hour-input,.main-timesheet-table .hour-input{height:22px!important;min-height:22px!important;width:30px!important;min-width:30px!important;max-width:30px!important;padding:0!important;border-radius:4px!important;font-size:10px!important;}
-      .main-timesheet-table .integrated-remark-cell{padding:1px 2px!important;}
-      .main-timesheet-table .integrated-remark-cell .remark-custom-wrap{gap:2px!important;}
-      .main-timesheet-table .integrated-remark-cell .remark-custom-input,.main-timesheet-table .integrated-remark-cell .remark-select-btn{height:22px!important;min-height:22px!important;max-height:22px!important;font-size:10px!important;line-height:1!important;padding:0 2px!important;border-radius:4px!important;}
-      .task-del-btn{height:18px!important;min-height:18px!important;font-size:9px!important;padding:0 2px!important;margin-top:1px!important;}
-      .picker-panel{max-height:88vh!important;}
-      .picker-body{padding:10px!important;}
-      .picker-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
-      .picker-card{font-size:17px;min-height:48px;padding:10px 6px;}
-      .picker-columns{grid-template-columns:1fr 1fr!important;gap:6px!important;}
-      .picker-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:3px!important;max-height:66vh!important;padding:3px!important;}
-      .picker-item{font-size:12px!important;min-height:30px!important;padding:4px 2px!important;border-radius:6px!important;}
-      .picker-col-title{font-size:13px!important;padding:7px 4px!important;}
-      .remark-picker-custom{grid-template-columns:1fr;gap:6px;}
-      .remark-picker-input{height:38px!important;font-size:15px!important;}
-      .remark-picker-apply{height:38px!important;}
-      .hour-picker-grid{grid-template-columns:repeat(4,1fr);gap:7px;}
-      .hour-picker-option{min-height:40px;font-size:17px;}
-    }
-
-
-    /* V7.5：管理员筛选器 + 导出当前筛选结果 */
-    .admin-filter-select{
-      width:auto!important;
-      min-width:110px!important;
-      max-width:180px!important;
-      border:1px solid #bcd0e5!important;
-      border-radius:10px!important;
-      padding:7px 10px!important;
-      font-size:13px!important;
-      font-weight:900!important;
-      background:#fff!important;
-      color:#0f172a!important;
-    }
-    @media(max-width:760px){
-      .admin-filter-select{min-width:96px!important;max-width:140px!important;font-size:12px!important;padding:6px 8px!important;}
-    }
-</style>
+  </style>
 </head>
 <body>
   <div class="header">车间工时填报系统</div>
@@ -974,17 +763,7 @@
         <button class="admin-btn export-btn" onclick="exportSelectedWeekExcel()">📥 导出所选 Week 数据</button>
       </div>     <div id="anomalyFilterArea" class="filter-area hidden">
         <button id="anomalyFilterBtn" class="filter-btn" onclick="toggleAnomalyFilter()">只显示异常行</button>
-        <select id="filterEmployee" class="admin-filter-select" onchange="applyAdminFilters()">
-          <option value="">全部员工</option>
-        </select>
-        <select id="filterProject" class="admin-filter-select" onchange="applyAdminFilters()">
-          <option value="">全部项目</option>
-        </select>
-        <select id="filterUnit" class="admin-filter-select" onchange="applyAdminFilters()">
-          <option value="">全部单元</option>
-        </select>
-        <button type="button" class="filter-btn" onclick="clearAdminFilters()">清除筛选</button>
-        <span id="filterNote" class="filter-note">支持员工 / 项目 / 单元组合筛选；导出会按当前筛选结果导出</span>
+        <span class="filter-note">筛选后：本周明细和原始记录只保留异常行</span>
       </div>
       <div class="sec-title">本周已提交工时明细</div>
       <div id="recordList">
@@ -992,26 +771,71 @@
       </div>
 
       <div id="inputArea">
-        <div id="legacyInputHidden" class="hidden">
-          <div id="weekdayChips"></div>
-          <div id="taskChips"></div>
-          <div id="projectChips"></div>
-          <div id="unitChips"></div>
-          <div id="regularHoursDisplay">8</div>
-          <div id="otWeekdayDisplay">0</div>
-          <div id="otWeekendDisplay">0</div>
-          <button id="regularMinus"></button>
-          <button id="regularPlus"></button>
-          <div id="regularHoursQuick"></div>
-          <div id="otWeekdayQuick"></div>
-          <div id="otWeekendQuick"></div>
-          <div id="weekdayOTCard"></div>
-          <div id="weekendOTCard"></div>
-          <textarea id="remark"></textarea>
-          <div id="remarkQuick"></div>
-          <button id="submitBtn" disabled></button>
+        <div class="sec-title">填写工时</div>
+
+        <div class="field">
+          <label>星期<span class="req">*</span></label>
+          <div id="weekdayChips" class="chip-grid weekday-grid"></div>
+        </div>
+
+        <div class="field">
+          <label>工时类别<span class="req">*</span></label>
+          <div id="taskChips" class="chip-grid task-grid"></div>
+        </div>
+
+        <div class="field">
+          <label>项目号<span class="req">*</span></label>
+          <div id="projectChips" class="chip-grid project-grid"></div>
+        </div>
+
+        <div class="field">
+          <label>单元号<span class="req">*</span></label>
+          <div id="unitChips" class="chip-grid unit-grid"></div>
+        </div>
+
+        <div class="hours-box">
+          <div class="hour-card">
+            <div class="hour-title">正常工时（小时）<span class="req">*</span></div>
+            <div class="count-row">
+              <button id="regularMinus" class="count-btn" onclick="changeNumber('regularHours',-0.5)">-</button>
+              <div id="regularHoursDisplay" class="count-value">8</div>
+              <button id="regularPlus" class="count-btn" onclick="changeNumber('regularHours',0.5)">+</button>
+            </div>
+            <div id="regularHoursQuick" class="quick-row"></div>
+          </div>
+
+          <div class="hour-card" id="weekdayOTCard">
+            <div class="hour-title">工作日加班（小时）</div>
+            <div class="count-row">
+              <button class="count-btn" onclick="changeNumber('otWeekday',-0.5)">-</button>
+              <div id="otWeekdayDisplay" class="count-value">0</div>
+              <button class="count-btn" onclick="changeNumber('otWeekday',0.5)">+</button>
+            </div>
+            <div id="otWeekdayQuick" class="quick-row"></div>
+          </div>
+
+          <div class="hour-card hidden" id="weekendOTCard">
+            <div class="hour-title">周末加班（小时）</div>
+            <div class="count-row">
+              <button class="count-btn" onclick="changeNumber('otWeekend',-0.5)">-</button>
+              <div id="otWeekendDisplay" class="count-value">0</div>
+              <button class="count-btn" onclick="changeNumber('otWeekend',0.5)">+</button>
+            </div>
+            <div id="otWeekendQuick" class="quick-row"></div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label>备注<span class="req">*</span></label>
+          <textarea id="remark" placeholder="必填：请选择或填写备注"></textarea>
+          <div id="remarkQuick" class="quick-row"></div>
+        </div>
+
+        <div class="btn-area">
+          <button id="submitBtn" class="btn btn-primary" onclick="submitForm()" disabled>提交工时</button>
         </div>
       </div>
+
       <div id="msg" class="msg"></div>
       <div class="foot">Ningbo Workshop Timesheet</div>
     </div>
@@ -1276,7 +1100,7 @@ const projectUnits = {
     "NIN-53063",
     "NIN-53062"
   ],
-    "销售订单": [
+    "After_sales_销售": [
     "NIN-53111",
     "NIN-53086",
     "NIN-53085",
@@ -1297,13 +1121,14 @@ const quickHoursMap = {
 };
 const remarkTemplates = {
   
-  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
-  "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
-  "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
-  "电气安装":["桥架安装","布线","端子接线"],
-  "额外工时":["设计问题","特殊支架","供应商问题","FAT帮忙","内部问题"],
-  "其它作业":["整理5S等","培训","早会","精益改善","其它","车间管理"],
-  "请假":["年假","病假","事假","出差"]
+  "机械组装":["下料、组对、组装","焊接","压力测试","配件打磨","气管安装"],
+  "保温作业":["管道补漆","保温预制下料","保温安装","保温发泡","保温清理"],
+  "电气安装":["桥架安装","布线接线"],
+  "额外工时":["设计更改返工","增加额外支架等返工","项目组特殊要求返工","供应商问题返工","FAT帮忙","内部问题返工"],
+  "其它作业":["整理、打扫、5S等","培训等","早会","精益生产改善工作","其它","车间管理"],
+  "其它工作":["整理、打扫、5S等","培训等","早会","精益生产改善工作","其它","车间管理"],
+  "请假":["年假","病假","事假","出差"],
+  "仓库作业":["点料、入库","发料、退料","装箱发货","仓库帮忙"]
 };
 const state = {
   week:"",
@@ -1350,23 +1175,9 @@ function showMsg(text, ok=true){
 }
 function isWeekendDay(day){ return day === "六" || day === "日"; }
 function shouldCheckMissingWorkdays(){
+  // ✅ 只有已过去的 Week 才把未填写的工作日判定为异常；本周未到的日期不提前标红
   if(!state.week) return false;
-  const selected = weekNum(state.week);
-  const current = weekNum(getCurrentWeek());
-  if(selected < current) return true;       // 过去周：周一到周五都检查
-  if(selected === current) return "partial"; // 当前周：只检查今天及之前
-  return false;
-}
-function shouldCheckMissingDay(day){
-  const mode = shouldCheckMissingWorkdays();
-  if(mode === true) return true;
-  if(mode !== "partial") return false;
-  const workdays = ["一","二","三","四","五"];
-  const today = getTodayWeekday();
-  const dayIndex = workdays.indexOf(day);
-  const todayIndex = workdays.indexOf(today);
-  if(dayIndex < 0 || todayIndex < 0) return false;
-  return dayIndex <= todayIndex;
+  return weekNum(state.week) < weekNum(getCurrentWeek());
 }
 
 // ✅ 三级异常颜色规则：0=正常，1=轻微异常（黄色），2=严重异常（红色）
@@ -1511,7 +1322,8 @@ async function fetchRows(){
   return fetchRowsFromUrl(apiUrl());
 }
 async function fetchRowsByWeek(week){
-  // ✅ 性能优化：优先让 Baserow 只返回当前 Week；失败则自动回退全量读取后前端过滤
+  // ✅ 性能优化：优先让 Baserow 只返回当前 Week，避免每次切换 Week 都全量读取历史数据
+  // 如果某些 Baserow 字段过滤设置不兼容，则自动回退到全量读取后前端过滤，不影响使用。
   try{
     const rows = await fetchRowsFromUrl(apiUrlWithParams({["filter__week__equal"]: String(week || "")}));
     return rows.filter(row=>String(row.week || "") === String(week));
@@ -1532,8 +1344,8 @@ async function loadAllWeeks(){
     rows.forEach(r=>{ if(r.week) set.add(r.week); });
     const current = getCurrentWeek();
     const currentNum = Number(current.replace("W", ""));
-    // ✅ 只显示当前周及之前3周；不显示本周后面的 Week
-    for(let i=-3;i<=0;i++){
+    // ✅ 只显示当前周及之前4周；不显示本周后面的 Week
+    for(let i=-4;i<=0;i++){
       const w = currentNum + i;
       if(w > 0) set.add("W" + w);
     }
@@ -1808,33 +1620,13 @@ function maxHours(field){
   if(field === "otWeekend") return 8;
   return 8;
 }
-function submittedRegularHoursForCurrentDay(){
-  if(!state.week || !state.weekday || !empId) return 0;
-  return (currentWeekRecords || []).reduce((sum, record)=>{
-    if(String(record.employeeId || "") !== String(empId)) return sum;
-    if(String(record.week || "") !== String(state.week)) return sum;
-    if(String(record.weekday || "") !== String(state.weekday)) return sum;
-    return sum + num(record.regularHours);
-  }, 0);
-}
-function remainingRegularHoursForCurrentDay(){
-  if(!state.weekday || isWeekendDay(state.weekday)) return 0;
-  const remain = 8 - submittedRegularHoursForCurrentDay();
-  return Math.max(0, Math.min(8, Math.round(remain * 2) / 2));
-}
-function maxSubmitHours(field){
-  if(field === "regularHours") return remainingRegularHoursForCurrentDay();
-  return maxHours(field);
-}
 function changeNumber(field, delta){
-  const max = maxSubmitHours(field);
   let next = Math.round((num(state[field]) + delta) * 2) / 2;
-  state[field] = Math.max(0, Math.min(next, max));
+  state[field] = Math.max(0, Math.min(next, maxHours(field)));
   refreshDisplays();
 }
 function setNumber(field, value){
-  const max = maxSubmitHours(field);
-  state[field] = Math.max(0, Math.min(num(value), max));
+  state[field] = Math.max(0, Math.min(num(value), maxHours(field)));
   refreshDisplays();
 }
 function disableRegularInputs(disabled){
@@ -1862,9 +1654,8 @@ function applyAutoHoursByWeekday(){
     $("weekendOTCard").classList.remove("hidden");
     disableRegularInputs(true);
   }else{
-    // ✅ 工作日：正常工时自动填“当天剩余可填工时”
-    // 例：当天已提交3h，则默认填5h；当天已提交8h，则默认填0h。
-    state.regularHours = remainingRegularHoursForCurrentDay();
+    // ✅ 工作日：自动默认正常工时8h，周末加班自动归零，只显示工作日加班
+    state.regularHours = 8;
     state.otWeekend = 0;
     state.otWeekday = Math.max(0, Math.min(num(state.otWeekday), maxHours("otWeekday")));
     $("weekdayOTCard").classList.remove("hidden");
@@ -1933,10 +1724,6 @@ function calcEmployeeAnomalies(rows){
 
   Object.keys(employeeMap).forEach(id=>{
     if(id === ADMIN_ID) return;
-    if(isAdmin()){
-      const activeEmployee = getAdminFilterEmployeeId();
-      if(activeEmployee && String(id) !== String(activeEmployee)) return;
-    }
     const item = totals[id];
     if(!item) return;
 
@@ -1948,20 +1735,14 @@ function calcEmployeeAnomalies(rows){
 
     // ✅ 名单里有，但所选 Week 整周一条都没提交 = 严重异常
     if(!hasAnyRecord){
-      if(isAdmin() && hasAdminProjectOrUnitFilter()) return;
-      const checkableDays = ["一","二","三","四","五"].filter(day=>shouldCheckMissingDay(day));
-      if(checkableDays.length){
-        const levels = {};
-        checkableDays.forEach(day=>levels[day] = 2);
-        anomalies[id] = {
-          employeeId:id,
-          employeeName:item.employeeName,
-          days:checkableDays,
-          levels:levels,
-          level:2,
-          missingAllWeek:true
-        };
-      }
+      anomalies[id] = {
+        employeeId:id,
+        employeeName:item.employeeName,
+        days:["整周未提交"],
+        levels:{},
+        level:2,
+        missingAllWeek:true
+      };
       return;
     }
 
@@ -1973,7 +1754,7 @@ function calcEmployeeAnomalies(rows){
       const d = item.days[day];
       // ✅ 已过去的 Week：工作日没填也算严重异常；本周不提前标红未来未填日期
       if(!d || !d.hasRecord){
-        if(shouldCheckMissingDay(day)){
+        if(checkMissingWorkdays){
           badDays.push(day);
           levels[day] = 2;
           maxBadLevel = 2;
@@ -2015,99 +1796,10 @@ function setAnomalyFilterButtonText(){
   btn.innerText = onlyShowAnomaly ? "显示全部记录" : "只显示异常行";
   btn.className = "filter-btn" + (onlyShowAnomaly ? " active" : "");
 }
-
-function getAdminFilterEmployeeId(){
-  const el = $("filterEmployee");
-  return el ? String(el.value || "") : "";
-}
-function getAdminFilterProject(){
-  const el = $("filterProject");
-  return el ? String(el.value || "") : "";
-}
-function getAdminFilterUnit(){
-  const el = $("filterUnit");
-  return el ? String(el.value || "") : "";
-}
-function hasAdminDataFilter(){
-  return !!(getAdminFilterEmployeeId() || getAdminFilterProject() || getAdminFilterUnit());
-}
-function hasAdminProjectOrUnitFilter(){
-  return !!(getAdminFilterProject() || getAdminFilterUnit());
-}
-function getAdminFilteredRows(){
-  if(!isAdmin()) return currentWeekRecords || [];
-  const emp = getAdminFilterEmployeeId();
-  const project = getAdminFilterProject();
-  const unit = getAdminFilterUnit();
-  return (currentWeekRecords || []).filter(record=>{
-    if(emp && String(record.employeeId || "") !== String(emp)) return false;
-    if(project && String(record.project || "") !== String(project)) return false;
-    if(unit && String(record.unit || "") !== String(unit)) return false;
-    return true;
-  });
-}
-function setSelectOptions(selectId, options, allText, currentValue){
-  const el = $(selectId);
-  if(!el) return;
-  const value = currentValue || el.value || "";
-  el.innerHTML = '<option value="">' + allText + '</option>' + options.map(opt=>'<option value="'+safe(opt.value)+'">'+safe(opt.label)+'</option>').join('');
-  if(Array.from(el.options).some(o=>String(o.value)===String(value))) el.value = value;
-}
-function initAdminFilters(rows){
-  if(!isAdmin()) return;
-  const empOptions = Object.keys(employeeMap)
-    .filter(id=>String(id)!==String(ADMIN_ID))
-    .map(id=>({value:id,label:employeeMap[id] + ' / ' + id}))
-    .sort((a,b)=>String(a.label).localeCompare(String(b.label), 'zh-Hans-CN'));
-  const projectSet = new Set(Object.keys(projectUnits));
-  (rows || []).forEach(r=>{ if(r.project) projectSet.add(String(r.project)); });
-  const projectOptions = Array.from(projectSet).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true})).map(v=>({value:v,label:v}));
-  const unitSet = new Set();
-  Object.values(projectUnits).forEach(list=>(list||[]).forEach(u=>unitSet.add(String(u))));
-  (rows || []).forEach(r=>{ if(r.unit) unitSet.add(String(r.unit)); });
-  const unitOptions = Array.from(unitSet).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true})).map(v=>({value:v,label:v}));
-  setSelectOptions('filterEmployee', empOptions, '全部员工', getAdminFilterEmployeeId());
-  setSelectOptions('filterProject', projectOptions, '全部项目', getAdminFilterProject());
-  setSelectOptions('filterUnit', unitOptions, '全部单元', getAdminFilterUnit());
-  updateFilterNote();
-}
-function applyAdminFilters(){
-  if(!isAdmin()) return;
-  updateFilterNote();
-  renderWeekRecords(getAdminFilteredRows());
-}
-function clearAdminFilters(){
-  ['filterEmployee','filterProject','filterUnit'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
-  applyAdminFilters();
-}
-function adminFilterDescription(){
-  if(!isAdmin()) return "";
-  const parts = [];
-  const emp = getAdminFilterEmployeeId();
-  const project = getAdminFilterProject();
-  const unit = getAdminFilterUnit();
-  if(emp) parts.push('员工=' + (employeeMap[emp] || emp) + '/' + emp);
-  if(project) parts.push('项目=' + project);
-  if(unit) parts.push('单元=' + unit);
-  if(onlyShowAnomaly) parts.push('只显示异常');
-  return parts.length ? parts.join('；') : '全部数据';
-}
-function updateFilterNote(){
-  const note = $("filterNote");
-  if(!note) return;
-  const total = (currentWeekRecords || []).length;
-  const filtered = getAdminFilteredRows().length;
-  note.innerText = '当前筛选：' + adminFilterDescription() + '；原始记录 ' + filtered + '/' + total + ' 条；导出会按当前筛选结果导出';
-}
 function toggleAnomalyFilter(){
   onlyShowAnomaly = !onlyShowAnomaly;
   setAnomalyFilterButtonText();
-  if(isAdmin()){
-    updateFilterNote();
-    renderWeekRecords(getAdminFilteredRows());
-  }else{
-    renderWeekRecords(currentWeekRecords);
-  }
+  renderWeekRecords(currentWeekRecords);
 }
 
 function renderAnomalyBox(rows){
@@ -2135,357 +1827,11 @@ async function loadWeekRecords(){
       return new Date(a.submitTime || 0) - new Date(b.submitTime || 0);
     });
     currentWeekRecords = rows;
-    if(!isAdmin()){
-      syncHourSectionByWeekday();
-      renderWeekRecords(rows);
-    }else{
-      initAdminFilters(rows);
-      renderWeekRecords(getAdminFilteredRows());
-    }
+    renderWeekRecords(rows);
   }catch(e){
     currentWeekRecords = [];
     renderWeekRecords([], "本周记录读取失败：" + e.message);
   }
-}
-
-
-const remarkOptionsByTask = {
-  "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
-  "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
-  "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
-  "电气安装":["桥架安装","布线","端子接线"],
-  "额外工时":["设计问题","特殊支架","供应商问题","FAT帮忙","内部问题"],
-  "其它作业":["整理5S等","培训","早会","精益改善","其它","车间管理"],
-  "请假":["年假","病假","事假","出差"]
-};
-function remarkOptionsForTask(task){
-  return remarkOptionsByTask[String(task || "").trim()] || [];
-}
-function remarkDatalistHtml(listId, task){
-  const opts = remarkOptionsForTask(task);
-  if(!opts.length) return '';
-  return '<datalist id="' + safe(listId) + '">' + opts.map(v=>'<option value="' + safe(v) + '"></option>').join('') + '</datalist>';
-}
-
-function mainTableScroller(){
-  const table = document.querySelector(".main-timesheet-table");
-  return table ? table.closest(".table-scroll") : null;
-}
-function renderWeekRecordsKeepScroll(){
-  const sc = mainTableScroller();
-  const left = sc ? sc.scrollLeft : 0;
-  const top = sc ? sc.scrollTop : 0;
-  renderWeekRecords(currentWeekRecords || []);
-  requestAnimationFrame(()=>{
-    const sc2 = mainTableScroller();
-    if(sc2){
-      sc2.scrollLeft = left;
-      sc2.scrollTop = top;
-    }
-  });
-}
-function isContainerUnit(value){
-  const v = String(value || "").trim().toUpperCase();
-  return !!v && !v.startsWith("U");
-}
-function unitOptionsHtml(units, selected){
-  const arr = (units || []).slice();
-  const sorter = (a,b)=>String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:"base"});
-  const unitList = arr.filter(u=>!isContainerUnit(u)).sort(sorter);
-  const containerList = arr.filter(u=>isContainerUnit(u)).sort(sorter);
-  const make = (list, cls)=>list.map(u=>'<option class="unit-option '+cls+'" value="'+safe(u)+'"'+(String(u)===String(selected)?' selected':'')+'>'+safe(u)+'</option>').join('');
-  let html = '';
-  if(unitList.length) html += '<optgroup label="单元类" style="background:#eaf4ff;color:#0f4c81;">' + make(unitList,'unit-type') + '</optgroup>';
-  if(containerList.length) html += '<optgroup label="容器类" style="background:#fff3e0;color:#8a4b00;">' + make(containerList,'container-type') + '</optgroup>';
-  return html;
-}
-let inlineEditDrafts = {};
-let inlineEditMeta = {};
-function inlineEditKey(rowKey, day, field){
-  return String(rowKey) + "||" + String(day) + "||" + String(field);
-}
-function inlineDraftValue(rowKey, day, field, originalValue){
-  const k = inlineEditKey(rowKey, day, field);
-  return Object.prototype.hasOwnProperty.call(inlineEditDrafts, k) ? inlineEditDrafts[k] : originalValue;
-}
-
-function fieldRecordValue(record, field){
-  if(field === "regular") return num(record.regularHours);
-  if(field === "otWeekday") return num(record.otWeekday);
-  if(field === "otWeekend") return num(record.otWeekend);
-  return 0;
-}
-function fieldLimit(day, field){
-  if(field === "regular") return isWeekendDay(day) ? 0 : 8;
-  if(field === "otWeekday") return isWeekendDay(day) ? 0 : 4;
-  if(field === "otWeekend") return isWeekendDay(day) ? 8 : 0;
-  return 0;
-}
-function inlineDayTotal(day, field){
-  return (currentWeekRecords || []).reduce((sum, record)=>{
-    if(String(record.employeeId || "") !== String(empId)) return sum;
-    if(String(record.week || "") !== String(state.week)) return sum;
-    if(String(record.weekday || "") !== String(day)) return sum;
-    return sum + fieldRecordValue(record, field);
-  }, 0);
-}
-function parseInlineKey(k){
-  const parts = String(k || "").split("||");
-  const field = parts.pop();
-  const day = parts.pop();
-  const rowKey = parts.join("||");
-  return {rowKey, day, field};
-}
-function inlineOriginalValue(rowKey, day, field){
-  const meta = inlineEditMeta[rowKey];
-  return num(meta && meta.originals && meta.originals[day] ? meta.originals[day][field] : 0);
-}
-function inlineDraftAdjustmentTotal(day, field, excludeInlineKey=""){
-  return Object.keys(inlineEditDrafts || {}).reduce((sum,k)=>{
-    if(String(k) === String(excludeInlineKey || "")) return sum;
-    const p = parseInlineKey(k);
-    if(p.day !== day || p.field !== field) return sum;
-    const original = inlineOriginalValue(p.rowKey, p.day, p.field);
-    const next = num(inlineEditDrafts[k]);
-    return sum + (next - original);
-  }, 0);
-}
-function integratedDraftFieldTotal(day, field, excludeRowId="", excludeField=""){
-  if(typeof integratedDraftTotals !== "function") return 0;
-  const totals = integratedDraftTotals(day, excludeRowId, excludeField);
-  return num(totals[field]);
-}
-function inlineMaxValue(rowKey, day, field, originalValue){
-  const limit = fieldLimit(day, field);
-  const inlineKey = inlineEditKey(rowKey, day, field);
-  const totalExceptThisCell = inlineDayTotal(day, field) - num(originalValue) + inlineDraftAdjustmentTotal(day, field, inlineKey) + integratedDraftFieldTotal(day, field);
-  return Math.max(0, Math.min(limit, Math.round((limit - totalExceptThisCell) * 4) / 4));
-}
-function unifiedMaxForIntegratedCell(day, field, rowId){
-  const limit = fieldLimit(day, field);
-  const max = limit - inlineDayTotal(day, field) - inlineDraftAdjustmentTotal(day, field) - integratedDraftFieldTotal(day, field, rowId, field);
-  return Math.max(0, Math.min(limit, Math.round(max * 4) / 4));
-}
-function unifiedEffectiveTotal(day, field){
-  return Math.round((inlineDayTotal(day, field) + inlineDraftAdjustmentTotal(day, field) + integratedDraftFieldTotal(day, field)) * 4) / 4;
-}
-function validateUnifiedDraftTotals(){
-  for(const day of weekdayOptions){
-    for(const field of ["regular","otWeekday","otWeekend"]){
-      const limit = fieldLimit(day, field);
-      const total = unifiedEffectiveTotal(day, field);
-      if(total > limit + 0.0001){
-        const label = field === "regular" ? "正常出勤" : (field === "otWeekday" ? "工作日加班" : "周末加班");
-        return "周" + day + " " + label + " 合计 " + total + "h，超过上限 " + limit + "h，请检查后再提交。";
-      }
-    }
-  }
-  return "";
-}
-function inlineCellInput(rowKey, day, field, originalValue, className){
-  if(isAdmin()) return '<td'+className+'>'+(originalValue || "")+'</td>';
-  const max = inlineMaxValue(rowKey, day, field, originalValue);
-  const k = inlineEditKey(rowKey, day, field);
-  const v = inlineDraftValue(rowKey, day, field, originalValue);
-  const pending = Object.prototype.hasOwnProperty.call(inlineEditDrafts, k) && num(inlineEditDrafts[k]) !== num(originalValue);
-  const maxed = max <= 0 && num(originalValue) <= 0;
-  return '<td'+className+'><input class="inline-hour-input '+(pending?'pending ':'')+(maxed?'maxed':'')+'" type="text" inputmode="decimal" readonly data-kind="inline" data-row-key="'+safe(rowKey)+'" data-day="'+day+'" data-field="'+field+'" data-original="'+num(originalValue)+'" data-max="'+max+'" value="'+safe(v || "")+'" placeholder="0" '+(maxed?'disabled':'')+' onclick="openHourPickerFromInput(this)" onfocus="openHourPickerFromInput(this)"></td>';
-}
-function updateInlineEdit(rowKey, day, field, value, originalValue){
-  const k = inlineEditKey(rowKey, day, field);
-  const max = inlineMaxValue(rowKey, day, field, originalValue);
-  let v = Math.round(num(value) * 4) / 4;
-  if(v < 0) v = 0;
-  if(v > max) v = max;
-  inlineEditDrafts[k] = v === 0 ? "" : String(v);
-  renderWeekRecordsKeepScroll();
-}
-function registerInlineMeta(rowKey, meta){
-  inlineEditMeta[String(rowKey)] = meta;
-}
-function collectInlineChanges(){
-  const items = [];
-  Object.keys(inlineEditDrafts).forEach(k=>{
-    const parts = k.split("||");
-    const field = parts.pop();
-    const day = parts.pop();
-    const rowKey = parts.join("||");
-    const meta = inlineEditMeta[rowKey];
-    if(!meta) return;
-    const dayMeta = meta.originals && meta.originals[day] ? meta.originals[day] : {};
-    const original = num(dayMeta[field]);
-    const next = num(inlineEditDrafts[k]);
-    if(next === original) return;
-    const recs = dayMeta[field + "Records"] || [];
-    if(recs.length === 1){
-      const patch = {};
-      if(field === "regular") patch.regularHours = next;
-      if(field === "otWeekday") patch.otWeekday = next;
-      if(field === "otWeekend") patch.otWeekend = next;
-      items.push({patchId:recs[0].id, patchBody:patch, weekday:day});
-      return;
-    }
-    if(recs.length > 1){
-      items.push({error:"该格子由多条原始记录合并而来，请在下方“原始记录管理”中修改具体记录。"});
-      return;
-    }
-    if(next <= 0) return;
-    const payload = {
-      submitTime:new Date().toISOString(),
-      employeeId:empId,
-      employeeName:empName,
-      week:state.week,
-      weekday:day,
-      task:meta.task,
-      project:meta.project,
-      unit:meta.unit,
-      regularHours:0,
-      otWeekday:0,
-      otWeekend:0,
-      remark:meta.remark || ""
-    };
-    if(field === "regular") payload.regularHours = next;
-    if(field === "otWeekday") payload.otWeekday = next;
-    if(field === "otWeekend") payload.otWeekend = next;
-    items.push({payload});
-  });
-  return items;
-}
-async function submitInlineAndIntegratedRows(){
-  if(isAdmin()) return showMsg("管理员账号不允许填报工时。",false);
-  if(isSubmitting) return showMsg("正在提交中，请勿重复点击。",false);
-  if(!requireAuth(false)) return;
-  if(isWeekLocked(state.week)) return showMsg("该 Week 已被管理员锁定，禁止新增、修改或删除。",false);
-  const inlineItems = collectInlineChanges();
-  const errItem = inlineItems.find(x=>x.error);
-  if(errItem) return showMsg(errItem.error, false);
-  const inputItems = typeof buildIntegratedPayloads === "function" ? buildIntegratedPayloads() : [];
-  const all = inlineItems.concat(inputItems);
-  const totalErr = validateUnifiedDraftTotals();
-  if(totalErr) return showMsg(totalErr, false);
-  if(!all.length) return showMsg("请先在表格中填写需要提交的工时。", false);
-  const seen = new Set();
-  for(const item of all){
-    if(item.patchId) continue;
-    const payload = item.payload;
-    const err = validatePayload(payload, "");
-    if(err) return showMsg("周" + payload.weekday + "：" + err, false);
-    const sig = signature(payload);
-    if(seen.has(sig)) return showMsg("存在重复记录，请合并或删除重复输入。", false);
-    seen.add(sig);
-  }
-  try{
-    isSubmitting = true;
-    showMsg("正在提交，请稍候…", true);
-    for(const item of all){
-      let res;
-      if(item.patchId){
-        res = await fetch(rowUrl(item.patchId), {method:"PATCH",headers:headers(),body:JSON.stringify(item.patchBody)});
-        if(!res.ok) throw new Error("周" + item.weekday + " 修改失败：" + res.status);
-      }else{
-        res = await fetch(apiUrl(), {method:"POST",headers:headers(),body:JSON.stringify(item.payload)});
-        if(!res.ok) throw new Error("周" + item.payload.weekday + " 提交失败：" + res.status);
-      }
-    }
-    showMsg("✅ 提交成功，共提交 " + all.length + " 条记录。", true);
-    inlineEditDrafts = {};
-    inlineEditMeta = {};
-    if(typeof integratedRows !== "undefined") integratedRows = [];
-    await loadWeekRecords();
-  }catch(e){
-    showMsg("❌ 提交失败：" + e.message, false);
-  }finally{
-    isSubmitting = false;
-  }
-}
-
-
-let hourPickerContext = null;
-function hourQuickValues(field){
-  if(field === "regular") return [0.25,0.5,1,2,3,4,6,8];
-  return [0.25,0.5,1,2,4];
-}
-function closeHourPicker(){
-  const old = document.getElementById("hourPickerMask");
-  if(old) old.remove();
-  hourPickerContext = null;
-}
-function sanitizeHourInput(v, max){
-  let n = Number(String(v || "").replace(/，/g,".").replace(/[^0-9.]/g,""));
-  if(!Number.isFinite(n)) n = 0;
-  n = Math.round(n * 4) / 4;
-  n = Math.max(0, Math.min(n, num(max)));
-  return n;
-}
-function applyHourPickerValue(value){
-  if(!hourPickerContext) return;
-  const v = sanitizeHourInput(value, hourPickerContext.max);
-  if(hourPickerContext.kind === "inline"){
-    updateInlineEdit(hourPickerContext.rowIdOrKey, hourPickerContext.day, hourPickerContext.field, v, hourPickerContext.originalValue);
-  }else{
-    updateIntegratedHour(hourPickerContext.rowIdOrKey, hourPickerContext.day, hourPickerContext.field, v);
-  }
-  closeHourPicker();
-}
-function openHourPickerFromInput(el){
-  if(!el || el.disabled) return;
-  const max = num(el.dataset.max);
-  if(max <= 0 && num(el.value) <= 0) return;
-  openHourPicker({
-    kind: el.dataset.kind,
-    rowIdOrKey: el.dataset.rowKey,
-    day: el.dataset.day,
-    field: el.dataset.field,
-    originalValue: num(el.dataset.original),
-    currentValue: el.value,
-    max: max
-  });
-}
-function openHourPicker(ctx){
-  closeHourPicker();
-  hourPickerContext = ctx;
-  const field = ctx.field;
-  const title = (field === "regular" ? "正常出勤" : "加班") + " - 周" + ctx.day;
-  const values = hourQuickValues(field).filter(v=>v <= Math.max(ctx.max, num(ctx.currentValue)) + 0.0001);
-  const mask = document.createElement("div");
-  mask.id = "hourPickerMask";
-  mask.className = "hour-picker-mask";
-  mask.innerHTML = '<div class="hour-picker-panel" onclick="event.stopPropagation()">'
-    + '<div class="hour-picker-head"><div>'+safe(title)+'</div><button type="button" class="hour-picker-close">关闭</button></div>'
-    + '<div class="hour-picker-body">'
-    + '<input id="hourPickerInput" class="hour-picker-input" inputmode="decimal" type="text" value="'+safe(ctx.currentValue || "")+'" placeholder="输入数字，如0.5">'
-    + '<div class="hour-picker-grid"></div>'
-    + '<div class="hour-picker-actions"><button type="button" class="hour-picker-clear">清零</button><button type="button" class="hour-picker-ok">应用输入</button></div>'
-    + '<div class="hour-picker-hint">点快捷值会直接写入；也可输入0.25、0.5等小数。当前最大可填：'+safe(ctx.max)+'h</div>'
-    + '</div></div>';
-  mask.addEventListener("click", closeHourPicker);
-  document.body.appendChild(mask);
-  mask.querySelector(".hour-picker-close").addEventListener("click", closeHourPicker);
-  mask.querySelector(".hour-picker-clear").addEventListener("click", ()=>applyHourPickerValue(0));
-  mask.querySelector(".hour-picker-ok").addEventListener("click", ()=>{
-    const input = document.getElementById("hourPickerInput");
-    applyHourPickerValue(input ? input.value : 0);
-  });
-  const grid = mask.querySelector(".hour-picker-grid");
-  values.forEach(v=>{
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "hour-picker-option";
-    btn.textContent = v + "h";
-    btn.addEventListener("click", ()=>applyHourPickerValue(v));
-    grid.appendChild(btn);
-  });
-  const input = document.getElementById("hourPickerInput");
-  if(input){
-    input.addEventListener("keydown", e=>{ if(e.key === "Enter") applyHourPickerValue(input.value); });
-    setTimeout(()=>{ input.focus(); input.select(); }, 0);
-  }
-}
-function todayWeekdayChar(){
-  return ["日","一","二","三","四","五","六"][new Date().getDay()];
-}
-function dayHeaderLabel(label, dayChar){
-  return label + (todayWeekdayChar() === dayChar ? '<br><span class="today-badge">今日</span>' : '');
 }
 function renderWeekRecords(rows, err=""){
   setAnomalyFilterButtonText();
@@ -2503,7 +1849,8 @@ function renderWeekRecords(rows, err=""){
   const employeeAnomaly = !isAdmin() ? allAnomalies[String(empId)] : null;
   const employeeMissingAllWeek = !isAdmin() && employeeAnomaly && employeeAnomaly.missingAllWeek;
   if(!rows.length && !isAdmin() && !employeeMissingAllWeek){
-    // 员工没有提交记录时，也直接显示集成填写表，避免进入空白状态。
+    box.innerHTML = '<div class="record-empty">当前 Week 没有提交记录</div>';
+    return;
   }
   if(onlyShowAnomaly && isAdmin() && !Object.keys(adminAnomalies).length){
     box.innerHTML = '<div class="record-empty">当前 Week 没有异常记录</div>';
@@ -2520,9 +1867,8 @@ function renderWeekRecords(rows, err=""){
     const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
     if(!grouped.has(key)){
       const days = {};
-      weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0,regularOriginal:0,otWeekdayOriginal:0,otWeekendOriginal:0,regularRecords:[],otWeekdayRecords:[],otWeekendRecords:[]});
+      weekdayOptions.forEach(day=>days[day]={regular:0,overtime:0});
       grouped.set(key, {
-        rowKey:key,
         employeeId:record.employeeId || "",
         employeeName:record.employeeName || employeeMap[record.employeeId] || "",
         task:record.task || "",
@@ -2542,12 +1888,6 @@ function renderWeekRecords(rows, err=""){
     if(row.days[day]){
       row.days[day].regular += regular;
       row.days[day].overtime += overtime;
-      row.days[day].regularOriginal += regular;
-      row.days[day].otWeekdayOriginal += num(record.otWeekday);
-      row.days[day].otWeekendOriginal += num(record.otWeekend);
-      if(regular > 0) row.days[day].regularRecords.push(record);
-      if(num(record.otWeekday) > 0) row.days[day].otWeekdayRecords.push(record);
-      if(num(record.otWeekend) > 0) row.days[day].otWeekendRecords.push(record);
     }
     row.totalRegular += regular;
     row.totalEveningOt += num(record.otWeekday);
@@ -2608,7 +1948,7 @@ function renderWeekRecords(rows, err=""){
   }
 
   const employeeHead = isAdmin() ? '<th rowspan="2">员工</th><th rowspan="2">工号</th>' : '';
-  const head = '<thead><tr>' + employeeHead + '<th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>' + ['一','二','三','四','五'].map(x=>'<th colspan="2">'+dayHeaderLabel('周'+x,x)+'</th>').join('') + '<th>'+dayHeaderLabel('周六','六')+'</th><th>'+dayHeaderLabel('周日','日')+'</th><th colspan="3">汇总</th></tr><tr>' + Array(5).fill('<th>正常<br>出勤</th><th>实际<br>加班</th>').join('') + '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr></thead>';
+  const head = '<thead><tr>' + employeeHead + '<th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th>' + ['周一','周二','周三','周四','周五'].map(x=>'<th colspan="2">'+x+'</th>').join('') + '<th>周六</th><th>周日</th><th colspan="3">汇总</th></tr><tr>' + Array(5).fill('<th>正常<br>出勤</th><th>实际<br>加班</th>').join('') + '<th>实际<br>加班</th><th>实际<br>加班</th><th>正常<br>出勤</th><th>实际晚<br>上加班</th><th>实际周<br>末加班</th></tr></thead>';
   let body = "";
   Array.from(grouped.values()).sort((a,b)=>{
     const am = a.missingAllWeek ? 1 : 0;
@@ -2621,29 +1961,12 @@ function renderWeekRecords(rows, err=""){
     if(onlyShowAnomaly && isAdmin() && !hasError) return;
     const empLevel = anomaly ? anomaly.level : 0;
     const empCells = isAdmin() ? '<td'+mergeClass(empLevel)+'>'+safe(row.employeeName)+'</td><td'+mergeClass(empLevel)+'>'+safe(row.employeeId)+'</td>' : '';
-    const rowKey = row.rowKey || [row.employeeId || "", row.task || "", row.project || "", row.unit || "", row.remark || ""].join("||");
-    const originals = {};
-    weekdayOptions.forEach(d=>{
-      originals[d] = {
-        regular: row.days[d] ? num(row.days[d].regularOriginal || row.days[d].regular) : 0,
-        otWeekday: row.days[d] ? num(row.days[d].otWeekdayOriginal) : 0,
-        otWeekend: row.days[d] ? num(row.days[d].otWeekendOriginal) : 0,
-        regularRecords: row.days[d] ? (row.days[d].regularRecords || []) : [],
-        otWeekdayRecords: row.days[d] ? (row.days[d].otWeekdayRecords || []) : [],
-        otWeekendRecords: row.days[d] ? (row.days[d].otWeekendRecords || []) : []
-      };
-    });
-    registerInlineMeta(rowKey, {task:row.task, project:row.project, unit:row.unit, remark:row.remark, originals:originals});
     body += '<tr' + (row.missingAllWeek ? ' class="missing-row"' : '') + '>' + empCells + '<td class="cell-left">'+safe(row.task)+'</td><td>'+safe(row.project)+'</td><td>'+safe(row.unit)+'</td><td>'+safe(row.remark)+'</td>' + ['一','二','三','四','五'].map(day=>{
       const level = anomaly && anomaly.levels ? (anomaly.levels[day] || 0) : 0;
       const cls = tdClass(level);
-      const r = row.days[day] || {};
-      return inlineCellInput(rowKey, day, 'regular', num(r.regularOriginal || r.regular), cls) + inlineCellInput(rowKey, day, 'otWeekday', num(r.otWeekdayOriginal), cls);
-    }).join('') + inlineCellInput(rowKey, '六', 'otWeekend', num((row.days['六']||{}).otWeekendOriginal || (row.days['六']||{}).overtime), '') + inlineCellInput(rowKey, '日', 'otWeekend', num((row.days['日']||{}).otWeekendOriginal || (row.days['日']||{}).overtime), '') + '<td>'+(row.totalRegular || "")+'</td><td>'+(row.totalEveningOt || "")+'</td><td>'+(row.totalWeekendOt || "")+'</td></tr>';
+      return '<td'+cls+'>'+(row.days[day].regular || "")+'</td><td'+cls+'>'+(row.days[day].overtime || "")+'</td>';
+    }).join('') + '<td>'+(row.days['六'].overtime || "")+'</td><td>'+(row.days['日'].overtime || "")+'</td><td>'+(row.totalRegular || "")+'</td><td>'+(row.totalEveningOt || "")+'</td><td>'+(row.totalWeekendOt || "")+'</td></tr>';
   });
-  if(!isAdmin()){
-    body += buildIntegratedInputRowsHtml();
-  }
   const blankPrefix = isAdmin() ? '<td></td><td></td>' : '';
   const sumRow = '<tr>' + blankPrefix + '<td></td><td></td><td></td><td><b>汇总</b></td>' + ['一','二','三','四','五'].map(day=>{
     const hasData = summary[day].regular > 0 || summary[day].overtime > 0;
@@ -2660,16 +1983,8 @@ function renderWeekRecords(rows, err=""){
         otLevel = getOTLevel(summary[day].overtime);
       }
     }
-    const draftRegular = !isAdmin() ? integratedDraftGrand(day,'regular') : 0;
-    const draftOt = !isAdmin() ? integratedDraftGrand(day,'otWeekday') : 0;
-    const inlineRegular = !isAdmin() ? inlineDraftAdjustmentTotal(day,'regular') : 0;
-    const inlineOt = !isAdmin() ? inlineDraftAdjustmentTotal(day,'otWeekday') : 0;
-    const regularTotal = summary[day].regular + draftRegular + inlineRegular;
-    const otTotal = summary[day].overtime + draftOt + inlineOt;
-    regularLevel = getRegularLevel(regularTotal);
-    otLevel = getOTLevel(otTotal);
-    return '<td'+tdClass(regularLevel)+'>'+(regularTotal || 0)+'</td><td'+tdClass(otLevel)+'>'+(otTotal || 0)+'</td>';
-  }).join('') + '<td>'+((summary['六'].overtime || 0) + (!isAdmin()?integratedDraftGrand('六','otWeekend') + inlineDraftAdjustmentTotal('六','otWeekend'):0))+'</td><td>'+((summary['日'].overtime || 0) + (!isAdmin()?integratedDraftGrand('日','otWeekend') + inlineDraftAdjustmentTotal('日','otWeekend'):0))+'</td><td>'+((totalRegular || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowRegularTotal(row),0) + ['一','二','三','四','五'].reduce((s,day)=>s+inlineDraftAdjustmentTotal(day,'regular'),0):0))+'</td><td>'+((totalEveningOt || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowEveningTotal(row),0) + ['一','二','三','四','五'].reduce((s,day)=>s+inlineDraftAdjustmentTotal(day,'otWeekday'),0):0))+'</td><td>'+((totalWeekendOt || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowWeekendTotal(row),0) + ['六','日'].reduce((s,day)=>s+inlineDraftAdjustmentTotal(day,'otWeekend'),0):0))+'</td></tr>';
+    return '<td'+tdClass(regularLevel)+'>'+(summary[day].regular || 0)+'</td><td'+tdClass(otLevel)+'>'+(summary[day].overtime || 0)+'</td>';
+  }).join('') + '<td>'+(summary['六'].overtime || 0)+'</td><td>'+(summary['日'].overtime || 0)+'</td><td>'+(totalRegular || 0)+'</td><td>'+(totalEveningOt || 0)+'</td><td>'+(totalWeekendOt || 0)+'</td></tr>';
   let rawRows = "";
   rows.forEach(record=>{
     const locked = isLocked(record);
@@ -2694,302 +2009,7 @@ function renderWeekRecords(rows, err=""){
     rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
-  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" class="integrated-mini-btn integrated-add-btn" onclick="addIntegratedRow()">＋ 新增一条工时</button><button type="button" class="btn btn-primary" style="width:auto;padding:10px 18px;font-size:15px" onclick="submitInlineAndIntegratedRows()">提交本表修改/新增</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
-  box.innerHTML = inputActions + '<div class="table-scroll"><table class="main-timesheet-table">'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table class="raw-record-table"><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
-}
-
-let integratedRows = [];
-function createIntegratedRow(){
-  const days = {};
-  weekdayOptions.forEach(day=>days[day]={regular:"",otWeekday:"",otWeekend:""});
-  return {
-    id:"I" + Date.now() + "_" + Math.random().toString(16).slice(2),
-    task:"",
-    project:"",
-    unit:"",
-    remark:"",
-    days:days
-  };
-}
-function ensureIntegratedRows(){
-  // 不默认生成填写行，必须点击“＋ 新增一条工时”才出现。
-  return;
-}
-function optionHtml(value, selected){
-  return '<option value="' + safe(value) + '"' + (String(value)===String(selected)?' selected':'') + '>' + safe(value) + '</option>';
-}
-function integratedExistingTotals(day){
-  const totals = {regular:0, otWeekday:0, otWeekend:0};
-  (currentWeekRecords || []).forEach(record=>{
-    if(String(record.employeeId || "") !== String(empId)) return;
-    if(String(record.week || "") !== String(state.week)) return;
-    if(String(record.weekday || "") !== String(day)) return;
-    totals.regular += num(record.regularHours);
-    totals.otWeekday += num(record.otWeekday);
-    totals.otWeekend += num(record.otWeekend);
-  });
-  return totals;
-}
-function integratedDraftTotals(day, excludeRowId="", excludeField=""){
-  const totals = {regular:0, otWeekday:0, otWeekend:0};
-  integratedRows.forEach(row=>{
-    const d = row.days && row.days[day] ? row.days[day] : {};
-    if(!(String(row.id)===String(excludeRowId) && excludeField === "regular")) totals.regular += num(d.regular);
-    if(!(String(row.id)===String(excludeRowId) && excludeField === "otWeekday")) totals.otWeekday += num(d.otWeekday);
-    if(!(String(row.id)===String(excludeRowId) && excludeField === "otWeekend")) totals.otWeekend += num(d.otWeekend);
-  });
-  return totals;
-}
-function integratedMaxForCell(day, field, rowId){
-  return unifiedMaxForIntegratedCell(day, field, rowId);
-}
-function clampHalfHour(v, max){
-  let n = Math.round(num(v) * 4) / 4;
-  n = Math.max(0, Math.min(n, max));
-  return n === 0 ? "" : String(n);
-}
-function integratedRowHasHours(row){
-  return weekdayOptions.some(day=>{
-    const d = row.days[day];
-    return num(d.regular)>0 || num(d.otWeekday)>0 || num(d.otWeekend)>0;
-  });
-}
-function integratedRowRegularTotal(row){
-  return ["一","二","三","四","五"].reduce((s,day)=>s+num(row.days[day].regular),0);
-}
-function integratedRowEveningTotal(row){
-  return ["一","二","三","四","五"].reduce((s,day)=>s+num(row.days[day].otWeekday),0);
-}
-function integratedRowWeekendTotal(row){
-  return ["六","日"].reduce((s,day)=>s+num(row.days[day].otWeekend),0);
-}
-function integratedDraftGrand(day, field){
-  return integratedRows.reduce((s,row)=>s+num(row.days[day][field]),0);
-}
-function updateIntegratedMeta(rowId, field, value){
-  const row = integratedRows.find(r=>String(r.id)===String(rowId));
-  if(!row) return;
-  row[field] = value;
-  // 备注输入时不重绘整张表，避免手机输入法每删/输一个字就关闭。
-  if(field === "remark") return;
-  if(field === "task"){
-    if(!needsProjectByTask(value)){
-      row.project = "";
-      row.unit = "";
-    }else if(!needsUnitByTask(value)){
-      row.unit = "";
-    }
-  }
-  if(field === "project") row.unit = "";
-  renderWeekRecordsKeepScroll();
-}
-function updateIntegratedHour(rowId, day, field, value){
-  const row = integratedRows.find(r=>String(r.id)===String(rowId));
-  if(!row || !row.days[day]) return;
-  row.days[day][field] = clampHalfHour(value, integratedMaxForCell(day, field, rowId));
-  renderWeekRecordsKeepScroll();
-}
-function addIntegratedRow(){
-  integratedRows.push(createIntegratedRow());
-  renderWeekRecordsKeepScroll();
-}
-function deleteIntegratedRow(rowId){
-  // V5.9.8：删除新增行时直接移除整行，不再清空后保留空白行。
-  integratedRows = integratedRows.filter(row=>String(row.id)!==String(rowId));
-  renderWeekRecordsKeepScroll();
-}
-
-function openPickerPanel(title, bodyHtml){
-  closePickerPanel();
-  const mask = document.createElement("div");
-  mask.id = "pickerMask";
-  mask.className = "picker-mask";
-  mask.innerHTML = '<div class="picker-panel" onclick="event.stopPropagation()"><div class="picker-head"><div>'+safe(title)+'</div><button type="button" class="picker-close" onclick="closePickerPanel()">关闭</button></div><div class="picker-body">'+bodyHtml+'</div></div>';
-  mask.onclick = closePickerPanel;
-  document.body.appendChild(mask);
-}
-function closePickerPanel(){ const old = document.getElementById("pickerMask"); if(old) old.remove(); }
-function rowById(rowId){ return integratedRows.find(r=>String(r.id)===String(rowId)); }
-function openProjectPicker(rowId){
-  const row = rowById(rowId); if(!row || !needsProjectByTask(row.task)) return;
-  const projects = Object.keys(projectUnits);
-  const cards = projects.map(p=>'<div class="picker-card '+(String(row.project)===String(p)?'active':'')+'" onclick="chooseProjectForRow(\''+safe(rowId)+'\',\''+safe(p)+'\')">'+safe(p)+'</div>').join('');
-  openPickerPanel("选择项目号", '<div class="picker-grid">'+cards+'</div>');
-}
-function chooseProjectForRow(rowId, project){ const row = rowById(rowId); if(!row) return; row.project = project; row.unit = ""; closePickerPanel(); renderWeekRecordsKeepScroll(); }
-function openUnitPicker(rowId){
-  const row = rowById(rowId); if(!row || !needsUnitByTask(row.task)) return;
-  if(!row.project){ openPickerPanel("选择单元号", '<div class="picker-empty">请先选择项目号</div>'); return; }
-  const units = projectUnits[row.project] || [];
-  const sorter = (a,b)=>String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:"base"});
-  const unitList = units.filter(u=>!isContainerUnit(u)).sort(sorter);
-  const containerList = units.filter(u=>isContainerUnit(u)).sort(sorter);
-  const makeItems = (list, cls)=> list.length ? list.map(u=>'<div class="picker-item '+cls+' '+(String(row.unit)===String(u)?'active':'')+'" onclick="chooseUnitForRow(\''+safe(rowId)+'\',\''+safe(u)+'\')">'+safe(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
-  const html = '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类</div><div class="picker-list">'+makeItems(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类</div><div class="picker-list">'+makeItems(containerList,'container')+'</div></div></div>';
-  openPickerPanel("选择单元号", html);
-}
-function chooseUnitForRow(rowId, unit){ const row = rowById(rowId); if(!row) return; row.unit = unit; closePickerPanel(); renderWeekRecordsKeepScroll(); }
-
-function openTaskPicker(rowId){
-  const row = rowById(rowId);
-  if(!row) return;
-  const cards = taskOptions.map(t=>'<div class="picker-card task '+(String(row.task)===String(t)?'active':'')+'" onclick="chooseTaskForRow(\''+safe(rowId)+'\',\''+safe(t)+'\')">'+safe(t)+'</div>').join('');
-  openPickerPanel("选择工时类别", '<div class="picker-grid">'+cards+'</div>');
-}
-function chooseTaskForRow(rowId, task){
-  const row = rowById(rowId);
-  if(!row) return;
-  row.task = task;
-  row.project = "";
-  row.unit = "";
-  row.remark = "";
-  closePickerPanel();
-  renderWeekRecordsKeepScroll();
-}
-
-function combinedRemarkOptionsForRow(row){
-  const preset = remarkOptionsForTask(row.task);
-  const recent = [];
-  (currentWeekRecords || []).forEach(record=>{
-    if(String(record.task || "") !== String(row.task || "")) return;
-    const r = String(record.remark || "").trim();
-    if(r) recent.push(r);
-  });
-  const merged = [];
-  preset.concat(recent).forEach(r=>{
-    if(r && !merged.includes(r)) merged.push(r);
-  });
-  return merged;
-}
-function applyCustomRemarkFromPicker(rowId){
-  const input = document.getElementById("remarkPickerInput");
-  const row = rowById(rowId);
-  if(!row || !input) return;
-  row.remark = input.value;
-  closePickerPanel();
-  renderWeekRecordsKeepScroll();
-}
-function openRemarkPicker(rowId){
-  const row = rowById(rowId);
-  if(!row) return;
-  if(!row.task){
-    openPickerPanel("选择备注", '<div class="picker-empty">请先选择工时类别</div>');
-    return;
-  }
-  const remarks = combinedRemarkOptionsForRow(row);
-  const customHtml = '<div class="remark-picker-custom"><input id="remarkPickerInput" class="remark-picker-input" value="'+safe(row.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="applyCustomRemarkFromPicker(\''+safe(rowId)+'\')">应用自定义</button></div>';
-  if(!remarks.length){
-    openPickerPanel("选择备注", customHtml + '<div class="picker-empty">当前工时类别暂无预设备注，可直接输入自定义备注</div>');
-    setTimeout(()=>{ const input = document.getElementById("remarkPickerInput"); if(input){input.focus(); input.select(); input.addEventListener("keydown", e=>{ if(e.key === "Enter") applyCustomRemarkFromPicker(rowId); });} }, 0);
-    return;
-  }
-  const cards = remarks.map(r=>'<div class="picker-card remark '+(String(row.remark)===String(r)?'active':'')+'" onclick="chooseRemarkForRow(\''+safe(rowId)+'\',\''+safe(r)+'\')">'+safe(r)+'</div>').join('');
-  openPickerPanel("选择备注", customHtml + '<div class="remark-picker-section-title">快捷备注 / 历史备注</div><div class="picker-grid">'+cards+'</div>');
-  setTimeout(()=>{ const input = document.getElementById("remarkPickerInput"); if(input){input.addEventListener("keydown", e=>{ if(e.key === "Enter") applyCustomRemarkFromPicker(rowId); });} }, 0);
-}
-function chooseRemarkForRow(rowId, remark){
-  const row = rowById(rowId);
-  if(!row) return;
-  row.remark = remark;
-  closePickerPanel();
-  renderWeekRecordsKeepScroll();
-}
-function buildIntegratedInputRowsHtml(){
-  if(isAdmin()) return "";
-  ensureIntegratedRows();
-  let html = "";
-  integratedRows.forEach((row, index)=>{
-    const projectNeeded = needsProjectByTask(row.task);
-    const unitNeeded = needsUnitByTask(row.task);
-    const projects = Object.keys(projectUnits);
-    const units = row.project && projectUnits[row.project] ? projectUnits[row.project] : [];
-    html += '<tr class="integrated-input-row">';
-    html += '<td class="integrated-meta-cell"><button type="button" class="picker-btn task-picker-btn" onclick="openTaskPicker(\''+row.id+'\')">' + safe(row.task || '请选择') + '</button><button type="button" class="integrated-mini-btn integrated-del-btn task-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
-    html += '<td class="integrated-project-cell"><button type="button" class="picker-btn project-picker-btn" ' + (!projectNeeded ? 'disabled' : '') + ' onclick="openProjectPicker(\''+row.id+'\')">' + safe(projectNeeded ? (row.project || '请选择') : '无需项目') + '</button></td>';
-    html += '<td class="integrated-unit-cell"><button type="button" class="picker-btn unit-picker-btn" ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onclick="openUnitPicker(\''+row.id+'\')">' + safe(unitNeeded ? (row.project ? (row.unit || '请选择') : '先选项目') : '无需单元') + '</button></td>';
-    const remarkListId = 'remark_list_' + row.id;
-    html += '<td class="integrated-remark-cell"><div class="remark-custom-wrap"><input class="remark-custom-input" title="' + safe(row.remark || "") + '" value="' + safe(row.remark || "") + '" placeholder="自定义备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value);this.title=this.value"><div class="remark-custom-actions"><button type="button" class="picker-btn remark-picker-btn remark-select-btn" onclick="openRemarkPicker(\''+row.id+'\')">选择</button></div></div></td>';
-    ["一","二","三","四","五"].forEach(day=>{
-      const d = row.days[day];
-      const maxR = integratedMaxForCell(day, "regular", row.id);
-      const maxOt = integratedMaxForCell(day, "otWeekday", row.id);
-      html += '<td><input class="hour-input '+(maxR<=0 && num(d.regular)<=0?'maxed':'')+'" type="text" inputmode="decimal" readonly data-kind="integrated" data-row-key="'+safe(row.id)+'" data-day="'+day+'" data-field="regular" data-original="0" data-max="'+maxR+'" value="'+safe(d.regular)+'" placeholder="0" '+(maxR<=0 && num(d.regular)<=0?'disabled':'')+' onclick="openHourPickerFromInput(this)" onfocus="openHourPickerFromInput(this)"></td>';
-      html += '<td><input class="hour-input '+(maxOt<=0 && num(d.otWeekday)<=0?'maxed':'')+'" type="text" inputmode="decimal" readonly data-kind="integrated" data-row-key="'+safe(row.id)+'" data-day="'+day+'" data-field="otWeekday" data-original="0" data-max="'+maxOt+'" value="'+safe(d.otWeekday)+'" placeholder="0" '+(maxOt<=0 && num(d.otWeekday)<=0?'disabled':'')+' onclick="openHourPickerFromInput(this)" onfocus="openHourPickerFromInput(this)"></td>';
-    });
-    ["六","日"].forEach(day=>{
-      const d = row.days[day];
-      const maxOt = integratedMaxForCell(day, "otWeekend", row.id);
-      html += '<td><input class="hour-input '+(maxOt<=0 && num(d.otWeekend)<=0?'maxed':'')+'" type="text" inputmode="decimal" readonly data-kind="integrated" data-row-key="'+safe(row.id)+'" data-day="'+day+'" data-field="otWeekend" data-original="0" data-max="'+maxOt+'" value="'+safe(d.otWeekend)+'" placeholder="0" '+(maxOt<=0 && num(d.otWeekend)<=0?'disabled':'')+' onclick="openHourPickerFromInput(this)" onfocus="openHourPickerFromInput(this)"></td>';
-    });
-    html += '<td class="integrated-total-cell">' + (integratedRowRegularTotal(row) || '') + '</td>';
-    html += '<td class="integrated-total-cell">' + (integratedRowEveningTotal(row) || '') + '</td>';
-    html += '<td class="integrated-total-cell">' + (integratedRowWeekendTotal(row) || '') + '</td>';
-    html += '</tr>';
-  });
-  return html;
-}
-function buildIntegratedPayloads(){
-  const items = [];
-  integratedRows.forEach((row, index)=>{
-    if(!integratedRowHasHours(row)) return;
-    weekdayOptions.forEach(day=>{
-      const d = row.days[day];
-      const weekend = isWeekendDay(day);
-      const regular = weekend ? 0 : num(d.regular);
-      const otWeekday = weekend ? 0 : num(d.otWeekday);
-      const otWeekend = weekend ? num(d.otWeekend) : 0;
-      if(regular === 0 && otWeekday === 0 && otWeekend === 0) return;
-      items.push({
-        rowIndex:index+1,
-        payload:{
-          submitTime:new Date().toISOString(),
-          employeeId:empId,
-          employeeName:empName,
-          week:state.week,
-          weekday:day,
-          task:row.task,
-          project:needsProjectByTask(row.task)?row.project:"",
-          unit:needsUnitByTask(row.task)?row.unit:"",
-          regularHours:regular,
-          otWeekday:otWeekday,
-          otWeekend:otWeekend,
-          remark:row.remark || ""
-        }
-      });
-    });
-  });
-  return items;
-}
-async function submitIntegratedRows(){
-  if(isAdmin()) return showMsg("管理员账号不允许填报工时。",false);
-  if(isSubmitting) return showMsg("正在提交中，请勿重复点击。",false);
-  if(!requireAuth(false)) return;
-  if(isWeekLocked(state.week)) return showMsg("该 Week 已被管理员锁定，禁止新增、修改或删除。",false);
-  const items = buildIntegratedPayloads();
-  if(!items.length) return showMsg("请至少填写一个工时格。", false);
-  const seen = new Set();
-  for(const item of items){
-    const err = validatePayload(item.payload, "");
-    if(err) return showMsg("填写行 " + item.rowIndex + " / 周" + item.payload.weekday + "：" + err, false);
-    const sig = signature(item.payload);
-    if(seen.has(sig)) return showMsg("填写行 " + item.rowIndex + " / 周" + item.payload.weekday + "：存在重复记录，请合并或删除重复输入。", false);
-    seen.add(sig);
-  }
-  try{
-    isSubmitting = true;
-    showMsg("正在提交，请稍候…", true);
-    for(const item of items){
-      const res = await fetch(apiUrl(), {method:"POST",headers:headers(),body:JSON.stringify(item.payload)});
-      if(!res.ok) throw new Error("填写行 " + item.rowIndex + " / 周" + item.payload.weekday + " 提交失败：" + res.status);
-    }
-    showMsg("✅ 提交成功，共提交 " + items.length + " 条记录。", true);
-    integratedRows = [createIntegratedRow()];
-    await loadWeekRecords();
-  }catch(e){
-    showMsg("❌ 提交失败：" + e.message, false);
-  }finally{
-    isSubmitting = false;
-  }
+  box.innerHTML = '<div class="table-scroll"><table>'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
 }
 function dayTotals(week, day, excludeRowId){
   const totals = {regular:0,otWeekday:0,otWeekend:0};
@@ -3440,8 +2460,7 @@ function exportSelectedWeekExcel(){
     return;
   }
 
-  const rows = getAdminFilteredRows();
-  const filterText = adminFilterDescription();
+  const rows = currentWeekRecords || [];
   const adminAnomalies = calcEmployeeAnomalies(rows);
   const summary = {};
   weekdayOptions.forEach(day=>summary[day]={regular:0,overtime:0});
@@ -3450,7 +2469,7 @@ function exportSelectedWeekExcel(){
   let totalEveningOt = 0;
   let totalWeekendOt = 0;
 
-  // ✅ 与页面“本周已提交工时明细”完全一致的分组：员工 + 工时类别 + 项目号 + 单元号 + 备注
+  // ✅ 导出逻辑与页面“本周已提交工时明细”保持一致：员工 + 工时类别 + 项目号 + 单元号 + 备注分行
   rows.forEach(record=>{
     const empPart = String(record.employeeId || "") + "||" + String(record.employeeName || employeeMap[record.employeeId] || "");
     const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
@@ -3491,7 +2510,7 @@ function exportSelectedWeekExcel(){
     totalWeekendOt += num(record.otWeekend);
   });
 
-  // ✅ 整周未提交保持页面同款红色行
+  // ✅ 与页面一致：整周未提交作为红色“未提交”行导出
   Object.keys(adminAnomalies).forEach(id=>{
     const a = adminAnomalies[id];
     if(!a || !a.missingAllWeek) return;
@@ -3525,24 +2544,22 @@ function exportSelectedWeekExcel(){
   }
 
   let html = '';
-  html += '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+  html += '<html><head><meta charset="UTF-8">';
   html += '<style>';
-  html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111827;margin:0;}';
+  html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111827;}';
   html += 'table{border-collapse:collapse;font-size:12px;}';
-  // ✅ 按你截图：黑色细线、不加粗、颜色和页面接近
-  html += 'th,td{border:1px solid #000000;padding:3px 5px;text-align:center;font-weight:400;white-space:nowrap;}';
-  html += 'th{background:#ffffff;font-weight:400;}';
+  html += 'th,td{border:1px solid #9ca3af;padding:4px 6px;text-align:center;font-weight:400;}';
+  html += 'th{background:#f8fafc;font-weight:400;}';
   html += '.title{font-size:16px;font-weight:400;text-align:left;background:#ffffff;}';
   html += '.subTitle{font-size:12px;font-weight:400;text-align:left;background:#ffffff;}';
   html += '.left{text-align:left;}';
-  html += '.soft{background:#fff2cc;color:#7c4a03;font-weight:400;}';
-  html += '.bad{background:#ffdede;color:#b91c1c;font-weight:400;}';
-  html += '.missing td{background:#fff1f2;color:#b91c1c;font-weight:400;}';
+  html += '.soft{background:#fff7ed;color:#92400e;font-weight:400;}';
+  html += '.bad{background:#fff1f2;color:#991b1b;font-weight:400;}';
+  html += '.missing td{background:#fff1f2;color:#991b1b;font-weight:400;}';
   html += '</style></head><body>';
   html += '<table>';
   html += '<tr><td class="title" colspan="21">车间工时明细 - ' + excelEscape(state.week) + '</td></tr>';
   html += '<tr><td class="subTitle" colspan="21">导出时间：' + excelEscape(new Date().toLocaleString()) + '</td></tr>';
-  html += '<tr><td class="subTitle" colspan="21">筛选条件：' + excelEscape(filterText) + '</td></tr>';
   html += '<tr><td colspan="21"></td></tr>';
 
   html += '<tr>';
@@ -3596,11 +2613,10 @@ function exportSelectedWeekExcel(){
   html += exportCell(totalWeekendOt || 0);
   html += '</tr></table></body></html>';
 
-  // ✅ 关键：改成 .html，不再把HTML伪装成 .xls，Excel 打开不会再弹“格式和扩展名不匹配”提醒
-  const blob = new Blob(["\ufeff" + html], {type:"text/html;charset=utf-8"});
+  const blob = new Blob(["\ufeff" + html], {type:"application/vnd.ms-excel;charset=utf-8"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "车间工时明细_" + state.week + (filterText && filterText !== "全部数据" ? "_筛选结果" : "_全部数据") + "_" + exportDateText() + ".html";
+  a.download = "车间工时明细_" + state.week + "_" + exportDateText() + ".xls";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
