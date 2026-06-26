@@ -1,4 +1,4 @@
-<!-- VERSION: V7.3 FINAL - CLEAN CONSOLIDATED CSS -->
+<!-- VERSION: V7.5 FINAL - ADMIN FILTER EXPORT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -915,6 +915,23 @@
       .hour-picker-option{min-height:40px;font-size:17px;}
     }
 
+
+    /* V7.5：管理员筛选器 + 导出当前筛选结果 */
+    .admin-filter-select{
+      width:auto!important;
+      min-width:110px!important;
+      max-width:180px!important;
+      border:1px solid #bcd0e5!important;
+      border-radius:10px!important;
+      padding:7px 10px!important;
+      font-size:13px!important;
+      font-weight:900!important;
+      background:#fff!important;
+      color:#0f172a!important;
+    }
+    @media(max-width:760px){
+      .admin-filter-select{min-width:96px!important;max-width:140px!important;font-size:12px!important;padding:6px 8px!important;}
+    }
 </style>
 </head>
 <body>
@@ -957,7 +974,17 @@
         <button class="admin-btn export-btn" onclick="exportSelectedWeekExcel()">📥 导出所选 Week 数据</button>
       </div>     <div id="anomalyFilterArea" class="filter-area hidden">
         <button id="anomalyFilterBtn" class="filter-btn" onclick="toggleAnomalyFilter()">只显示异常行</button>
-        <span class="filter-note">筛选后：本周明细和原始记录只保留异常行</span>
+        <select id="filterEmployee" class="admin-filter-select" onchange="applyAdminFilters()">
+          <option value="">全部员工</option>
+        </select>
+        <select id="filterProject" class="admin-filter-select" onchange="applyAdminFilters()">
+          <option value="">全部项目</option>
+        </select>
+        <select id="filterUnit" class="admin-filter-select" onchange="applyAdminFilters()">
+          <option value="">全部单元</option>
+        </select>
+        <button type="button" class="filter-btn" onclick="clearAdminFilters()">清除筛选</button>
+        <span id="filterNote" class="filter-note">支持员工 / 项目 / 单元组合筛选；导出会按当前筛选结果导出</span>
       </div>
       <div class="sec-title">本周已提交工时明细</div>
       <div id="recordList">
@@ -1906,6 +1933,10 @@ function calcEmployeeAnomalies(rows){
 
   Object.keys(employeeMap).forEach(id=>{
     if(id === ADMIN_ID) return;
+    if(isAdmin()){
+      const activeEmployee = getAdminFilterEmployeeId();
+      if(activeEmployee && String(id) !== String(activeEmployee)) return;
+    }
     const item = totals[id];
     if(!item) return;
 
@@ -1917,6 +1948,7 @@ function calcEmployeeAnomalies(rows){
 
     // ✅ 名单里有，但所选 Week 整周一条都没提交 = 严重异常
     if(!hasAnyRecord){
+      if(isAdmin() && hasAdminProjectOrUnitFilter()) return;
       const checkableDays = ["一","二","三","四","五"].filter(day=>shouldCheckMissingDay(day));
       if(checkableDays.length){
         const levels = {};
@@ -1983,10 +2015,99 @@ function setAnomalyFilterButtonText(){
   btn.innerText = onlyShowAnomaly ? "显示全部记录" : "只显示异常行";
   btn.className = "filter-btn" + (onlyShowAnomaly ? " active" : "");
 }
+
+function getAdminFilterEmployeeId(){
+  const el = $("filterEmployee");
+  return el ? String(el.value || "") : "";
+}
+function getAdminFilterProject(){
+  const el = $("filterProject");
+  return el ? String(el.value || "") : "";
+}
+function getAdminFilterUnit(){
+  const el = $("filterUnit");
+  return el ? String(el.value || "") : "";
+}
+function hasAdminDataFilter(){
+  return !!(getAdminFilterEmployeeId() || getAdminFilterProject() || getAdminFilterUnit());
+}
+function hasAdminProjectOrUnitFilter(){
+  return !!(getAdminFilterProject() || getAdminFilterUnit());
+}
+function getAdminFilteredRows(){
+  if(!isAdmin()) return currentWeekRecords || [];
+  const emp = getAdminFilterEmployeeId();
+  const project = getAdminFilterProject();
+  const unit = getAdminFilterUnit();
+  return (currentWeekRecords || []).filter(record=>{
+    if(emp && String(record.employeeId || "") !== String(emp)) return false;
+    if(project && String(record.project || "") !== String(project)) return false;
+    if(unit && String(record.unit || "") !== String(unit)) return false;
+    return true;
+  });
+}
+function setSelectOptions(selectId, options, allText, currentValue){
+  const el = $(selectId);
+  if(!el) return;
+  const value = currentValue || el.value || "";
+  el.innerHTML = '<option value="">' + allText + '</option>' + options.map(opt=>'<option value="'+safe(opt.value)+'">'+safe(opt.label)+'</option>').join('');
+  if(Array.from(el.options).some(o=>String(o.value)===String(value))) el.value = value;
+}
+function initAdminFilters(rows){
+  if(!isAdmin()) return;
+  const empOptions = Object.keys(employeeMap)
+    .filter(id=>String(id)!==String(ADMIN_ID))
+    .map(id=>({value:id,label:employeeMap[id] + ' / ' + id}))
+    .sort((a,b)=>String(a.label).localeCompare(String(b.label), 'zh-Hans-CN'));
+  const projectSet = new Set(Object.keys(projectUnits));
+  (rows || []).forEach(r=>{ if(r.project) projectSet.add(String(r.project)); });
+  const projectOptions = Array.from(projectSet).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true})).map(v=>({value:v,label:v}));
+  const unitSet = new Set();
+  Object.values(projectUnits).forEach(list=>(list||[]).forEach(u=>unitSet.add(String(u))));
+  (rows || []).forEach(r=>{ if(r.unit) unitSet.add(String(r.unit)); });
+  const unitOptions = Array.from(unitSet).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true})).map(v=>({value:v,label:v}));
+  setSelectOptions('filterEmployee', empOptions, '全部员工', getAdminFilterEmployeeId());
+  setSelectOptions('filterProject', projectOptions, '全部项目', getAdminFilterProject());
+  setSelectOptions('filterUnit', unitOptions, '全部单元', getAdminFilterUnit());
+  updateFilterNote();
+}
+function applyAdminFilters(){
+  if(!isAdmin()) return;
+  updateFilterNote();
+  renderWeekRecords(getAdminFilteredRows());
+}
+function clearAdminFilters(){
+  ['filterEmployee','filterProject','filterUnit'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
+  applyAdminFilters();
+}
+function adminFilterDescription(){
+  if(!isAdmin()) return "";
+  const parts = [];
+  const emp = getAdminFilterEmployeeId();
+  const project = getAdminFilterProject();
+  const unit = getAdminFilterUnit();
+  if(emp) parts.push('员工=' + (employeeMap[emp] || emp) + '/' + emp);
+  if(project) parts.push('项目=' + project);
+  if(unit) parts.push('单元=' + unit);
+  if(onlyShowAnomaly) parts.push('只显示异常');
+  return parts.length ? parts.join('；') : '全部数据';
+}
+function updateFilterNote(){
+  const note = $("filterNote");
+  if(!note) return;
+  const total = (currentWeekRecords || []).length;
+  const filtered = getAdminFilteredRows().length;
+  note.innerText = '当前筛选：' + adminFilterDescription() + '；原始记录 ' + filtered + '/' + total + ' 条；导出会按当前筛选结果导出';
+}
 function toggleAnomalyFilter(){
   onlyShowAnomaly = !onlyShowAnomaly;
   setAnomalyFilterButtonText();
-  renderWeekRecords(currentWeekRecords);
+  if(isAdmin()){
+    updateFilterNote();
+    renderWeekRecords(getAdminFilteredRows());
+  }else{
+    renderWeekRecords(currentWeekRecords);
+  }
 }
 
 function renderAnomalyBox(rows){
@@ -2014,8 +2135,13 @@ async function loadWeekRecords(){
       return new Date(a.submitTime || 0) - new Date(b.submitTime || 0);
     });
     currentWeekRecords = rows;
-    if(!isAdmin()) syncHourSectionByWeekday();
-    renderWeekRecords(rows);
+    if(!isAdmin()){
+      syncHourSectionByWeekday();
+      renderWeekRecords(rows);
+    }else{
+      initAdminFilters(rows);
+      renderWeekRecords(getAdminFilteredRows());
+    }
   }catch(e){
     currentWeekRecords = [];
     renderWeekRecords([], "本周记录读取失败：" + e.message);
@@ -3314,7 +3440,8 @@ function exportSelectedWeekExcel(){
     return;
   }
 
-  const rows = currentWeekRecords || [];
+  const rows = getAdminFilteredRows();
+  const filterText = adminFilterDescription();
   const adminAnomalies = calcEmployeeAnomalies(rows);
   const summary = {};
   weekdayOptions.forEach(day=>summary[day]={regular:0,overtime:0});
@@ -3415,6 +3542,7 @@ function exportSelectedWeekExcel(){
   html += '<table>';
   html += '<tr><td class="title" colspan="21">车间工时明细 - ' + excelEscape(state.week) + '</td></tr>';
   html += '<tr><td class="subTitle" colspan="21">导出时间：' + excelEscape(new Date().toLocaleString()) + '</td></tr>';
+  html += '<tr><td class="subTitle" colspan="21">筛选条件：' + excelEscape(filterText) + '</td></tr>';
   html += '<tr><td colspan="21"></td></tr>';
 
   html += '<tr>';
@@ -3472,7 +3600,7 @@ function exportSelectedWeekExcel(){
   const blob = new Blob(["\ufeff" + html], {type:"text/html;charset=utf-8"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "车间工时明细_" + state.week + "_" + exportDateText() + ".html";
+  a.download = "车间工时明细_" + state.week + (filterText && filterText !== "全部数据" ? "_筛选结果" : "_全部数据") + "_" + exportDateText() + ".html";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
