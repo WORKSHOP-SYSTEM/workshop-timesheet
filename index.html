@@ -1,4 +1,4 @@
-<!-- VERSION: V7.2 FINAL - REMARK INPUT EXPERIENCE OPTIMIZED -->
+<!-- VERSION: V7.2.1 FINAL - REMARK CELL SIZE OVERRIDE FIX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1500,6 +1500,27 @@
       .remark-picker-custom{grid-template-columns:1fr;gap:6px;}
       .remark-picker-input{height:38px!important;font-size:15px!important;}
       .remark-picker-apply{height:38px!important;}
+    }
+
+    /* V7.2.1：强制覆盖旧规则，备注输入框/选择按钮真正与项目号按钮等宽等高 */
+    .main-timesheet-table tbody td:nth-child(4) .remark-custom-wrap,
+    .main-timesheet-table .integrated-remark-cell .remark-custom-wrap{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;gap:3px!important;width:100%!important;min-width:0!important;max-width:none!important;}
+    .main-timesheet-table tbody td:nth-child(4) .remark-custom-actions,
+    .main-timesheet-table .integrated-remark-cell .remark-custom-actions{display:flex!important;width:100%!important;min-width:0!important;max-width:none!important;}
+    .main-timesheet-table tbody td:nth-child(4) .remark-custom-input,
+    .main-timesheet-table .integrated-remark-cell .remark-custom-input,
+    .main-timesheet-table tbody td:nth-child(4) .remark-select-btn,
+    .main-timesheet-table .integrated-remark-cell .remark-select-btn{width:100%!important;min-width:100%!important;max-width:100%!important;flex:0 0 auto!important;height:26px!important;min-height:26px!important;max-height:26px!important;padding:2px 3px!important;font-size:12px!important;line-height:1.1!important;border-radius:6px!important;text-align:center!important;box-sizing:border-box!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;}
+    .main-timesheet-table .integrated-remark-cell{padding:2px 4px!important;}
+    .main-timesheet-table .integrated-remark-cell .remark-select-btn{font-weight:900!important;background:#fff!important;color:#0f4c81!important;border:1px solid #bcd0e5!important;cursor:pointer!important;}
+    @media(max-width:760px){
+      .main-timesheet-table tbody td:nth-child(4) .remark-custom-wrap,
+      .main-timesheet-table .integrated-remark-cell .remark-custom-wrap{gap:2px!important;}
+      .main-timesheet-table tbody td:nth-child(4) .remark-custom-input,
+      .main-timesheet-table .integrated-remark-cell .remark-custom-input,
+      .main-timesheet-table tbody td:nth-child(4) .remark-select-btn,
+      .main-timesheet-table .integrated-remark-cell .remark-select-btn{width:100%!important;min-width:100%!important;max-width:100%!important;height:22px!important;min-height:22px!important;max-height:22px!important;font-size:10px!important;line-height:1!important;padding:0 2px!important;border-radius:4px!important;}
+      .main-timesheet-table .integrated-remark-cell{padding:1px 2px!important;}
     }
 </style>
 </head>
