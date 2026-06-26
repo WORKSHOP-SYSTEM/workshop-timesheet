@@ -1407,6 +1407,70 @@
       .picker-item{font-size:12px!important;min-height:30px!important;padding:4px 2px!important;border-radius:6px!important;}
       .picker-col-title{font-size:13px!important;padding:7px 4px!important;}
     }
+    /* ===== V7.1.1 备注UI完全对齐 ===== */
+
+/* 统一控件高度（和项目号按钮一致） */
+.main-timesheet-table .picker-btn,
+.main-timesheet-table .task-picker-btn,
+.main-timesheet-table .project-picker-btn,
+.main-timesheet-table .unit-picker-btn,
+.main-timesheet-table .remark-custom-input,
+.main-timesheet-table .remark-select-btn{
+  height:26px!important;
+  min-height:26px!important;
+  line-height:1.1!important;
+  font-size:12px!important;
+  border-radius:6px!important;
+}
+
+/* ✅ 备注输入框：和项目号按钮同宽同高 */
+.main-timesheet-table .remark-custom-input{
+  width:100%!important;
+  max-width:none!important;
+  padding:2px 4px!important;
+  text-align:center!important;
+}
+
+/* ✅ 选择按钮：放大并撑满一行（和项目号按钮一致） */
+.main-timesheet-table .remark-select-btn{
+  width:100%!important;
+  padding:2px 4px!important;
+  font-weight:600!important;
+}
+
+/* ✅ 两行结构更紧凑 */
+.remark-custom-wrap{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:3px!important;
+}
+
+/* ✅ 删除按钮（你之前移过去的）再稍微协调一点 */
+.task-del-btn{
+  height:20px!important;
+  min-height:20px!important;
+  font-size:10px!important;
+  margin-top:2px!important;
+  border-radius:5px!important;
+}
+
+/* ===== 手机端一起同步对齐 ===== */
+@media(max-width:760px){
+
+  .main-timesheet-table .remark-custom-input{
+    height:22px!important;
+    min-height:22px!important;
+    font-size:10px!important;
+    padding:0 2px!important;
+  }
+
+  .main-timesheet-table .remark-select-btn{
+    height:20px!important;
+    min-height:20px!important;
+    font-size:10px!important;
+  }
+}
+
 </style>
 </head>
 <body>
