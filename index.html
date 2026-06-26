@@ -1,4 +1,4 @@
-<!-- VERSION: V7.1 FINAL - ALL FIXES ANOMALY PC MOBILE REMARK UNIT -->
+<!-- VERSION: V7.2 FINAL - REMARK INPUT EXPERIENCE OPTIMIZED -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1407,70 +1407,100 @@
       .picker-item{font-size:12px!important;min-height:30px!important;padding:4px 2px!important;border-radius:6px!important;}
       .picker-col-title{font-size:13px!important;padding:7px 4px!important;}
     }
-    /* ===== V7.1.1 备注UI完全对齐 ===== */
 
-/* 统一控件高度（和项目号按钮一致） */
-.main-timesheet-table .picker-btn,
-.main-timesheet-table .task-picker-btn,
-.main-timesheet-table .project-picker-btn,
-.main-timesheet-table .unit-picker-btn,
-.main-timesheet-table .remark-custom-input,
-.main-timesheet-table .remark-select-btn{
-  height:26px!important;
-  min-height:26px!important;
-  line-height:1.1!important;
-  font-size:12px!important;
-  border-radius:6px!important;
-}
-
-/* ✅ 备注输入框：和项目号按钮同宽同高 */
-.main-timesheet-table .remark-custom-input{
-  width:100%!important;
-  max-width:none!important;
-  padding:2px 4px!important;
-  text-align:center!important;
-}
-
-/* ✅ 选择按钮：放大并撑满一行（和项目号按钮一致） */
-.main-timesheet-table .remark-select-btn{
-  width:100%!important;
-  padding:2px 4px!important;
-  font-weight:600!important;
-}
-
-/* ✅ 两行结构更紧凑 */
-.remark-custom-wrap{
-  display:flex!important;
-  flex-direction:column!important;
-  gap:3px!important;
-}
-
-/* ✅ 删除按钮（你之前移过去的）再稍微协调一点 */
-.task-del-btn{
-  height:20px!important;
-  min-height:20px!important;
-  font-size:10px!important;
-  margin-top:2px!important;
-  border-radius:5px!important;
-}
-
-/* ===== 手机端一起同步对齐 ===== */
-@media(max-width:760px){
-
-  .main-timesheet-table .remark-custom-input{
-    height:22px!important;
-    min-height:22px!important;
-    font-size:10px!important;
-    padding:0 2px!important;
-  }
-
-  .main-timesheet-table .remark-select-btn{
-    height:20px!important;
-    min-height:20px!important;
-    font-size:10px!important;
-  }
-}
-
+    /* V7.2：备注输入体验优化 - 备注输入框/选择按钮与项目号按钮同宽同高 */
+    .main-timesheet-table thead tr:first-child th:nth-child(4),
+    .main-timesheet-table tbody td:nth-child(4){
+      width:86px!important;
+      min-width:86px!important;
+      max-width:86px!important;
+    }
+    .remark-custom-wrap{
+      display:flex!important;
+      flex-direction:column!important;
+      gap:3px!important;
+      width:100%!important;
+      align-items:stretch!important;
+    }
+    .remark-custom-actions{width:100%!important;display:flex!important;}
+    .main-timesheet-table .remark-custom-input,
+    .main-timesheet-table .remark-select-btn{
+      width:100%!important;
+      min-width:0!important;
+      max-width:none!important;
+      flex:0 0 auto!important;
+      height:26px!important;
+      min-height:26px!important;
+      padding:2px 3px!important;
+      font-size:12px!important;
+      line-height:1.1!important;
+      border-radius:6px!important;
+      text-align:center!important;
+      box-sizing:border-box!important;
+    }
+    .main-timesheet-table .remark-custom-input:focus{
+      outline:2px solid #16a34a!important;
+      border-color:#16a34a!important;
+      background:#f0fdf4!important;
+    }
+    .main-timesheet-table .remark-select-btn{
+      font-weight:900!important;
+      background:#fff!important;
+      color:#0f4c81!important;
+    }
+    .remark-picker-custom{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+      margin-bottom:10px;
+      padding-bottom:10px;
+      border-bottom:1px solid #e5e7eb;
+    }
+    .remark-picker-input{
+      height:40px!important;
+      border:1px solid #bcd0e5!important;
+      border-radius:10px!important;
+      padding:6px 10px!important;
+      font-size:16px!important;
+      font-weight:900!important;
+    }
+    .remark-picker-apply{
+      border:none;
+      border-radius:10px;
+      padding:0 12px;
+      background:#0078d4;
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .remark-picker-section-title{
+      grid-column:1/-1;
+      color:#64748b;
+      font-size:12px;
+      font-weight:900;
+      margin:2px 0 4px;
+    }
+    @media(max-width:760px){
+      .main-timesheet-table thead tr:first-child th:nth-child(4),
+      .main-timesheet-table tbody td:nth-child(4){
+        left:204px!important;
+        width:70px!important;
+        min-width:70px!important;
+        max-width:70px!important;
+      }
+      .main-timesheet-table .remark-custom-input,
+      .main-timesheet-table .remark-select-btn{
+        height:22px!important;
+        min-height:22px!important;
+        font-size:10px!important;
+        padding:0 2px!important;
+        border-radius:4px!important;
+      }
+      .remark-custom-wrap{gap:2px!important;}
+      .remark-picker-custom{grid-template-columns:1fr;gap:6px;}
+      .remark-picker-input{height:38px!important;font-size:15px!important;}
+      .remark-picker-apply{height:38px!important;}
+    }
 </style>
 </head>
 <body>
@@ -3276,6 +3306,29 @@ function chooseTaskForRow(rowId, task){
   closePickerPanel();
   renderWeekRecordsKeepScroll();
 }
+
+function combinedRemarkOptionsForRow(row){
+  const preset = remarkOptionsForTask(row.task);
+  const recent = [];
+  (currentWeekRecords || []).forEach(record=>{
+    if(String(record.task || "") !== String(row.task || "")) return;
+    const r = String(record.remark || "").trim();
+    if(r) recent.push(r);
+  });
+  const merged = [];
+  preset.concat(recent).forEach(r=>{
+    if(r && !merged.includes(r)) merged.push(r);
+  });
+  return merged;
+}
+function applyCustomRemarkFromPicker(rowId){
+  const input = document.getElementById("remarkPickerInput");
+  const row = rowById(rowId);
+  if(!row || !input) return;
+  row.remark = input.value;
+  closePickerPanel();
+  renderWeekRecordsKeepScroll();
+}
 function openRemarkPicker(rowId){
   const row = rowById(rowId);
   if(!row) return;
@@ -3283,13 +3336,16 @@ function openRemarkPicker(rowId){
     openPickerPanel("选择备注", '<div class="picker-empty">请先选择工时类别</div>');
     return;
   }
-  const remarks = remarkOptionsForTask(row.task);
+  const remarks = combinedRemarkOptionsForRow(row);
+  const customHtml = '<div class="remark-picker-custom"><input id="remarkPickerInput" class="remark-picker-input" value="'+safe(row.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="applyCustomRemarkFromPicker(\''+safe(rowId)+'\')">应用自定义</button></div>';
   if(!remarks.length){
-    openPickerPanel("选择备注", '<div class="picker-empty">当前工时类别暂无预设备注</div>');
+    openPickerPanel("选择备注", customHtml + '<div class="picker-empty">当前工时类别暂无预设备注，可直接输入自定义备注</div>');
+    setTimeout(()=>{ const input = document.getElementById("remarkPickerInput"); if(input){input.focus(); input.select(); input.addEventListener("keydown", e=>{ if(e.key === "Enter") applyCustomRemarkFromPicker(rowId); });} }, 0);
     return;
   }
   const cards = remarks.map(r=>'<div class="picker-card remark '+(String(row.remark)===String(r)?'active':'')+'" onclick="chooseRemarkForRow(\''+safe(rowId)+'\',\''+safe(r)+'\')">'+safe(r)+'</div>').join('');
-  openPickerPanel("选择备注", '<div class="picker-grid">'+cards+'</div>');
+  openPickerPanel("选择备注", customHtml + '<div class="remark-picker-section-title">快捷备注 / 历史备注</div><div class="picker-grid">'+cards+'</div>');
+  setTimeout(()=>{ const input = document.getElementById("remarkPickerInput"); if(input){input.addEventListener("keydown", e=>{ if(e.key === "Enter") applyCustomRemarkFromPicker(rowId); });} }, 0);
 }
 function chooseRemarkForRow(rowId, remark){
   const row = rowById(rowId);
@@ -3312,7 +3368,7 @@ function buildIntegratedInputRowsHtml(){
     html += '<td class="integrated-project-cell"><button type="button" class="picker-btn project-picker-btn" ' + (!projectNeeded ? 'disabled' : '') + ' onclick="openProjectPicker(\''+row.id+'\')">' + safe(projectNeeded ? (row.project || '请选择') : '无需项目') + '</button></td>';
     html += '<td class="integrated-unit-cell"><button type="button" class="picker-btn unit-picker-btn" ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onclick="openUnitPicker(\''+row.id+'\')">' + safe(unitNeeded ? (row.project ? (row.unit || '请选择') : '先选项目') : '无需单元') + '</button></td>';
     const remarkListId = 'remark_list_' + row.id;
-    html += '<td class="integrated-remark-cell"><div class="remark-custom-wrap"><input class="remark-custom-input" value="' + safe(row.remark || "") + '" placeholder="自定义备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)"><div class="remark-custom-actions"><button type="button" class="picker-btn remark-picker-btn remark-select-btn" onclick="openRemarkPicker(\''+row.id+'\')">选择</button></div></div></td>';
+    html += '<td class="integrated-remark-cell"><div class="remark-custom-wrap"><input class="remark-custom-input" title="' + safe(row.remark || "") + '" value="' + safe(row.remark || "") + '" placeholder="自定义备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value);this.title=this.value"><div class="remark-custom-actions"><button type="button" class="picker-btn remark-picker-btn remark-select-btn" onclick="openRemarkPicker(\''+row.id+'\')">选择</button></div></div></td>';
     ["一","二","三","四","五"].forEach(day=>{
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
