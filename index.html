@@ -1,4 +1,4 @@
-<!-- VERSION: V7.0 FINAL - HOUR PICKER DIRECT APPLY FIX -->
+<!-- VERSION: V7.1 FINAL - ALL FIXES ANOMALY PC MOBILE REMARK UNIT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1292,6 +1292,121 @@
       .hour-picker-grid{grid-template-columns:repeat(4,1fr);gap:7px;}
       .hour-picker-option{min-height:40px;font-size:17px;}
     }
+
+    /* V7.1：一次性修复 - 管理员异常、PC/手机宽度、备注两行、输入法稳定、单元多列 */
+    /* PC端恢复舒适密度，不再被手机紧凑规则压得太窄 */
+    .main-timesheet-table th,
+    .main-timesheet-table td{
+      padding:2px 4px!important;
+      height:28px!important;
+      min-height:28px!important;
+      line-height:1.15!important;
+      font-size:13px!important;
+    }
+    .main-timesheet-table thead th{font-size:13px!important;}
+    .main-timesheet-table .picker-btn,
+    .main-timesheet-table .task-picker-btn,
+    .main-timesheet-table .project-picker-btn,
+    .main-timesheet-table .unit-picker-btn{
+      height:26px!important;
+      min-height:26px!important;
+      padding:2px 3px!important;
+      font-size:12px!important;
+      border-radius:6px!important;
+      line-height:1.1!important;
+    }
+    .main-timesheet-table .inline-hour-input,
+    .main-timesheet-table .hour-input{
+      height:26px!important;
+      min-height:26px!important;
+      width:38px!important;
+      min-width:38px!important;
+      max-width:38px!important;
+      padding:1px!important;
+      font-size:12px!important;
+      border-radius:5px!important;
+    }
+    .main-timesheet-table thead tr:first-child th:nth-child(1),.main-timesheet-table tbody td:nth-child(1){width:68px!important;min-width:68px!important;max-width:68px!important;}
+    .main-timesheet-table thead tr:first-child th:nth-child(2),.main-timesheet-table tbody td:nth-child(2){width:86px!important;min-width:86px!important;max-width:86px!important;}
+    .main-timesheet-table thead tr:first-child th:nth-child(3),.main-timesheet-table tbody td:nth-child(3){width:94px!important;min-width:94px!important;max-width:94px!important;}
+    .main-timesheet-table thead tr:first-child th:nth-child(4),.main-timesheet-table tbody td:nth-child(4){width:72px!important;min-width:72px!important;max-width:72px!important;}
+
+    /* 备注：输入框和选择按钮分两行；删除按钮已移到工时类别列 */
+    .remark-custom-wrap{display:flex!important;flex-direction:column!important;gap:2px!important;width:100%!important;align-items:stretch!important;}
+    .remark-custom-actions{display:flex!important;gap:2px!important;width:100%!important;}
+    .main-timesheet-table .remark-custom-input{
+      width:100%!important;
+      min-width:0!important;
+      max-width:none!important;
+      flex:0 0 auto!important;
+      height:24px!important;
+      min-height:24px!important;
+      padding:1px 2px!important;
+      font-size:12px!important;
+      border-radius:5px!important;
+    }
+    .main-timesheet-table .remark-select-btn{
+      width:100%!important;
+      min-width:0!important;
+      max-width:none!important;
+      height:22px!important;
+      min-height:22px!important;
+      padding:1px 2px!important;
+      font-size:11px!important;
+      border-radius:5px!important;
+    }
+    .task-del-btn{
+      display:block!important;
+      width:100%!important;
+      height:20px!important;
+      min-height:20px!important;
+      margin-top:2px!important;
+      padding:1px 2px!important;
+      font-size:10px!important;
+      line-height:1!important;
+      border-radius:5px!important;
+    }
+
+    /* 单元号弹窗：每个区域内多列排列，减少上下滑动 */
+    .picker-panel{width:min(880px,100%)!important;}
+    .picker-list{
+      display:grid!important;
+      grid-template-columns:repeat(auto-fit,minmax(78px,1fr))!important;
+      gap:4px!important;
+      max-height:62vh!important;
+      overflow:auto!important;
+      padding:5px!important;
+    }
+    .picker-item{
+      min-height:34px!important;
+      padding:6px 4px!important;
+      border:1px solid #e5e7eb!important;
+      border-radius:7px!important;
+      font-size:13px!important;
+      line-height:1.1!important;
+    }
+
+    @media(max-width:760px){
+      /* 手机端继续紧凑，但不影响PC */
+      .wrap{padding:0 4px 14px!important;}
+      .card{padding:8px 4px 6px!important;border-radius:14px!important;}
+      .table-scroll{border-radius:9px!important;margin-bottom:8px!important;}
+      .main-timesheet-table th,.main-timesheet-table td{padding:0!important;height:24px!important;min-height:24px!important;line-height:1!important;font-size:10.5px!important;}
+      .main-timesheet-table thead th{font-size:10.5px!important;}
+      .main-timesheet-table .picker-btn,.main-timesheet-table .task-picker-btn,.main-timesheet-table .project-picker-btn,.main-timesheet-table .unit-picker-btn{height:22px!important;min-height:22px!important;padding:0 1px!important;border-radius:4px!important;font-size:10px!important;line-height:1!important;}
+      .main-timesheet-table .inline-hour-input,.main-timesheet-table .hour-input{height:22px!important;min-height:22px!important;width:30px!important;min-width:30px!important;max-width:30px!important;padding:0!important;border-radius:4px!important;font-size:10px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(1),.main-timesheet-table tbody td:nth-child(1){left:0!important;width:54px!important;min-width:54px!important;max-width:54px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(2),.main-timesheet-table tbody td:nth-child(2){left:54px!important;width:70px!important;min-width:70px!important;max-width:70px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(3),.main-timesheet-table tbody td:nth-child(3){left:124px!important;width:80px!important;min-width:80px!important;max-width:80px!important;}
+      .main-timesheet-table thead tr:first-child th:nth-child(4),.main-timesheet-table tbody td:nth-child(4){left:204px!important;width:58px!important;min-width:58px!important;max-width:58px!important;}
+      .main-timesheet-table .remark-custom-input{height:22px!important;min-height:22px!important;font-size:10px!important;padding:0 1px!important;border-radius:4px!important;}
+      .main-timesheet-table .remark-select-btn{height:18px!important;min-height:18px!important;font-size:9px!important;padding:0!important;border-radius:4px!important;}
+      .task-del-btn{height:18px!important;min-height:18px!important;font-size:9px!important;padding:0 2px!important;margin-top:1px!important;}
+      .picker-columns{grid-template-columns:1fr 1fr!important;gap:6px!important;}
+      .picker-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:3px!important;max-height:66vh!important;padding:3px!important;}
+      .picker-item{font-size:12px!important;min-height:30px!important;padding:4px 2px!important;border-radius:6px!important;}
+      .picker-col-title{font-size:13px!important;padding:7px 4px!important;}
+    }
 </style>
 </head>
 <body>
@@ -1700,9 +1815,23 @@ function showMsg(text, ok=true){
 }
 function isWeekendDay(day){ return day === "六" || day === "日"; }
 function shouldCheckMissingWorkdays(){
-  // ✅ 只有已过去的 Week 才把未填写的工作日判定为异常；本周未到的日期不提前标红
   if(!state.week) return false;
-  return weekNum(state.week) < weekNum(getCurrentWeek());
+  const selected = weekNum(state.week);
+  const current = weekNum(getCurrentWeek());
+  if(selected < current) return true;       // 过去周：周一到周五都检查
+  if(selected === current) return "partial"; // 当前周：只检查今天及之前
+  return false;
+}
+function shouldCheckMissingDay(day){
+  const mode = shouldCheckMissingWorkdays();
+  if(mode === true) return true;
+  if(mode !== "partial") return false;
+  const workdays = ["一","二","三","四","五"];
+  const today = getTodayWeekday();
+  const dayIndex = workdays.indexOf(day);
+  const todayIndex = workdays.indexOf(today);
+  if(dayIndex < 0 || todayIndex < 0) return false;
+  return dayIndex <= todayIndex;
 }
 
 // ✅ 三级异常颜色规则：0=正常，1=轻微异常（黄色），2=严重异常（红色）
@@ -2280,14 +2409,19 @@ function calcEmployeeAnomalies(rows){
 
     // ✅ 名单里有，但所选 Week 整周一条都没提交 = 严重异常
     if(!hasAnyRecord){
-      anomalies[id] = {
-        employeeId:id,
-        employeeName:item.employeeName,
-        days:["整周未提交"],
-        levels:{},
-        level:2,
-        missingAllWeek:true
-      };
+      const checkableDays = ["一","二","三","四","五"].filter(day=>shouldCheckMissingDay(day));
+      if(checkableDays.length){
+        const levels = {};
+        checkableDays.forEach(day=>levels[day] = 2);
+        anomalies[id] = {
+          employeeId:id,
+          employeeName:item.employeeName,
+          days:checkableDays,
+          levels:levels,
+          level:2,
+          missingAllWeek:true
+        };
+      }
       return;
     }
 
@@ -2299,7 +2433,7 @@ function calcEmployeeAnomalies(rows){
       const d = item.days[day];
       // ✅ 已过去的 Week：工作日没填也算严重异常；本周不提前标红未来未填日期
       if(!d || !d.hasRecord){
-        if(checkMissingWorkdays){
+        if(shouldCheckMissingDay(day)){
           badDays.push(day);
           levels[day] = 2;
           maxBadLevel = 2;
@@ -3002,6 +3136,8 @@ function updateIntegratedMeta(rowId, field, value){
   const row = integratedRows.find(r=>String(r.id)===String(rowId));
   if(!row) return;
   row[field] = value;
+  // 备注输入时不重绘整张表，避免手机输入法每删/输一个字就关闭。
+  if(field === "remark") return;
   if(field === "task"){
     if(!needsProjectByTask(value)){
       row.project = "";
@@ -3108,11 +3244,11 @@ function buildIntegratedInputRowsHtml(){
     const projects = Object.keys(projectUnits);
     const units = row.project && projectUnits[row.project] ? projectUnits[row.project] : [];
     html += '<tr class="integrated-input-row">';
-    html += '<td class="integrated-meta-cell"><button type="button" class="picker-btn task-picker-btn" onclick="openTaskPicker(\''+row.id+'\')">' + safe(row.task || '请选择') + '</button></td>';
+    html += '<td class="integrated-meta-cell"><button type="button" class="picker-btn task-picker-btn" onclick="openTaskPicker(\''+row.id+'\')">' + safe(row.task || '请选择') + '</button><button type="button" class="integrated-mini-btn integrated-del-btn task-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
     html += '<td class="integrated-project-cell"><button type="button" class="picker-btn project-picker-btn" ' + (!projectNeeded ? 'disabled' : '') + ' onclick="openProjectPicker(\''+row.id+'\')">' + safe(projectNeeded ? (row.project || '请选择') : '无需项目') + '</button></td>';
     html += '<td class="integrated-unit-cell"><button type="button" class="picker-btn unit-picker-btn" ' + (!unitNeeded || !row.project ? 'disabled' : '') + ' onclick="openUnitPicker(\''+row.id+'\')">' + safe(unitNeeded ? (row.project ? (row.unit || '请选择') : '先选项目') : '无需单元') + '</button></td>';
     const remarkListId = 'remark_list_' + row.id;
-    html += '<td class="integrated-remark-cell"><div class="remark-custom-wrap"><input class="remark-custom-input" value="' + safe(row.remark || "") + '" placeholder="自定义备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)"><button type="button" class="picker-btn remark-picker-btn remark-select-btn" onclick="openRemarkPicker(\''+row.id+'\')">选择</button></div><button type="button" class="integrated-mini-btn integrated-del-btn" onclick="deleteIntegratedRow(\''+row.id+'\')">删除</button></td>';
+    html += '<td class="integrated-remark-cell"><div class="remark-custom-wrap"><input class="remark-custom-input" value="' + safe(row.remark || "") + '" placeholder="自定义备注" oninput="updateIntegratedMeta(\''+row.id+'\',\'remark\',this.value)"><div class="remark-custom-actions"><button type="button" class="picker-btn remark-picker-btn remark-select-btn" onclick="openRemarkPicker(\''+row.id+'\')">选择</button></div></div></td>';
     ["一","二","三","四","五"].forEach(day=>{
       const d = row.days[day];
       const maxR = integratedMaxForCell(day, "regular", row.id);
