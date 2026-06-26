@@ -3131,7 +3131,7 @@ function renderWeekRecords(rows, err=""){
     rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
-  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 新增一条工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
+  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 新增一条工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">↑ 提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
   box.innerHTML = inputActions + '<div class="table-scroll"><table class="main-timesheet-table">'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table class="raw-record-table"><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
   updateIntegratedAddButtonState();
 }
