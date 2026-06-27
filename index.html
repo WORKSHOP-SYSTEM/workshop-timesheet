@@ -1,4 +1,4 @@
-<!-- VERSION: V8.5 TEST - BATCH EVEN SPLIT HOURS -->
+<!-- VERSION: V8.6 TEST - THREE COLUMN PICKER BIG FONT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1568,6 +1568,101 @@
       .batch-split-controls{grid-template-columns:1fr 1fr;gap:6px;}
       .batch-split-controls select,.batch-split-controls input{height:34px!important;font-size:13px!important;padding:5px 8px!important;}
       .batch-split-check{font-size:13px;}
+    }
+
+
+    /* V8.6 TEST：批量弹窗三列布局 + 关键文字加大 */
+    /* 工时类别 / 项目号 / 备注：统一三列，节省空间 */
+    .batch-unified-list{
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      gap:6px!important;
+    }
+    /* 单元号仍保持左右两组；每组内部也尽量三列 */
+    .batch-multi-list{
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      gap:5px!important;
+    }
+    /* 批量弹窗：工时类别、项目号、单元号、备注字号加大 */
+    .batch-unified-list .picker-item,
+    .batch-multi-list .picker-item{
+      font-size:15px!important;
+      font-weight:900!important;
+      min-height:38px!important;
+      line-height:1.15!important;
+      padding:7px 4px!important;
+    }
+    .picker-col-title{
+      font-size:15px!important;
+      font-weight:900!important;
+    }
+    .batch-section-title{
+      font-size:14px!important;
+      font-weight:900!important;
+    }
+    .batch-summary{
+      font-size:14px!important;
+      font-weight:900!important;
+    }
+    /* 原始记录管理-修改弹窗：工时类别 / 项目号 / 单元号 / 备注也统一加大 */
+    #editModal .chip-grid{
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      gap:6px!important;
+    }
+    #editModal .chip,
+    #editModal .chip-btn,
+    #editModal button[class*="chip"],
+    #editModal .quick-btn{
+      font-size:15px!important;
+      font-weight:900!important;
+      min-height:38px!important;
+      line-height:1.15!important;
+      padding:7px 4px!important;
+    }
+    #editModal label,
+    #editModal .hour-title{
+      font-size:15px!important;
+      font-weight:900!important;
+    }
+    #editRemarkQuick.quick-row{
+      display:grid!important;
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      gap:6px!important;
+    }
+    #editRemarkQuick .remark-template-title{
+      grid-column:1/-1!important;
+      font-size:13px!important;
+    }
+    @media(max-width:760px){
+      .batch-unified-list{
+        grid-template-columns:repeat(3,minmax(0,1fr))!important;
+        gap:5px!important;
+      }
+      .batch-multi-list{
+        grid-template-columns:repeat(3,minmax(0,1fr))!important;
+        gap:4px!important;
+      }
+      .batch-unified-list .picker-item,
+      .batch-multi-list .picker-item{
+        font-size:14px!important;
+        min-height:34px!important;
+        padding:6px 3px!important;
+      }
+      .picker-col-title{font-size:14px!important;}
+      .batch-section-title{font-size:13px!important;}
+      .batch-summary{font-size:13px!important;}
+      #editModal .chip-grid,
+      #editRemarkQuick.quick-row{
+        grid-template-columns:repeat(3,minmax(0,1fr))!important;
+        gap:5px!important;
+      }
+      #editModal .chip,
+      #editModal .chip-btn,
+      #editModal button[class*="chip"],
+      #editModal .quick-btn{
+        font-size:14px!important;
+        min-height:34px!important;
+        padding:6px 3px!important;
+      }
     }
 
 </style>
@@ -3404,7 +3499,7 @@ function renderWeekRecords(rows, err=""){
     rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
-  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 新增单条或多条工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">↑ 提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
+  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 新增单条或多条工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
   box.innerHTML = inputActions + '<div class="table-scroll"><table class="main-timesheet-table">'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table class="raw-record-table"><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
   updateIntegratedAddButtonState();
 }
