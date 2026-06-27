@@ -1,4 +1,4 @@
-<!-- VERSION: V9.0 FINAL - STABLE UI STRUCTURE NO DUPLICATE TOOLBAR -->
+<!-- VERSION: V9.1 FINAL - HIDE RAW RECORDS + UNSAVED HIGHLIGHT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1661,6 +1661,52 @@
         height:36px!important;
         font-size:13px!important;
         padding:7px 6px!important;
+      }
+    }
+
+
+    /* V9.1：临时隐藏原始记录管理，修改未提交高亮 */
+    .raw-record-table,
+    .raw-record-table.closest-hidden{
+      display:none!important;
+    }
+    .unsaved-banner{
+      margin:6px 0 0!important;
+      padding:8px 10px!important;
+      border-radius:10px!important;
+      background:#fff7cc!important;
+      color:#92400e!important;
+      border:1px solid #facc15!important;
+      font-size:13px!important;
+      font-weight:700!important;
+      line-height:1.3!important;
+      box-shadow:0 2px 8px rgba(146,64,14,.12)!important;
+    }
+    .unsaved-banner.hidden{display:none!important;}
+    .inline-hour-input.pending,
+    .inline-hour-input.input-changed,
+    .main-timesheet-table .inline-hour-input.pending,
+    .main-timesheet-table .inline-hour-input.input-changed{
+      background:#fff7cc!important;
+      border-color:#facc15!important;
+      color:#111827!important;
+      box-shadow:0 0 0 2px rgba(250,204,21,.28)!important;
+    }
+    .main-timesheet-table tr.row-dirty td{
+      background:#fffdf5!important;
+    }
+    .main-timesheet-table tr.row-dirty td .inline-hour-input.pending,
+    .main-timesheet-table tr.row-dirty td .inline-hour-input.input-changed{
+      background:#fff7cc!important;
+    }
+    .integrated-input-row.row-dirty td{
+      background:#f0fdf4!important;
+    }
+    @media(max-width:760px){
+      .unsaved-banner{
+        font-size:12px!important;
+        padding:7px 8px!important;
+        border-radius:9px!important;
       }
     }
 
@@ -4963,6 +5009,135 @@ setTimeout(()=>{
   moveActionBarToStickyV89();
   normalizeStickyToolbarV90();
 }, 0);
+
+
+
+/* ===== V9.1 FINAL：临时隐藏原始记录管理 + 修改未提交高亮提醒 ===== */
+function hideRawRecordSectionV91(){
+  document.querySelectorAll('.raw-record-table').forEach(table=>{
+    const wrap = table.closest('.table-scroll');
+    if(wrap) wrap.style.display = 'none';
+    table.style.display = 'none';
+  });
+  document.querySelectorAll('.sec-title').forEach(title=>{
+    if(String(title.textContent || '').includes('原始记录管理')){
+      title.style.display = 'none';
+    }
+  });
+}
+function hasPendingInlineChangesV91(){
+  if(typeof inlineEditDrafts === 'undefined') return false;
+  const keys = Object.keys(inlineEditDrafts || {});
+  for(const k of keys){
+    if(typeof parseInlineKey !== 'function' || typeof inlineOriginalValue !== 'function'){
+      if(String(inlineEditDrafts[k] || '') !== '') return true;
+      continue;
+    }
+    const p = parseInlineKey(k);
+    const original = inlineOriginalValue(p.rowKey, p.day, p.field);
+    const next = num(inlineEditDrafts[k]);
+    if(next !== original) return true;
+  }
+  return false;
+}
+function hasPendingDraftRowsV91(){
+  return typeof integratedRows !== 'undefined' && Array.isArray(integratedRows) && integratedRows.length > 0;
+}
+function ensureUnsavedBannerV91(){
+  let banner = document.getElementById('unsavedBanner');
+  if(!banner){
+    banner = document.createElement('div');
+    banner.id = 'unsavedBanner';
+    banner.className = 'unsaved-banner hidden';
+    banner.innerHTML = '⚠ 已修改/新增工时，请点击【提交】否则不会保存';
+  }
+  const sticky = document.getElementById('stickyTopArea');
+  if(sticky && !sticky.contains(banner)){
+    sticky.appendChild(banner);
+  }else if(!sticky && !document.body.contains(banner)){
+    document.body.appendChild(banner);
+  }
+  return banner;
+}
+function syncUnsavedStateV91(){
+  const pending = !isAdmin() && (hasPendingInlineChangesV91() || hasPendingDraftRowsV91());
+  const banner = ensureUnsavedBannerV91();
+  if(pending) banner.classList.remove('hidden');
+  else banner.classList.add('hidden');
+
+  document.querySelectorAll('.inline-hour-input').forEach(input=>{
+    const isPending = input.classList.contains('pending');
+    input.classList.toggle('input-changed', isPending);
+    const tr = input.closest('tr');
+    if(tr && isPending) tr.classList.add('row-dirty');
+  });
+  document.querySelectorAll('tr.row-dirty').forEach(tr=>{
+    if(!tr.querySelector('.inline-hour-input.pending') && !tr.classList.contains('integrated-input-row')){
+      tr.classList.remove('row-dirty');
+    }
+  });
+  document.querySelectorAll('tr.integrated-input-row').forEach(tr=>{
+    tr.classList.toggle('row-dirty', pending && hasPendingDraftRowsV91());
+  });
+}
+function clearUnsavedStateV91(){
+  document.querySelectorAll('.input-changed').forEach(el=>el.classList.remove('input-changed'));
+  document.querySelectorAll('.row-dirty').forEach(el=>el.classList.remove('row-dirty'));
+  const banner = document.getElementById('unsavedBanner');
+  if(banner) banner.classList.add('hidden');
+}
+
+if(typeof renderWeekRecords === 'function' && !window.__v91RenderPatched){
+  window.__v91RenderPatched = true;
+  const __renderWeekRecordsV91 = renderWeekRecords;
+  renderWeekRecords = function(rows, err=''){
+    const result = __renderWeekRecordsV91(rows, err);
+    requestAnimationFrame(()=>{
+      hideRawRecordSectionV91();
+      syncUnsavedStateV91();
+      normalizeStickyToolbarV90 && normalizeStickyToolbarV90();
+    });
+    return result;
+  };
+}
+if(typeof renderWeekRecordsKeepScroll === 'function' && !window.__v91KeepScrollPatched){
+  window.__v91KeepScrollPatched = true;
+  const __renderWeekRecordsKeepScrollV91 = renderWeekRecordsKeepScroll;
+  renderWeekRecordsKeepScroll = function(){
+    const result = __renderWeekRecordsKeepScrollV91();
+    requestAnimationFrame(()=>{
+      hideRawRecordSectionV91();
+      syncUnsavedStateV91();
+      normalizeStickyToolbarV90 && normalizeStickyToolbarV90();
+    });
+    return result;
+  };
+}
+if(typeof updateInlineEdit === 'function' && !window.__v91InlinePatched){
+  window.__v91InlinePatched = true;
+  const __updateInlineEditV91 = updateInlineEdit;
+  updateInlineEdit = function(rowKey, day, field, value, originalValue){
+    const result = __updateInlineEditV91(rowKey, day, field, value, originalValue);
+    requestAnimationFrame(()=>syncUnsavedStateV91());
+    return result;
+  };
+}
+if(typeof submitInlineAndIntegratedRows === 'function' && !window.__v91SubmitPatched){
+  window.__v91SubmitPatched = true;
+  const __submitInlineAndIntegratedRowsV91 = submitInlineAndIntegratedRows;
+  submitInlineAndIntegratedRows = async function(){
+    const result = await __submitInlineAndIntegratedRowsV91();
+    requestAnimationFrame(()=>{
+      syncUnsavedStateV91();
+      if(!hasPendingInlineChangesV91() && !hasPendingDraftRowsV91()) clearUnsavedStateV91();
+    });
+    return result;
+  };
+}
+setTimeout(()=>{
+  hideRawRecordSectionV91();
+  syncUnsavedStateV91();
+},0);
 
 </script>
 </body>
