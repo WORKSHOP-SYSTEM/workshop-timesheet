@@ -1,4 +1,4 @@
-<!-- VERSION: V8.7 TEST - CONTAINER TWO COL NORMAL FONT CLEAN REMARK -->
+<!-- VERSION: V8.8 TEST - SPLIT TYPE AND REMAINING LIMIT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1571,97 +1571,26 @@
     }
 
 
-    /* V8.7 TEST：容器两列 + 选项不加粗 + 三列节省空间 */
-    /* 工时类别 / 项目号 / 备注：三列 */
-    .batch-unified-list{
-      grid-template-columns:repeat(3,minmax(0,1fr))!important;
-      gap:6px!important;
-    }
-    /* 单元类保持三列，容器类固定两列，避免NIN字样过挤 */
-    .picker-col.unit .batch-multi-list,
-    .picker-col.unit .picker-list.batch-multi-list{
-      grid-template-columns:repeat(3,minmax(0,1fr))!important;
-      gap:5px!important;
-    }
-    .picker-col.container .batch-multi-list,
-    .picker-col.container .picker-list.batch-multi-list{
-      grid-template-columns:repeat(2,minmax(0,1fr))!important;
-      gap:6px!important;
-    }
-    /* 所有选择项字体放大但不加粗，长时间看不累 */
-    .batch-unified-list .picker-item,
-    .batch-multi-list .picker-item,
-    .picker-item,
-    .picker-card,
-    #editModal .chip,
-    #editModal .chip-btn,
-    #editModal button[class*="chip"],
-    #editModal .quick-btn{
-      font-size:15px!important;
-      font-weight:500!important;
-      line-height:1.15!important;
-    }
-    .batch-unified-list .picker-item,
-    .batch-multi-list .picker-item{
-      min-height:38px!important;
-      padding:7px 4px!important;
-    }
-    .picker-col-title,
-    .batch-section-title,
-    .batch-summary{
-      font-weight:600!important;
-    }
-    /* 原始记录管理-修改弹窗：工时类别/项目号/备注三列，字体正常粗细 */
-    #editModal .chip-grid,
-    #editRemarkQuick.quick-row{
-      grid-template-columns:repeat(3,minmax(0,1fr))!important;
-      gap:6px!important;
-    }
-    #editRemarkQuick.quick-row{
-      display:grid!important;
-    }
-    #editRemarkQuick .remark-template-title{
-      grid-column:1/-1!important;
-      font-size:13px!important;
-      font-weight:500!important;
-    }
-    @media(max-width:760px){
-      .batch-unified-list{
-        grid-template-columns:repeat(3,minmax(0,1fr))!important;
-        gap:5px!important;
-      }
-      .picker-col.unit .batch-multi-list,
-      .picker-col.unit .picker-list.batch-multi-list{
-        grid-template-columns:repeat(3,minmax(0,1fr))!important;
-        gap:4px!important;
-      }
-      .picker-col.container .batch-multi-list,
-      .picker-col.container .picker-list.batch-multi-list{
-        grid-template-columns:repeat(2,minmax(0,1fr))!important;
-        gap:5px!important;
-      }
-      .batch-unified-list .picker-item,
-      .batch-multi-list .picker-item,
-      .picker-item,
-      .picker-card,
-      #editModal .chip,
-      #editModal .chip-btn,
-      #editModal button[class*="chip"],
-      #editModal .quick-btn{
-        font-size:14px!important;
-        font-weight:500!important;
-      }
-      .batch-unified-list .picker-item,
-      .batch-multi-list .picker-item{
-        min-height:34px!important;
-        padding:6px 3px!important;
-      }
-      #editModal .chip-grid,
-      #editRemarkQuick.quick-row{
-        grid-template-columns:repeat(3,minmax(0,1fr))!important;
-        gap:5px!important;
-      }
-    }
+    /* V8.8 TEST：平分工时类型选择 + 剩余工时防错 + V8.7视觉修正 */
+    .batch-unified-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;}
+    .picker-col.unit .batch-multi-list,.picker-col.unit .picker-list.batch-multi-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;}
+    .picker-col.container .batch-multi-list,.picker-col.container .picker-list.batch-multi-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;}
+    .batch-unified-list .picker-item,.batch-multi-list .picker-item,.picker-item,.picker-card,#editModal .chip,#editModal .chip-btn,#editModal button[class*="chip"],#editModal .quick-btn{font-size:15px!important;font-weight:500!important;line-height:1.15!important;}
+    .batch-unified-list .picker-item,.batch-multi-list .picker-item{min-height:38px!important;padding:7px 4px!important;}
+    .picker-col-title,.batch-section-title,.batch-summary{font-weight:600!important;}
+    #editModal .chip-grid,#editRemarkQuick.quick-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;}
+    #editRemarkQuick.quick-row{display:grid!important;}
+    #editRemarkQuick .remark-template-title{grid-column:1/-1!important;font-size:13px!important;font-weight:500!important;}
+    .batch-split-box{border:1px solid #d7dde5;background:#f8fafc;border-radius:12px;padding:10px;display:grid;gap:8px;}
+    .batch-split-box.limit-error{border-color:#ef4444!important;background:#fff1f2!important;}
+    .batch-split-check{display:flex;align-items:center;gap:8px;font-weight:500!important;color:#0f172a;font-size:14px;}
+    .batch-split-check input{width:18px!important;height:18px!important;min-width:18px!important;accent-color:#16a34a;}
+    .batch-split-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    .batch-split-controls select,.batch-split-controls input{height:38px!important;border:1px solid #bcd0e5!important;border-radius:10px!important;padding:6px 10px!important;font-size:14px!important;font-weight:500!important;background:#fff!important;}
+    .batch-split-controls.muted{opacity:.55;}
+    .batch-split-hint{color:#64748b;font-size:12px;font-weight:500!important;line-height:1.4;}
+    .batch-split-box.limit-error .batch-split-hint{color:#991b1b!important;font-weight:600!important;}
+    @media(max-width:760px){.batch-unified-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;}.picker-col.unit .batch-multi-list,.picker-col.unit .picker-list.batch-multi-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important;}.picker-col.container .batch-multi-list,.picker-col.container .picker-list.batch-multi-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;}.batch-unified-list .picker-item,.batch-multi-list .picker-item,.picker-item,.picker-card,#editModal .chip,#editModal .chip-btn,#editModal button[class*="chip"],#editModal .quick-btn{font-size:14px!important;font-weight:500!important;}.batch-unified-list .picker-item,.batch-multi-list .picker-item{min-height:34px!important;padding:6px 3px!important;}#editModal .chip-grid,#editRemarkQuick.quick-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;}.batch-split-box{padding:8px;gap:7px;}.batch-split-controls{grid-template-columns:1fr 1fr 1fr;gap:5px;}.batch-split-controls select,.batch-split-controls input{height:34px!important;font-size:12px!important;padding:5px 5px!important;}.batch-split-check{font-size:13px;}}
 
 </style>
 </head>
@@ -4736,31 +4665,170 @@ function confirmBatchCreateRows(){
 
 
 
-/* ===== V8.7 TEST：过滤异常备注“酸”，防止误选项进入备注列表 ===== */
-function isRemarkOptionAllowedV87(v){
+/* ===== V8.8 TEST：平分工时增加类型选择 + 剩余工时上限判断 ===== */
+function isRemarkOptionAllowedV88(v){
   const s = String(v || "").trim();
   if(!s) return true;
   if(s === "酸") return false;
   return true;
 }
 function combinedRemarkOptionsForRow(row){
-  const preset = (remarkOptionsForTask(row && row.task) || []).filter(isRemarkOptionAllowedV87);
+  const preset = (remarkOptionsForTask(row && row.task) || []).filter(isRemarkOptionAllowedV88);
   const recent = [];
   (currentWeekRecords || []).forEach(record=>{
     if(String(record.task || "") !== String((row && row.task) || "")) return;
     const r = String(record.remark || "").trim();
-    if(r && isRemarkOptionAllowedV87(r)) recent.push(r);
+    if(r && isRemarkOptionAllowedV88(r)) recent.push(r);
   });
   const merged = [];
   preset.concat(recent).forEach(r=>{
-    if(r && isRemarkOptionAllowedV87(r) && !merged.includes(r)) merged.push(r);
+    if(r && isRemarkOptionAllowedV88(r) && !merged.includes(r)) merged.push(r);
   });
   return merged;
 }
 function batchRemarkGrid(items){
-  const filtered = (items || []).filter(isRemarkOptionAllowedV87);
+  const filtered = (items || []).filter(isRemarkOptionAllowedV88);
   const all = [""].concat(filtered);
   return '<div class="picker-list batch-unified-list">' + all.map(v=>'<div class="picker-item remark '+(String(batchDraft.remark||"")===String(v)?'active':'')+'" onclick="batchSelectRemark(\''+safe(v)+'\')">'+safe(v || "无备注")+'</div>').join('') + '</div>';
+}
+function ensureBatchSplitFields(){
+  if(!batchDraft) batchDraft = {task:"", project:"", units:[], remark:""};
+  if(typeof batchDraft.splitEven === "undefined") batchDraft.splitEven = false;
+  if(typeof batchDraft.splitTotal === "undefined") batchDraft.splitTotal = "";
+  if(typeof batchDraft.splitDay === "undefined") batchDraft.splitDay = (typeof getTodayWeekday === "function" ? getTodayWeekday() : "一");
+  if(typeof batchDraft.splitType === "undefined") batchDraft.splitType = "regular";
+}
+function batchUpdateSplitOption(){
+  ensureBatchSplitFields();
+  const checked = document.getElementById("batchSplitEven");
+  const total = document.getElementById("batchSplitTotal");
+  const day = document.getElementById("batchSplitDay");
+  const type = document.getElementById("batchSplitType");
+  batchDraft.splitEven = checked ? checked.checked : false;
+  batchDraft.splitTotal = total ? total.value : "";
+  batchDraft.splitDay = day ? day.value : "一";
+  batchDraft.splitType = type ? type.value : "regular";
+  renderBatchCreatePicker();
+}
+function batchSplitFieldName(){
+  ensureBatchSplitFields();
+  if(batchDraft.splitType === "regular") return "regularHours";
+  return isWeekendDay(batchDraft.splitDay) ? "otWeekend" : "otWeekday";
+}
+function batchSplitTypeLabel(){
+  ensureBatchSplitFields();
+  if(batchDraft.splitType === "regular") return "正常出勤";
+  return isWeekendDay(batchDraft.splitDay) ? "周末加班" : "工作日加班";
+}
+function batchExistingHoursForDay(day, fieldName){
+  return (currentWeekRecords || []).reduce((sum, record)=>{
+    if(String(record.employeeId || "") !== String(empId)) return sum;
+    if(String(record.week || "") !== String(state.week)) return sum;
+    if(String(record.weekday || "") !== String(day)) return sum;
+    if(fieldName === "regularHours") return sum + num(record.regularHours);
+    if(fieldName === "otWeekday") return sum + num(record.otWeekday);
+    if(fieldName === "otWeekend") return sum + num(record.otWeekend);
+    return sum;
+  }, 0);
+}
+function batchRemainingLimit(){
+  ensureBatchSplitFields();
+  const day = batchDraft.splitDay;
+  const fieldName = batchSplitFieldName();
+  let limit = 0;
+  if(fieldName === "regularHours") limit = isWeekendDay(day) ? 0 : 8;
+  else if(fieldName === "otWeekday") limit = isWeekendDay(day) ? 0 : 4;
+  else if(fieldName === "otWeekend") limit = isWeekendDay(day) ? 8 : 0;
+  const used = batchExistingHoursForDay(day, fieldName);
+  return Math.max(0, Math.round((limit - used) * 4) / 4);
+}
+function batchSplitAmounts(total, count){
+  const n = Math.max(1, Number(count) || 1);
+  const totalQ = Math.round(num(total) * 4) / 4;
+  const base = Math.floor((totalQ / n) * 4) / 4;
+  let remainQ = Math.round((totalQ - base * n) * 4);
+  const arr = Array(n).fill(base);
+  for(let i=0;i<n && remainQ>0;i++,remainQ--){ arr[i] = Math.round((arr[i] + 0.25) * 4) / 4; }
+  return arr;
+}
+function batchSplitPreviewText(){
+  ensureBatchSplitFields();
+  if(!batchDraft.splitEven) return "";
+  const count = batchNeedsUnit() ? batchDraft.units.length : 1;
+  const total = num(batchDraft.splitTotal);
+  const remain = batchRemainingLimit();
+  const label = batchSplitTypeLabel();
+  if(!count || total <= 0) return "勾选平分后，请选择单元、工时类型、星期，并输入不超过剩余上限的总工时。";
+  if(total > remain) return "当前周" + batchDraft.splitDay + "“" + label + "”剩余可填 " + remain + "h，当前输入 " + total + "h 已超过上限。";
+  const arr = batchSplitAmounts(total, count);
+  const unique = Array.from(new Set(arr.map(v=>String(v))));
+  return "将 " + total + "h 平分到 " + count + " 条，周" + batchDraft.splitDay + "填写到“" + label + "”，每条约 " + unique.join(" / ") + "h；剩余上限 " + remain + "h。";
+}
+function renderBatchCreatePicker(){
+  ensureBatchSplitFields();
+  const prevTop = batchPanelScrollTop();
+  const taskHtml = batchChoiceGrid(taskOptions, batchDraft.task, 'batchSelectTask', 'unit');
+  let projectHtml = '<div class="picker-empty">选择工时类别后显示项目</div>';
+  if(batchDraft.task && batchNeedsProject()) projectHtml = batchChoiceGrid(Object.keys(projectUnits), batchDraft.project, 'batchSelectProject', 'unit');
+  else if(batchDraft.task && !batchNeedsProject()) projectHtml = '<div class="picker-empty">该工时类别无需项目号</div>';
+  let unitHtml = '<div class="picker-empty">请先选择项目号</div>';
+  if(batchDraft.task && !batchNeedsUnit()) unitHtml = '<div class="picker-empty">该工时类别无需单元号，确认后生成1条记录</div>';
+  else if(batchDraft.project){
+    const units = batchCurrentUnits();
+    const unitList = units.filter(u=>!isContainerUnit(u));
+    const containerList = units.filter(u=>isContainerUnit(u));
+    const makeUnit = (list, cls)=> list.length ? list.map(u=>'<div class="picker-item '+cls+' '+(batchDraft.units.includes(String(u))?'active':'')+'" onclick="batchToggleUnit(\''+safe(u)+'\')">'+safe(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
+    unitHtml = '<div class="batch-unit-tools"><button type="button" class="batch-mini-btn" onclick="batchDraft.units=batchCurrentUnits().map(String);renderBatchCreatePicker();">全选</button><button type="button" class="batch-mini-btn" onclick="batchDraft.units=[];renderBatchCreatePicker();">清空</button><span>已选 '+batchDraft.units.length+' 个</span></div>'
+      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
+  }
+  const remarks = batchDraft.task ? combinedRemarkOptionsForRow({task:batchDraft.task, remark:batchDraft.remark}) : [];
+  let remarkHtml = batchDraft.task ? '<div class="remark-picker-custom batch-remark-input-row"><input id="batchRemarkInput" class="remark-picker-input" value="'+safe(batchDraft.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="batchApplyCustomRemark()">应用</button></div>' + batchRemarkGrid(remarks) : '<div class="picker-empty">选择工时类别后显示备注</div>';
+  const splitOptions = weekdayOptions.map(d=>'<option value="'+safe(d)+'" '+(String(batchDraft.splitDay)===String(d)?'selected':'')+'>周'+safe(d)+'</option>').join('');
+  const remain = batchRemainingLimit();
+  const total = num(batchDraft.splitTotal);
+  const overLimit = batchDraft.splitEven && total > remain;
+  const splitHtml = '<div class="batch-split-box '+(overLimit?'limit-error':'')+'"><label class="batch-split-check"><input id="batchSplitEven" type="checkbox" '+(batchDraft.splitEven?'checked':'')+' onchange="batchUpdateSplitOption()"> 是否平分总工时</label>'
+    + '<div class="batch-split-controls '+(batchDraft.splitEven?'':'muted')+'"><select id="batchSplitType" onchange="batchUpdateSplitOption()" '+(batchDraft.splitEven?'':'disabled')+'><option value="regular" '+(batchDraft.splitType==='regular'?'selected':'')+'>正常工时</option><option value="overtime" '+(batchDraft.splitType==='overtime'?'selected':'')+'>加班工时</option></select><select id="batchSplitDay" onchange="batchUpdateSplitOption()" '+(batchDraft.splitEven?'':'disabled')+'>'+splitOptions+'</select><input id="batchSplitTotal" type="number" step="0.25" min="0" max="'+safe(remain)+'" value="'+safe(batchDraft.splitTotal || "")+'" placeholder="总工时≤'+safe(remain)+'" oninput="batchUpdateSplitOption()" '+(batchDraft.splitEven?'':'disabled')+'></div>'
+    + '<div class="batch-split-hint">'+safe(batchSplitPreviewText() || "可选：选择正常工时/加班工时、周几和总工时后，系统按剩余上限自动防错。")+'</div></div>';
+  const confirmDisabled = !batchDraft.task || (batchNeedsProject() && !batchDraft.project) || (batchNeedsUnit() && !batchDraft.units.length) || (batchDraft.splitEven && (!num(batchDraft.splitTotal) || !batchDraft.splitDay || overLimit));
+  const html = '<div class="batch-summary batch-sticky-summary">'+safe(batchSelectedSummary())+'</div>'
+    + '<div class="batch-section-title">1. 工时类别（单选）</div>'+taskHtml
+    + '<div class="batch-section-title">2. 项目号（单选）</div>'+projectHtml
+    + '<div class="batch-section-title">3. 单元号（多选）</div>'+unitHtml
+    + '<div class="batch-section-title">4. 备注（单选/自定义）</div>'+remarkHtml
+    + '<div class="batch-section-title">5. 可选：平分总工时</div>'+splitHtml
+    + '<div class="batch-actions"><button type="button" class="batch-cancel-btn" onclick="closePickerPanel()">取消</button><button type="button" class="batch-confirm-btn" '+(confirmDisabled?'disabled':'')+' onclick="confirmBatchCreateRows()">确定生成 '+(batchNeedsUnit()?batchDraft.units.length:1)+' 条</button></div>';
+  openPickerPanel("新增单条或多条工时", html);
+  restoreBatchPanelScroll(prevTop);
+}
+function confirmBatchCreateRows(){
+  ensureBatchSplitFields();
+  if(!batchDraft.task) return showMsg("请选择工时类别。", false);
+  if(batchNeedsProject() && !batchDraft.project) return showMsg("请选择项目号。", false);
+  if(batchNeedsUnit() && !batchDraft.units.length) return showMsg("请至少选择一个单元号。", false);
+  if(batchDraft.splitEven){
+    const remain = batchRemainingLimit();
+    const total = num(batchDraft.splitTotal);
+    if(!total || !batchDraft.splitDay) return showMsg("如需平分，请输入总工时并选择星期。", false);
+    if(total > remain) return showMsg("周" + batchDraft.splitDay + "“" + batchSplitTypeLabel() + "”剩余可填 " + remain + "h，当前输入 " + total + "h 已超过上限。", false);
+  }
+  const units = batchNeedsUnit() ? batchDraft.units.slice() : [""];
+  const splitArr = batchDraft.splitEven ? batchSplitAmounts(batchDraft.splitTotal, units.length) : [];
+  units.forEach((unit, idx)=>{
+    const row = createIntegratedRow();
+    row.task = batchDraft.task; row.project = batchNeedsProject() ? batchDraft.project : ""; row.unit = batchNeedsUnit() ? unit : ""; row.remark = batchDraft.remark || "";
+    if(batchDraft.splitEven){
+      const day = batchDraft.splitDay;
+      if(row.days && row.days[day]){
+        if(batchDraft.splitType === "regular") row.days[day].regular = String(splitArr[idx] || "");
+        else if(isWeekendDay(day)) row.days[day].otWeekend = String(splitArr[idx] || "");
+        else row.days[day].otWeekday = String(splitArr[idx] || "");
+      }
+    }
+    integratedRows.push(row);
+  });
+  closePickerPanel(); renderWeekRecordsKeepScroll();
+  showMsg("已生成 " + units.length + " 条工时草稿" + (batchDraft.splitEven ? "，并已按“" + batchSplitTypeLabel() + "”完成总工时平分。" : "，请填写每日具体工时后提交。"), true);
 }
 
 </script>
