@@ -1,4 +1,4 @@
-<!-- VERSION: V8.9 TEST - STICKY TOP COMPACT DAYS -->
+<!-- VERSION: V9.0 FINAL - STABLE UI STRUCTURE NO DUPLICATE TOOLBAR -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1631,6 +1631,37 @@
       .raw-record-table{font-size:11px!important;width:max-content!important;min-width:820px!important;}
       .batch-split-controls{grid-template-columns:1fr 1fr 1fr!important;gap:5px!important;}
       .batch-split-controls select,.batch-split-controls input{height:34px!important;font-size:12px!important;padding:5px 5px!important;}
+    }
+
+
+    /* V9.0 FINAL：稳定顶部结构 + 避免重复按钮造成的视觉堆叠 */
+    #stickyTopArea .integrated-action-bar{
+      display:flex!important;
+      flex-wrap:nowrap!important;
+      align-items:center!important;
+      gap:8px!important;
+      width:100%!important;
+    }
+    #stickyTopArea .integrated-action-bar + .integrated-action-bar{
+      display:none!important;
+    }
+    #stickyTopArea .integrated-note{
+      display:none!important;
+    }
+    @media(max-width:760px){
+      #stickyTopArea .integrated-action-bar{
+        display:grid!important;
+        grid-template-columns:1.3fr .8fr!important;
+        gap:6px!important;
+      }
+      #stickyTopArea .add-row-btn,
+      #stickyTopArea .submit-row-btn{
+        width:100%!important;
+        min-width:0!important;
+        height:36px!important;
+        font-size:13px!important;
+        padding:7px 6px!important;
+      }
     }
 
 </style>
@@ -4848,6 +4879,90 @@ function moveActionBarToStickyV89(){
 }
 setTimeout(setupStickyTopAreaV89,0);
 window.addEventListener('DOMContentLoaded',()=>setTimeout(setupStickyTopAreaV89,0));
+
+
+
+/* ===== V9.0 FINAL：结构收口，顶部置顶栏稳定化，彻底防止按钮重复 ===== */
+function setupStickyTopAreaV89(){
+  const card = document.querySelector('.card');
+  if(!card) return;
+  let sticky = document.getElementById('stickyTopArea');
+  if(!sticky){
+    const children = Array.from(card.children);
+    const title = children.find(el => el.classList && el.classList.contains('sec-title') && String(el.textContent || '').includes('本周已提交'));
+    if(!title) return;
+    sticky = document.createElement('div');
+    sticky.id = 'stickyTopArea';
+    card.insertBefore(sticky, card.firstElementChild);
+    let node = sticky.nextElementSibling;
+    while(node){
+      const next = node.nextElementSibling;
+      sticky.appendChild(node);
+      if(node === title) break;
+      node = next;
+    }
+  }
+  moveActionBarToStickyV89();
+}
+function moveActionBarToStickyV89(){
+  const sticky = document.getElementById('stickyTopArea');
+  if(!sticky) return;
+  const newBar = document.querySelector('#recordList > .integrated-action-bar');
+  const oldBars = Array.from(sticky.querySelectorAll('.integrated-action-bar'));
+
+  // 关键：每次渲染只保留一组按钮，先清掉旧按钮，再移动新按钮
+  if(newBar){
+    oldBars.forEach(bar => bar.remove());
+    sticky.appendChild(newBar);
+    return;
+  }
+
+  // 如果当前没有新按钮，确保 sticky 内最多保留一组，避免历史遗留重复
+  oldBars.forEach((bar, idx) => { if(idx > 0) bar.remove(); });
+}
+function normalizeStickyToolbarV90(){
+  const sticky = document.getElementById('stickyTopArea');
+  if(!sticky) return;
+  const bars = Array.from(sticky.querySelectorAll('.integrated-action-bar'));
+  if(bars.length > 1){
+    bars.slice(0, -1).forEach(bar => bar.remove());
+  }
+}
+
+// 覆盖重新渲染入口：每次表格重绘后，只刷新一次顶部工具栏，不再依赖 MutationObserver。
+if(typeof renderWeekRecords === 'function' && !window.__v90RenderPatched){
+  window.__v90RenderPatched = true;
+  const __renderWeekRecordsV90 = renderWeekRecords;
+  renderWeekRecords = function(rows, err=''){
+    const result = __renderWeekRecordsV90(rows, err);
+    requestAnimationFrame(()=>{
+      setupStickyTopAreaV89();
+      moveActionBarToStickyV89();
+      normalizeStickyToolbarV90();
+    });
+    return result;
+  };
+}
+if(typeof renderWeekRecordsKeepScroll === 'function' && !window.__v90RenderKeepScrollPatched){
+  window.__v90RenderKeepScrollPatched = true;
+  const __renderWeekRecordsKeepScrollV90 = renderWeekRecordsKeepScroll;
+  renderWeekRecordsKeepScroll = function(){
+    const result = __renderWeekRecordsKeepScrollV90();
+    requestAnimationFrame(()=>{
+      setupStickyTopAreaV89();
+      moveActionBarToStickyV89();
+      normalizeStickyToolbarV90();
+    });
+    return result;
+  };
+}
+
+// 当前页面如果已经有重复按钮，立即清理。
+setTimeout(()=>{
+  setupStickyTopAreaV89();
+  moveActionBarToStickyV89();
+  normalizeStickyToolbarV90();
+}, 0);
 
 </script>
 </body>
