@@ -1,4 +1,4 @@
-<!-- VERSION: V8.3 TEST - BATCH MULTI UNIT INPUT -->
+<!-- VERSION: V8.4 TEST - UNIFIED BATCH PICKER NO JUMP -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1429,6 +1429,94 @@
       .batch-actions button{height:40px;font-size:14px;}
       .batch-summary{font-size:13px;padding:8px 10px;}
     }
+
+    /* V8.4 TEST：批量弹窗和修改弹窗统一卡片风格，减少空间浪费 */
+    .batch-unified-list{
+      display:grid!important;
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:7px!important;
+      max-height:none!important;
+      overflow:visible!important;
+      padding:0!important;
+    }
+    .batch-unified-list .picker-item,
+    .batch-multi-list .picker-item{
+      min-height:38px!important;
+      padding:7px 5px!important;
+      border-radius:9px!important;
+      font-size:13px!important;
+      line-height:1.1!important;
+      box-shadow:0 1px 4px rgba(15,23,42,.06)!important;
+    }
+    .batch-unified-list .picker-item.active,
+    .batch-multi-list .picker-item.active{
+      background:#dcfce7!important;
+      color:#166534!important;
+      border-color:#16a34a!important;
+      outline:2px solid #16a34a!important;
+      outline-offset:-2px!important;
+    }
+    .batch-sticky-summary{
+      position:sticky;
+      top:0;
+      z-index:3;
+      margin-top:-2px!important;
+      box-shadow:0 2px 8px rgba(15,23,42,.06);
+    }
+    .batch-section-title{margin:9px 0 6px!important;font-size:13px!important;}
+    .batch-remark-input-row{grid-template-columns:1fr 72px!important;gap:6px!important;margin-bottom:7px!important;padding-bottom:7px!important;}
+    .batch-remark-input-row .remark-picker-input{height:36px!important;font-size:14px!important;}
+    .batch-remark-input-row .remark-picker-apply{height:36px!important;font-size:13px!important;padding:0 8px!important;}
+
+    /* 原始记录管理-修改弹窗：工时类别/项目/单元/备注选择统一为紧凑卡片风格 */
+    #editModal .chip-grid{
+      display:grid!important;
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:7px!important;
+    }
+    #editModal .chip,
+    #editModal .chip-btn,
+    #editModal .task-chip,
+    #editModal .project-chip,
+    #editModal .unit-chip,
+    #editModal button[class*="chip"]{
+      min-height:38px!important;
+      height:auto!important;
+      padding:7px 5px!important;
+      border:1px solid #d7dde5!important;
+      border-radius:9px!important;
+      background:#f4faff!important;
+      color:#0f4c81!important;
+      font-weight:900!important;
+      font-size:13px!important;
+      line-height:1.1!important;
+      box-shadow:0 1px 4px rgba(15,23,42,.06)!important;
+      white-space:normal!important;
+    }
+    #editModal .chip.active,
+    #editModal .selected,
+    #editModal button.active[class*="chip"]{
+      background:#dcfce7!important;
+      color:#166534!important;
+      border-color:#16a34a!important;
+      outline:2px solid #16a34a!important;
+      outline-offset:-2px!important;
+    }
+    #editUnitChips.unit-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+    #editRemarkQuick.quick-row,
+    #editRegularQuick.quick-row,
+    #editOtWeekdayQuick.quick-row,
+    #editOtWeekendQuick.quick-row{
+      gap:6px!important;
+    }
+    @media(max-width:760px){
+      .batch-unified-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;}
+      .batch-unified-list .picker-item,.batch-multi-list .picker-item{min-height:34px!important;font-size:12px!important;padding:6px 4px!important;}
+      .batch-section-title{font-size:12px!important;margin:8px 0 5px!important;}
+      #editModal .chip-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;}
+      #editModal .chip,#editModal .chip-btn,#editModal button[class*="chip"]{min-height:34px!important;font-size:12px!important;padding:6px 4px!important;}
+    }
+
 </style>
 </head>
 <body>
@@ -3263,7 +3351,7 @@ function renderWeekRecords(rows, err=""){
     rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
-  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 批量新增工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">↑ 提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
+  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 新增单条或多条工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">↑ 提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
   box.innerHTML = inputActions + '<div class="table-scroll"><table class="main-timesheet-table">'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table class="raw-record-table"><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
   updateIntegratedAddButtonState();
 }
@@ -3457,7 +3545,7 @@ function renderBatchCreatePicker(){
     + '<div class="batch-section-title">3. 单元号（多选）</div>'+unitHtml
     + '<div class="batch-section-title">4. 备注（单选/自定义）</div>'+remarkHtml
     + '<div class="batch-actions"><button type="button" class="batch-cancel-btn" onclick="closePickerPanel()">取消</button><button type="button" class="batch-confirm-btn" '+(confirmDisabled?'disabled':'')+' onclick="confirmBatchCreateRows()">确定生成 '+(batchNeedsUnit()?batchDraft.units.length:1)+' 条</button></div>';
-  openPickerPanel("批量新增工时前置信息", html);
+  openPickerPanel("新增单条或多条工时", html);
 }
 function confirmBatchCreateRows(){
   if(!batchDraft.task) return showMsg("请选择工时类别。", false);
@@ -4333,6 +4421,60 @@ async function init(){
   await loadWeekRecords();
 }
 init();
+
+
+/* ===== V8.4 TEST：批量弹窗统一样式 + 连续选择不跳回顶部 ===== */
+function batchPanelScrollTop(){
+  const body = document.querySelector('#pickerMask .picker-body');
+  return body ? body.scrollTop : 0;
+}
+function restoreBatchPanelScroll(top){
+  requestAnimationFrame(()=>{
+    const body = document.querySelector('#pickerMask .picker-body');
+    if(body) body.scrollTop = top || 0;
+  });
+}
+function batchChoiceGrid(items, activeValue, onclickName, cls="unit"){
+  if(!items || !items.length) return '<div class="picker-empty">暂无</div>';
+  return '<div class="picker-list batch-unified-list">' + items.map(v=>'<div class="picker-item '+cls+' '+(String(activeValue)===String(v)?'active':'')+'" onclick="'+onclickName+'(\''+safe(v)+'\')">'+safe(v)+'</div>').join('') + '</div>';
+}
+function batchRemarkGrid(items){
+  const all = [""].concat(items || []);
+  return '<div class="picker-list batch-unified-list">' + all.map(v=>'<div class="picker-item remark '+(String(batchDraft.remark||"")===String(v)?'active':'')+'" onclick="batchSelectRemark(\''+safe(v)+'\')">'+safe(v || "无备注")+'</div>').join('') + '</div>';
+}
+function renderBatchCreatePicker(){
+  const prevTop = batchPanelScrollTop();
+  const taskHtml = batchChoiceGrid(taskOptions, batchDraft.task, 'batchSelectTask', 'unit');
+  let projectHtml = '<div class="picker-empty">选择工时类别后显示项目</div>';
+  if(batchDraft.task && batchNeedsProject()){
+    projectHtml = batchChoiceGrid(Object.keys(projectUnits), batchDraft.project, 'batchSelectProject', 'unit');
+  }else if(batchDraft.task && !batchNeedsProject()){
+    projectHtml = '<div class="picker-empty">该工时类别无需项目号</div>';
+  }
+  let unitHtml = '<div class="picker-empty">请先选择项目号</div>';
+  if(batchDraft.task && !batchNeedsUnit()){
+    unitHtml = '<div class="picker-empty">该工时类别无需单元号，确认后生成1条记录</div>';
+  }else if(batchDraft.project){
+    const units = batchCurrentUnits();
+    const unitList = units.filter(u=>!isContainerUnit(u));
+    const containerList = units.filter(u=>isContainerUnit(u));
+    const makeUnit = (list, cls)=> list.length ? list.map(u=>'<div class="picker-item '+cls+' '+(batchDraft.units.includes(String(u))?'active':'')+'" onclick="batchToggleUnit(\''+safe(u)+'\')">'+safe(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
+    unitHtml = '<div class="batch-unit-tools"><button type="button" class="batch-mini-btn" onclick="batchDraft.units=batchCurrentUnits().map(String);renderBatchCreatePicker();">全选</button><button type="button" class="batch-mini-btn" onclick="batchDraft.units=[];renderBatchCreatePicker();">清空</button><span>已选 '+batchDraft.units.length+' 个</span></div>'
+      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
+  }
+  const remarks = batchDraft.task ? combinedRemarkOptionsForRow({task:batchDraft.task, remark:batchDraft.remark}) : [];
+  let remarkHtml = batchDraft.task ? '<div class="remark-picker-custom batch-remark-input-row"><input id="batchRemarkInput" class="remark-picker-input" value="'+safe(batchDraft.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="batchApplyCustomRemark()">应用</button></div>' + batchRemarkGrid(remarks) : '<div class="picker-empty">选择工时类别后显示备注</div>';
+  const confirmDisabled = !batchDraft.task || (batchNeedsProject() && !batchDraft.project) || (batchNeedsUnit() && !batchDraft.units.length);
+  const html = '<div class="batch-summary batch-sticky-summary">'+safe(batchSelectedSummary())+'</div>'
+    + '<div class="batch-section-title">1. 工时类别（单选）</div>'+taskHtml
+    + '<div class="batch-section-title">2. 项目号（单选）</div>'+projectHtml
+    + '<div class="batch-section-title">3. 单元号（多选）</div>'+unitHtml
+    + '<div class="batch-section-title">4. 备注（单选/自定义）</div>'+remarkHtml
+    + '<div class="batch-actions"><button type="button" class="batch-cancel-btn" onclick="closePickerPanel()">取消</button><button type="button" class="batch-confirm-btn" '+(confirmDisabled?'disabled':'')+' onclick="confirmBatchCreateRows()">确定生成 '+(batchNeedsUnit()?batchDraft.units.length:1)+' 条</button></div>';
+  openPickerPanel("新增单条或多条工时", html);
+  restoreBatchPanelScroll(prevTop);
+}
+
 </script>
 </body>
 </html>
