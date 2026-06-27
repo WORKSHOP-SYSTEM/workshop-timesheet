@@ -1,4 +1,4 @@
-<!-- VERSION: V8.1 FINAL - ADMIN ONLY UI FIX -->
+<!-- VERSION: V8.2 FINAL - MISSING HOURS ANOMALY FIX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1322,6 +1322,37 @@
       }
       #filterNote{display:none!important;}
     }
+
+    /* V8.2：缺失工时异常修复 + 异常文字统一黑色，只用背景提示 */
+    .warn-cell,
+    .warn-soft,
+    .missing-row td,
+    .main-timesheet-table .warn-cell,
+    .main-timesheet-table .warn-soft,
+    .raw-record-table .warn-cell,
+    .raw-record-table .warn-soft{
+      color:#111827!important;
+      border-color:#cfd6df!important;
+    }
+    .warn-cell,
+    .main-timesheet-table .warn-cell,
+    .raw-record-table .warn-cell{
+      background:#fee2e2!important;
+    }
+    .warn-soft,
+    .main-timesheet-table .warn-soft,
+    .raw-record-table .warn-soft{
+      background:#fff7ed!important;
+    }
+    .missing-row td{
+      background:#fee2e2!important;
+      color:#111827!important;
+    }
+    .missing-row input,
+    .warn-cell input,
+    .warn-soft input{
+      color:#111827!important;
+    }
 </style>
 </head>
 <body>
@@ -1802,7 +1833,10 @@ function shouldCheckMissingDay(day){
   const today = getTodayWeekday();
   const dayIndex = workdays.indexOf(day);
   const todayIndex = workdays.indexOf(today);
-  if(dayIndex < 0 || todayIndex < 0) return false;
+  if(dayIndex < 0) return false;
+  // 当前周如果今天是周六/周日，说明周一~周五都已经过去，都需要检查。
+  if(todayIndex < 0 && (today === "六" || today === "日")) return true;
+  if(todayIndex < 0) return false;
   return dayIndex <= todayIndex;
 }
 
@@ -3072,7 +3106,8 @@ function renderWeekRecords(rows, err=""){
     });
     registerInlineMeta(rowKey, {task:row.task, project:row.project, unit:row.unit, remark:row.remark, originals:originals});
     body += '<tr' + (row.missingAllWeek ? ' class="missing-row"' : '') + '>' + empCells + '<td class="cell-left">'+safe(row.task)+'</td><td>'+safe(row.project)+'</td><td>'+safe(row.unit)+'</td><td>'+safe(row.remark)+'</td>' + ['一','二','三','四','五'].map(day=>{
-      const level = anomaly && anomaly.levels ? (anomaly.levels[day] || 0) : 0;
+      let level = anomaly && anomaly.levels ? (anomaly.levels[day] || 0) : 0;
+      if(isAdmin() && anomaly && shouldCheckMissingDay(day) && !hasRawRecordForEmployeeDay(row.employeeId, day)) level = Math.max(level, 2);
       const cls = tdClass(level);
       const r = row.days[day] || {};
       return inlineCellInput(rowKey, day, 'regular', num(r.regularOriginal || r.regular), cls) + inlineCellInput(rowKey, day, 'otWeekday', num(r.otWeekdayOriginal), cls);
@@ -3107,7 +3142,28 @@ function renderWeekRecords(rows, err=""){
     otLevel = getOTLevel(otTotal);
     return '<td'+tdClass(regularLevel)+'>'+(regularTotal || 0)+'</td><td'+tdClass(otLevel)+'>'+(otTotal || 0)+'</td>';
   }).join('') + '<td>'+((summary['六'].overtime || 0) + (!isAdmin()?integratedDraftGrand('六','otWeekend') + inlineDraftAdjustmentTotal('六','otWeekend'):0))+'</td><td>'+((summary['日'].overtime || 0) + (!isAdmin()?integratedDraftGrand('日','otWeekend') + inlineDraftAdjustmentTotal('日','otWeekend'):0))+'</td><td>'+((totalRegular || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowRegularTotal(row),0) + ['一','二','三','四','五'].reduce((s,day)=>s+inlineDraftAdjustmentTotal(day,'regular'),0):0))+'</td><td>'+((totalEveningOt || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowEveningTotal(row),0) + ['一','二','三','四','五'].reduce((s,day)=>s+inlineDraftAdjustmentTotal(day,'otWeekday'),0):0))+'</td><td>'+((totalWeekendOt || 0) + (!isAdmin()?integratedRows.reduce((s,row)=>s+integratedRowWeekendTotal(row),0) + ['六','日'].reduce((s,day)=>s+inlineDraftAdjustmentTotal(day,'otWeekend'),0):0))+'</td></tr>';
-  let rawRows = "";
+  function hasRawRecordForEmployeeDay(employeeId, day){
+    return (rows || []).some(r=>String(r.employeeId || "") === String(employeeId) && String(r.weekday || "") === String(day));
+  }
+  let missingRawRows = "";
+  if(isAdmin()){
+    Object.keys(adminAnomalies || {}).forEach(id=>{
+      const anomaly = adminAnomalies[id];
+      if(!anomaly) return;
+      if(onlyShowAnomaly && anomaly.level <= 0) return;
+      const empNameForMissing = anomaly.employeeName || employeeMap[id] || id;
+      if(anomaly.missingAllWeek){
+        missingRawRows += '<tr class="missing-row"><td>'+safe(empNameForMissing)+'</td><td>'+safe(id)+'</td><td colspan="10">整周未提交</td></tr>';
+        return;
+      }
+      (anomaly.days || []).forEach(day=>{
+        if(!shouldCheckMissingDay(day)) return;
+        if(hasRawRecordForEmployeeDay(id, day)) return;
+        missingRawRows += '<tr class="missing-row"><td>'+safe(empNameForMissing)+'</td><td>'+safe(id)+'</td><td>'+safe(day)+'</td><td>未提交</td><td></td><td></td><td></td><td></td><td></td><td>当天未提交</td><td></td><td></td></tr>';
+      });
+    });
+  }
+  let rawRows = missingRawRows;
   rows.forEach(record=>{
     const locked = isLocked(record);
     const anomaly = isAdmin() ? adminAnomalies[String(record.employeeId || "")] : employeeAnomaly;
