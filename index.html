@@ -1,4 +1,4 @@
-<!-- VERSION: V8.2 FINAL - MISSING HOURS ANOMALY FIX -->
+<!-- VERSION: V8.3 TEST - BATCH MULTI UNIT INPUT -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1352,6 +1352,82 @@
     .warn-cell input,
     .warn-soft input{
       color:#111827!important;
+    }
+
+    /* V8.3 TEST：批量新增前置信息弹窗（类别单选 / 项目单选 / 单元多选 / 备注单选） */
+    .batch-summary{
+      background:#f0f9ff;
+      color:#075985;
+      border:1px solid #bae6fd;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      margin-bottom:10px;
+      line-height:1.4;
+    }
+    .batch-section-title{
+      margin:12px 0 7px;
+      padding-left:8px;
+      border-left:4px solid #0078d4;
+      color:#0f4c81;
+      font-weight:900;
+      font-size:14px;
+    }
+    .batch-compact-grid{
+      grid-template-columns:repeat(auto-fit,minmax(96px,1fr))!important;
+      gap:7px!important;
+    }
+    .batch-unit-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:6px 0 8px;
+      color:#475569;
+      font-weight:900;
+      flex-wrap:wrap;
+    }
+    .batch-mini-btn{
+      border:none;
+      border-radius:9px;
+      background:#e0f2fe;
+      color:#075985;
+      padding:6px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .batch-multi-list .picker-item.active{
+      background:#dcfce7!important;
+      color:#166534!important;
+      outline:2px solid #16a34a!important;
+    }
+    .batch-actions{
+      display:grid;
+      grid-template-columns:1fr 1.4fr;
+      gap:10px;
+      margin-top:14px;
+      position:sticky;
+      bottom:0;
+      background:#fff;
+      padding-top:10px;
+      border-top:1px solid #e5e7eb;
+    }
+    .batch-actions button{
+      border:none;
+      border-radius:12px;
+      height:42px;
+      font-size:15px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .batch-cancel-btn{background:#f3f4f6;color:#111827;}
+    .batch-confirm-btn{background:#16a34a;color:#fff;}
+    .batch-confirm-btn:disabled{background:#94a3b8;color:#fff;cursor:not-allowed;opacity:.7;}
+    @media(max-width:760px){
+      .batch-compact-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+      .batch-section-title{font-size:13px;margin:10px 0 6px;}
+      .batch-actions{grid-template-columns:1fr 1fr;}
+      .batch-actions button{height:40px;font-size:14px;}
+      .batch-summary{font-size:13px;padding:8px 10px;}
     }
 </style>
 </head>
@@ -3187,7 +3263,7 @@ function renderWeekRecords(rows, err=""){
     rawRows = '<tr><td colspan="' + rawColspan + '" class="record-empty">无原始提交记录</td></tr>';
   }
   const rawEmpHead = isAdmin() ? '<th>员工</th><th>工号</th>' : '';
-  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 新增一条工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">↑ 提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
+  const inputActions = !isAdmin() ? '<div class="integrated-action-bar"><button type="button" id="integratedAddBtn" class="btn add-row-btn" onclick="addIntegratedRow()">＋ 批量新增工时</button><button type="button" class="btn btn-primary submit-row-btn" onclick="submitInlineAndIntegratedRows()">↑ 提交</button><span class="integrated-note">已统一实时防错：每天正常≤8h、工作日加班≤4h、周末加班≤8h；达到上限后对应格子会自动锁定。</span></div>' : '';
   box.innerHTML = inputActions + '<div class="table-scroll"><table class="main-timesheet-table">'+head+'<tbody>'+body+sumRow+'</tbody></table></div><div class="sec-title">原始记录管理</div><div class="table-scroll"><table class="raw-record-table"><thead><tr>'+rawEmpHead+'<th>星期</th><th>工时类别</th><th>项目号</th><th>单元号</th><th>正常</th><th>工作日<br>加班</th><th>周末<br>加班</th><th>备注</th><th>锁定状态</th><th>操作</th></tr></thead><tbody>'+rawRows+'</tbody></table></div>';
   updateIntegratedAddButtonState();
 }
@@ -3291,18 +3367,114 @@ function updateIntegratedAddButtonState(){
   if(!btn) return;
   const locked = hasIntegratedDraftRow();
   btn.disabled = locked;
-  btn.title = locked ? "当前已有未提交工时，请先提交或删除后再新增" : "新增一条工时";
+  btn.title = locked ? "当前已有未提交工时，请先提交或删除后再批量新增" : "新增一条工时";
 }
+let batchDraft = {task:"", project:"", units:[], remark:""};
 function addIntegratedRow(){
   if(hasIntegratedDraftRow()){
-    const msg = "当前已有一条未提交工时，请先提交或删除后再新增。";
+    const msg = "当前已有未提交工时，请先提交或删除后再批量新增。";
     if(typeof showMsg === "function") showMsg(msg, false);
     else alert(msg);
     updateIntegratedAddButtonState();
     return;
   }
-  integratedRows.push(createIntegratedRow());
+  openBatchCreatePicker();
+}
+function openBatchCreatePicker(){
+  batchDraft = {task:"", project:"", units:[], remark:""};
+  renderBatchCreatePicker();
+}
+function batchNeedsProject(){ return needsProjectByTask(batchDraft.task); }
+function batchNeedsUnit(){ return needsUnitByTask(batchDraft.task); }
+function batchSelectTask(task){
+  batchDraft.task = task;
+  batchDraft.project = "";
+  batchDraft.units = [];
+  batchDraft.remark = "";
+  renderBatchCreatePicker();
+}
+function batchSelectProject(project){
+  batchDraft.project = project;
+  batchDraft.units = [];
+  renderBatchCreatePicker();
+}
+function batchToggleUnit(unit){
+  const u = String(unit || "");
+  if(!u) return;
+  if(batchDraft.units.includes(u)) batchDraft.units = batchDraft.units.filter(x=>String(x)!==u);
+  else batchDraft.units.push(u);
+  renderBatchCreatePicker();
+}
+function batchSelectRemark(remark){
+  batchDraft.remark = remark;
+  renderBatchCreatePicker();
+}
+function batchApplyCustomRemark(){
+  const input = document.getElementById("batchRemarkInput");
+  batchDraft.remark = input ? input.value : "";
+  renderBatchCreatePicker();
+}
+function batchCurrentUnits(){
+  if(!batchDraft.project || !projectUnits[batchDraft.project]) return [];
+  return (projectUnits[batchDraft.project] || []).slice().sort((a,b)=>String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:"base"}));
+}
+function batchSelectedSummary(){
+  const parts = [];
+  if(batchDraft.task) parts.push("工时类别：" + batchDraft.task);
+  if(batchNeedsProject()) parts.push("项目：" + (batchDraft.project || "未选"));
+  if(batchNeedsUnit()) parts.push("单元：" + (batchDraft.units.length ? batchDraft.units.length + "个" : "未选"));
+  if(batchDraft.remark) parts.push("备注：" + batchDraft.remark);
+  return parts.length ? parts.join(" ｜ ") : "请先选择工时类别";
+}
+function renderBatchCreatePicker(){
+  const taskCards = taskOptions.map(t=>'<div class="picker-card task '+(String(batchDraft.task)===String(t)?'active':'')+'" onclick="batchSelectTask(\''+safe(t)+'\')">'+safe(t)+'</div>').join('');
+  let projectHtml = '<div class="picker-empty">选择工时类别后显示项目</div>';
+  if(batchDraft.task && batchNeedsProject()){
+    projectHtml = '<div class="picker-grid batch-compact-grid">' + Object.keys(projectUnits).map(p=>'<div class="picker-card '+(String(batchDraft.project)===String(p)?'active':'')+'" onclick="batchSelectProject(\''+safe(p)+'\')">'+safe(p)+'</div>').join('') + '</div>';
+  }else if(batchDraft.task && !batchNeedsProject()){
+    projectHtml = '<div class="picker-empty">该工时类别无需项目号</div>';
+  }
+  let unitHtml = '<div class="picker-empty">请先选择项目号</div>';
+  if(batchDraft.task && !batchNeedsUnit()){
+    unitHtml = '<div class="picker-empty">该工时类别无需单元号，确认后生成1条记录</div>';
+  }else if(batchDraft.project){
+    const units = batchCurrentUnits();
+    const unitList = units.filter(u=>!isContainerUnit(u));
+    const containerList = units.filter(u=>isContainerUnit(u));
+    const makeUnit = (list, cls)=> list.length ? list.map(u=>'<div class="picker-item '+cls+' '+(batchDraft.units.includes(String(u))?'active':'')+'" onclick="batchToggleUnit(\''+safe(u)+'\')">'+safe(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
+    unitHtml = '<div class="batch-unit-tools"><button type="button" class="batch-mini-btn" onclick="batchDraft.units=batchCurrentUnits().map(String);renderBatchCreatePicker();">全选</button><button type="button" class="batch-mini-btn" onclick="batchDraft.units=[];renderBatchCreatePicker();">清空</button><span>已选 '+batchDraft.units.length+' 个</span></div>'
+      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
+  }
+  const remarks = batchDraft.task ? combinedRemarkOptionsForRow({task:batchDraft.task, remark:batchDraft.remark}) : [];
+  let remarkHtml = batchDraft.task ? '<div class="remark-picker-custom"><input id="batchRemarkInput" class="remark-picker-input" value="'+safe(batchDraft.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="batchApplyCustomRemark()">应用</button></div>' : '<div class="picker-empty">选择工时类别后显示备注</div>';
+  if(batchDraft.task){
+    remarkHtml += '<div class="picker-grid batch-compact-grid"><div class="picker-card remark '+(!batchDraft.remark?'active':'')+'" onclick="batchSelectRemark(\'\')">无备注</div>' + remarks.map(r=>'<div class="picker-card remark '+(String(batchDraft.remark)===String(r)?'active':'')+'" onclick="batchSelectRemark(\''+safe(r)+'\')">'+safe(r)+'</div>').join('') + '</div>';
+  }
+  const confirmDisabled = !batchDraft.task || (batchNeedsProject() && !batchDraft.project) || (batchNeedsUnit() && !batchDraft.units.length);
+  const html = '<div class="batch-summary">'+safe(batchSelectedSummary())+'</div>'
+    + '<div class="batch-section-title">1. 工时类别（单选）</div><div class="picker-grid">'+taskCards+'</div>'
+    + '<div class="batch-section-title">2. 项目号（单选）</div>'+projectHtml
+    + '<div class="batch-section-title">3. 单元号（多选）</div>'+unitHtml
+    + '<div class="batch-section-title">4. 备注（单选/自定义）</div>'+remarkHtml
+    + '<div class="batch-actions"><button type="button" class="batch-cancel-btn" onclick="closePickerPanel()">取消</button><button type="button" class="batch-confirm-btn" '+(confirmDisabled?'disabled':'')+' onclick="confirmBatchCreateRows()">确定生成 '+(batchNeedsUnit()?batchDraft.units.length:1)+' 条</button></div>';
+  openPickerPanel("批量新增工时前置信息", html);
+}
+function confirmBatchCreateRows(){
+  if(!batchDraft.task) return showMsg("请选择工时类别。", false);
+  if(batchNeedsProject() && !batchDraft.project) return showMsg("请选择项目号。", false);
+  if(batchNeedsUnit() && !batchDraft.units.length) return showMsg("请至少选择一个单元号。", false);
+  const units = batchNeedsUnit() ? batchDraft.units.slice() : [""];
+  units.forEach(unit=>{
+    const row = createIntegratedRow();
+    row.task = batchDraft.task;
+    row.project = batchNeedsProject() ? batchDraft.project : "";
+    row.unit = batchNeedsUnit() ? unit : "";
+    row.remark = batchDraft.remark || "";
+    integratedRows.push(row);
+  });
+  closePickerPanel();
   renderWeekRecordsKeepScroll();
+  showMsg("已生成 " + units.length + " 条工时草稿，请填写每日具体工时后提交。", true);
 }
 function deleteIntegratedRow(rowId){
   // V5.9.8：删除新增行时直接移除整行，不再清空后保留空白行。
