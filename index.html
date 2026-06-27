@@ -1,4 +1,4 @@
-<!-- VERSION: V9.2 FINAL - PRODUCTION LOCK DELETE WEEK FIX -->
+<!-- VERSION: V9.3 FINAL - WEEK LOCK ICONS + ROBUST LOCK -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1711,31 +1711,40 @@
     }
 
 
-    /* V9.2：生产版锁定标识、删除列、4周显示、错误提示降级 */
-    .week-lock-banner{
-      margin:6px 0 0!important;
-      padding:7px 10px!important;
-      border-radius:10px!important;
-      font-size:13px!important;
-      font-weight:700!important;
-      line-height:1.3!important;
+    /* V9.3：Week按钮直接显示锁定/未锁定图标 + 锁定增强 */
+    #weekChips .chip.locked-week-chip{
+      background:#fee2e2!important;
+      color:#991b1b!important;
+      border-color:#fecaca!important;
     }
-    .week-lock-banner.locked{background:#fee2e2!important;color:#991b1b!important;border:1px solid #fecaca!important;}
-    .week-lock-banner.unlocked{background:#ecfdf5!important;color:#166534!important;border:1px solid #bbf7d0!important;}
-    #weekChips .chip.locked-week-chip,
+    #weekChips .chip.unlocked-week-chip{
+      background:#ecfdf5!important;
+      color:#166534!important;
+      border-color:#bbf7d0!important;
+    }
+    #weekChips .chip.active.locked-week-chip{
+      background:#dc2626!important;
+      color:#fff!important;
+      border-color:#dc2626!important;
+    }
+    #weekChips .chip.active.unlocked-week-chip{
+      background:#0078d4!important;
+      color:#fff!important;
+      border-color:#0078d4!important;
+    }
     .locked-disabled{
       opacity:.62!important;
       cursor:not-allowed!important;
       background:#f3f4f6!important;
     }
-    .delete-col-v92{
+    .delete-col-v93{
       width:42px!important;
       min-width:42px!important;
       max-width:42px!important;
       text-align:center!important;
       background:#fff!important;
     }
-    .row-delete-btn-v92{
+    .row-delete-btn-v93{
       border:none!important;
       border-radius:8px!important;
       background:#fee2e2!important;
@@ -1746,14 +1755,13 @@
       cursor:pointer!important;
       white-space:nowrap!important;
     }
-    .muted-delete-v92{
+    .muted-delete-v93{
       color:#94a3b8!important;
       font-size:11px!important;
     }
     @media(max-width:760px){
-      .week-lock-banner{font-size:12px!important;padding:6px 8px!important;}
-      .delete-col-v92{width:34px!important;min-width:34px!important;max-width:34px!important;}
-      .row-delete-btn-v92{font-size:10px!important;padding:3px 4px!important;border-radius:6px!important;}
+      .delete-col-v93{width:34px!important;min-width:34px!important;max-width:34px!important;}
+      .row-delete-btn-v93{font-size:10px!important;padding:3px 4px!important;border-radius:6px!important;}
       .main-timesheet-table{min-width:800px!important;}
     }
 
@@ -5188,11 +5196,10 @@ setTimeout(()=>{
 
 
 
-/* ===== V9.2 FINAL：生产版 Week/锁定/删除/错误提示收口 ===== */
-const __showMsgV92 = typeof showMsg === 'function' ? showMsg : null;
+/* ===== V9.3 FINAL：Week锁定图标直接显示 + 管理员锁定增强 ===== */
+const __showMsgV93 = typeof showMsg === 'function' ? showMsg : null;
 showMsg = function(text, ok=true){
   const msg = String(text || '');
-  // 历史周读取失败不再弹窗打断操作，只保留控制台和页面底部轻提示
   if(msg.includes('读取历史周失败')){
     console.warn(msg);
     const el = $('msg');
@@ -5202,11 +5209,11 @@ showMsg = function(text, ok=true){
     }
     return;
   }
-  if(__showMsgV92) return __showMsgV92(text, ok);
+  if(__showMsgV93) return __showMsgV93(text, ok);
   alert(msg);
 };
 
-function recentFourWeeksV92(){
+function recentFourWeeksV93(){
   const current = getCurrentWeek();
   const currentNum = Number(String(current).replace('W',''));
   const arr = [];
@@ -5217,56 +5224,41 @@ function recentFourWeeksV92(){
   return arr;
 }
 loadAllWeeks = async function(){
-  const current = getCurrentWeek();
-  const currentNum = Number(String(current).replace('W',''));
-  const recent = recentFourWeeksV92();
+  const currentNum = Number(String(getCurrentWeek()).replace('W',''));
+  const recent = recentFourWeeksV93();
   try{
     const rows = await fetchRows();
     if(rows.length) LOCK_FIELD = detectLockField(rows[0]);
     refreshLockedWeeks(rows);
-    const set = new Set(recent);
-    (rows || []).forEach(r=>{
-      if(r.week && weekNum(r.week) <= currentNum && recent.includes(String(r.week))) set.add(String(r.week));
-    });
-    allWeeks = Array.from(set).filter(w=>weekNum(w)<=currentNum).sort((a,b)=>weekNum(a)-weekNum(b)).slice(-4);
+    allWeeks = recent.filter(w=>weekNum(w)<=currentNum);
   }catch(e){
     console.warn('读取历史周失败，仅显示最近4周：', e);
     allWeeks = recent;
   }
 };
-getWeekOptions = function(){
-  const currentNum = Number(String(getCurrentWeek()).replace('W',''));
-  const base = (allWeeks && allWeeks.length ? allWeeks : recentFourWeeksV92())
-    .filter(w=>weekNum(w)<=currentNum)
-    .sort((a,b)=>weekNum(a)-weekNum(b));
-  const recent = recentFourWeeksV92();
-  const merged = Array.from(new Set(recent.concat(base))).filter(w=>recent.includes(String(w)));
-  return merged.sort((a,b)=>weekNum(a)-weekNum(b)).slice(-4);
-};
+getWeekOptions = function(){ return recentFourWeeksV93(); };
 
-function weekStatusTextV92(){
-  if(!state.week) return '';
-  return isWeekLocked(state.week) ? '🔒 当前 Week 已锁定，员工不可新增、修改或删除。' : '🔓 当前 Week 未锁定。';
-}
-function syncWeekLockUIV92(){
-  const locked = !!state.week && isWeekLocked(state.week);
+// Week按钮直接显示锁定/未锁定图标：锁定=🔒，未锁定=🔓
+const __displayChipTextV93 = typeof displayChipText === 'function' ? displayChipText : null;
+displayChipText = function(value, field){
+  if(field === 'week'){
+    const icon = isWeekLocked(value) ? '🔒 ' : '🔓 ';
+    const current = value === getCurrentWeek() ? '（本周）' : '';
+    return icon + value + current;
+  }
+  return __displayChipTextV93 ? __displayChipTextV93(value, field) : String(value || '');
+};
+function syncWeekChipLockClassV93(){
   document.querySelectorAll('#weekChips .chip').forEach(chip=>{
     const txt = String(chip.textContent || '');
     chip.classList.toggle('locked-week-chip', txt.includes('🔒'));
+    chip.classList.toggle('unlocked-week-chip', txt.includes('🔓'));
   });
-  let banner = document.getElementById('weekLockBanner');
-  const sticky = document.getElementById('stickyTopArea') || document.querySelector('.card');
-  if(!banner){
-    banner = document.createElement('div');
-    banner.id = 'weekLockBanner';
-    banner.className = 'week-lock-banner';
-  }
-  banner.textContent = weekStatusTextV92();
-  banner.classList.toggle('locked', locked);
-  banner.classList.toggle('unlocked', !locked);
-  if(sticky && !sticky.contains(banner)) sticky.appendChild(banner);
-
+}
+function syncWeekLockUIV93(){
+  syncWeekChipLockClassV93();
   if(!isAdmin()){
+    const locked = !!state.week && isWeekLocked(state.week);
     document.querySelectorAll('.inline-hour-input,.integrated-input-row input,.integrated-input-row button,.add-row-btn,.submit-row-btn').forEach(el=>{
       if(locked){
         el.disabled = true;
@@ -5279,28 +5271,50 @@ function syncWeekLockUIV92(){
   }
 }
 
-async function rowsForSelectedWeekV92(){
+async function patchLockedRobustV93(id, locked){
+  const candidates = Array.from(new Set([LOCK_FIELD, 'Lock Status', 'Locked', 'locked'].filter(Boolean)));
+  let lastErr = null;
+  for(const field of candidates){
+    try{
+      const body = {};
+      body[field] = locked;
+      const res = await fetch(rowUrl(id), {method:'PATCH', headers:headers(), body:JSON.stringify(body)});
+      if(res.ok){
+        LOCK_FIELD = field;
+        return true;
+      }
+      lastErr = new Error(field + '：' + res.status);
+    }catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('未找到可用锁定字段');
+}
+async function rowsForSelectedWeekV93(){
   try{
     const rows = await fetchAllWeekRows(state.week);
     if(rows && rows.length) return rows;
   }catch(e){
-    console.warn('fetchAllWeekRows failed, fallback to currentWeekRecords', e);
+    console.warn('fetchAllWeekRows fallback:', e);
   }
   return (currentWeekRecords || []).filter(r=>String(r.week || '') === String(state.week || ''));
 }
 lockAllVisibleRows = async function(){
   if(!isAdmin()) return showMsg('只有管理员可以锁定。', false);
   if(!state.week) return showMsg('请先选择 Week。', false);
-  const rows = await rowsForSelectedWeekV92();
+  const rows = await rowsForSelectedWeekV93();
   if(!rows.length) return showMsg('当前 Week 没有可锁定记录。', false);
   if(!confirm('确认锁定 '+state.week+' 全部记录？锁定后员工不能新增、修改或删除。')) return;
   try{
-    for(const record of rows){ await patchLocked(record.id, true); }
-    refreshLockedWeeks(await fetchRows().catch(()=>rows.map(r=>Object.assign({}, r, {[LOCK_FIELD || 'locked']: true}))));
-    showMsg('✅ '+state.week+' 已锁定。', true);
+    showMsg('正在锁定 '+state.week+'，请稍候…', true);
+    for(const record of rows){ await patchLockedRobustV93(record.id, true); }
+    const latest = await fetchRows().catch(()=>rows.map(r=>Object.assign({}, r, {[LOCK_FIELD]: true})));
+    refreshLockedWeeks(latest);
+    lockedWeeks.add(String(state.week));
     renderMainWeekChips();
     await loadWeekRecords();
-    requestAnimationFrame(()=>syncWeekLockUIV92());
+    syncWeekLockUIV93();
+    showMsg('✅ '+state.week+' 已锁定。', true);
   }catch(e){
     showMsg('❌ 锁定失败：' + e.message, false);
   }
@@ -5308,22 +5322,26 @@ lockAllVisibleRows = async function(){
 unlockAllVisibleRows = async function(){
   if(!isAdmin()) return showMsg('只有管理员可以解锁。', false);
   if(!state.week) return showMsg('请先选择 Week。', false);
-  const rows = await rowsForSelectedWeekV92();
+  const rows = await rowsForSelectedWeekV93();
   if(!rows.length) return showMsg('当前 Week 没有可解锁记录。', false);
   if(!confirm('确认解除 '+state.week+' 全部记录的锁定？')) return;
   try{
-    for(const record of rows){ await patchLocked(record.id, false); }
-    refreshLockedWeeks(await fetchRows().catch(()=>rows.map(r=>Object.assign({}, r, {[LOCK_FIELD || 'locked']: false}))));
-    showMsg('✅ '+state.week+' 已解锁。', true);
+    showMsg('正在解锁 '+state.week+'，请稍候…', true);
+    for(const record of rows){ await patchLockedRobustV93(record.id, false); }
+    const latest = await fetchRows().catch(()=>rows.map(r=>Object.assign({}, r, {[LOCK_FIELD]: false})));
+    refreshLockedWeeks(latest);
+    lockedWeeks.delete(String(state.week));
     renderMainWeekChips();
     await loadWeekRecords();
-    requestAnimationFrame(()=>syncWeekLockUIV92());
+    syncWeekLockUIV93();
+    showMsg('✅ '+state.week+' 已解锁。', true);
   }catch(e){
     showMsg('❌ 解锁失败：' + e.message, false);
   }
 };
 
-function collectRecordIdsForRowKeyV92(rowKey){
+// 删除列：员工可在明细表最右侧删除整行对应记录
+function collectRecordIdsForRowKeyV93(rowKey){
   const meta = (typeof inlineEditMeta !== 'undefined') ? inlineEditMeta[String(rowKey)] : null;
   const ids = new Set();
   if(meta && meta.originals){
@@ -5336,11 +5354,11 @@ function collectRecordIdsForRowKeyV92(rowKey){
   }
   return Array.from(ids);
 }
-async function deleteMainRowV92(rowKey){
+async function deleteMainRowV93(rowKey){
   if(isAdmin()) return showMsg('管理员账号不允许删除员工工时，只能锁定或解锁。', false);
   if(isWeekLocked(state.week)) return showMsg('该 Week 已被管理员锁定，不能删除。', false);
   if(!requireAuth(false)) return;
-  const ids = collectRecordIdsForRowKeyV92(rowKey);
+  const ids = collectRecordIdsForRowKeyV93(rowKey);
   if(!ids.length) return showMsg('未找到可删除的已提交记录。', false);
   if(!confirm('确认删除该行对应的 '+ids.length+' 条提交记录吗？')) return;
   try{
@@ -5354,62 +5372,59 @@ async function deleteMainRowV92(rowKey){
     showMsg('❌ 删除失败：' + e.message, false);
   }
 }
-function addDeleteColumnV92(){
+function addDeleteColumnV93(){
   if(isAdmin()) return;
   const table = document.querySelector('.main-timesheet-table');
-  if(!table || table.dataset.v92DeleteCol === '1') return;
-  table.dataset.v92DeleteCol = '1';
+  if(!table || table.dataset.v93DeleteCol === '1') return;
+  table.dataset.v93DeleteCol = '1';
   const headRows = table.querySelectorAll('thead tr');
   if(headRows[0]){
     const th = document.createElement('th');
     th.rowSpan = 2;
-    th.className = 'delete-col-v92';
+    th.className = 'delete-col-v93';
     th.textContent = '删除';
     headRows[0].appendChild(th);
   }
-  const bodyRows = Array.from(table.querySelectorAll('tbody tr'));
-  bodyRows.forEach(tr=>{
+  Array.from(table.querySelectorAll('tbody tr')).forEach(tr=>{
     const td = document.createElement('td');
-    td.className = 'delete-col-v92';
+    td.className = 'delete-col-v93';
     const input = tr.querySelector('.inline-hour-input[data-row-key]');
     if(input){
       const rowKey = input.getAttribute('data-row-key');
-      td.innerHTML = '<button type="button" class="row-delete-btn-v92" onclick="deleteMainRowV92(\''+safe(rowKey)+'\')">删除</button>';
+      td.innerHTML = '<button type="button" class="row-delete-btn-v93" onclick="deleteMainRowV93(\''+safe(rowKey)+'\')">删除</button>';
     }else if(tr.classList.contains('integrated-input-row')){
-      td.innerHTML = '<span class="muted-delete-v92">草稿</span>';
-    }else{
-      td.innerHTML = '';
+      td.innerHTML = '<span class="muted-delete-v93">草稿</span>';
     }
     tr.appendChild(td);
   });
 }
 
-if(typeof renderWeekRecords === 'function' && !window.__v92RenderPatched){
-  window.__v92RenderPatched = true;
-  const __renderWeekRecordsV92 = renderWeekRecords;
+if(typeof renderWeekRecords === 'function' && !window.__v93RenderPatched){
+  window.__v93RenderPatched = true;
+  const __renderWeekRecordsV93 = renderWeekRecords;
   renderWeekRecords = function(rows, err=''){
-    const result = __renderWeekRecordsV92(rows, err);
+    const result = __renderWeekRecordsV93(rows, err);
     requestAnimationFrame(()=>{
-      hideRawRecordSectionV91 && hideRawRecordSectionV91();
-      addDeleteColumnV92();
-      syncWeekLockUIV92();
+      if(typeof hideRawRecordSectionV91 === 'function') hideRawRecordSectionV91();
+      addDeleteColumnV93();
+      syncWeekLockUIV93();
     });
     return result;
   };
 }
-if(typeof renderMainWeekChips === 'function' && !window.__v92WeekChipsPatched){
-  window.__v92WeekChipsPatched = true;
-  const __renderMainWeekChipsV92 = renderMainWeekChips;
+if(typeof renderMainWeekChips === 'function' && !window.__v93WeekPatched){
+  window.__v93WeekPatched = true;
+  const __renderMainWeekChipsV93 = renderMainWeekChips;
   renderMainWeekChips = function(){
-    const result = __renderMainWeekChipsV92();
-    requestAnimationFrame(()=>syncWeekLockUIV92());
+    const result = __renderMainWeekChipsV93();
+    requestAnimationFrame(()=>syncWeekLockUIV93());
     return result;
   };
 }
 setTimeout(()=>{
-  renderMainWeekChips && renderMainWeekChips();
-  syncWeekLockUIV92();
-  addDeleteColumnV92();
+  if(typeof renderMainWeekChips === 'function') renderMainWeekChips();
+  syncWeekLockUIV93();
+  addDeleteColumnV93();
 },0);
 
 </script>
