@@ -1,10 +1,10 @@
-<!-- VERSION: V10.8 UTF8 EDIT STYLE FINAL - CLOUDBASE -->
+<!-- VERSION: V10.6 EDIT ENHANCED FINAL - CLOUDBASE -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V10.8无乱码编辑统一版</title>
+  <title>车间工时填报系统 - V10.9最终UI版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1752,6 +1752,23 @@
 }
 
 </style>
+
+<style>
+@media (max-width:760px){
+  .v108-action-wrap{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:4px !important;
+  }
+  .v108-edit-btn,.v108-del-btn{height:28px !important;font-size:11px !important;}
+}
+.v108-chip-grid{grid-template-columns:repeat(3,1fr) !important;}
+.v108-chip{font-size:15px !important;font-weight:500 !important;}
+@media (max-width:760px){
+  .v108-chip-grid{grid-template-columns:repeat(2,1fr) !important;}
+  .v108-chip{font-size:14px !important;}
+}
+</style>
 </head>
 <body>
   <div class="header">车间工时填报系统</div>
@@ -1832,7 +1849,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V10.8无乱码编辑统一版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V10.9最终UI版</div>
     </div>
   </div>
 
@@ -5972,155 +5989,6 @@ setTimeout(async ()=>{
       v106AddEditButtons();
     }catch(e){ v106RemoveToday(); v106AddEditButtons(); }
   }, 0);
-})();
-
-
-/* ===== V10.8 FINAL PATCH：无乱码 + 编辑弹窗统一新增风格 + 操作列收口 + 今日标识彻底清除 ===== */
-(function(){
-  const V108_VERSION = 'V10.8无乱码编辑统一版';
-
-  function v108Msg(text, ok=true){
-    if(typeof showStatusModal === 'function') showStatusModal(text, ok);
-    else if(typeof showMsg === 'function') showMsg(text, ok);
-    else alert(String(text || ''));
-  }
-  function v108Wait(text){
-    if(typeof showStatusModal === 'function') showStatusModal(text, true);
-    else if(typeof showMsg === 'function') showMsg(text, true);
-  }
-  function v108Safe(s){
-    return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  }
-  function v108Text(td){ return String(td ? td.textContent : '').replace(/\s+/g,' ').trim(); }
-  function v108RowId(row){ return String((row && (row.id || row._id || row.rowId)) || ''); }
-  function v108IsLocked(){ return typeof isWeekLocked === 'function' && isWeekLocked(state.week); }
-  function v108NeedProject(task){ return typeof needsProjectByTask === 'function' ? needsProjectByTask(task) : true; }
-  function v108NeedUnit(task){ return typeof needsUnitByTask === 'function' ? needsUnitByTask(task) : true; }
-  function v108RemarkOptions(task){ return (typeof remarkOptionsForTask === 'function' ? remarkOptionsForTask(task) : ((typeof remarkTemplates !== 'undefined' && remarkTemplates[task]) ? remarkTemplates[task] : [])) || []; }
-  function v108DefaultRemark(task, current){
-    const cur = String(current || '').trim();
-    if(cur) return cur;
-    const opts = v108RemarkOptions(task);
-    return opts.length ? opts[0] : String(task || '');
-  }
-
-  function v108FixText(){
-    try{ document.title = '车间工时填报系统 - ' + V108_VERSION; }catch(e){}
-    document.querySelectorAll('.foot').forEach(el=>{ el.textContent = 'Ningbo Workshop Timesheet · ' + V108_VERSION; });
-  }
-
-  function v108RemoveToday(){
-    document.querySelectorAll('.today-badge').forEach(el=>el.remove());
-    document.querySelectorAll('th').forEach(th=>{
-      if(String(th.innerText || '').includes('今日') || String(th.innerText || '').includes('今天')){
-        th.innerHTML = th.innerHTML
-          .replace(/<br\s*\/?>\s*<span[^>]*today-badge[^>]*>[\s\S]*?<\/span>/gi,'')
-          .replace(/<span[^>]*today-badge[^>]*>[\s\S]*?<\/span>/gi,'')
-          .replace(/\/今天/g,'')
-          .replace(/今天/g,'')
-          .replace(/今日/g,'');
-      }
-    });
-  }
-
-  window.dayHeaderLabel = function(label, dayChar){ return label; };
-  window.displayChipText = function(value, field){
-    if(field === 'week'){
-      const lockIcon = (typeof isWeekLocked === 'function' && isWeekLocked(value)) ? ' 🔒' : '';
-      if(typeof getCurrentWeek === 'function' && value === getCurrentWeek()) return value + lockIcon + '（本周）';
-      return value + lockIcon;
-    }
-    if(field === 'weekday') return value;
-    return value;
-  };
-
-  const style = document.createElement('style');
-  style.textContent = `
-    .today-badge{display:none!important;visibility:hidden!important;width:0!important;height:0!important;max-width:0!important;max-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;font-size:0!important;line-height:0!important;}
-    .v106-edit-head,.v106-edit-cell{display:none!important;}
-    .v108-action-col{width:82px!important;min-width:82px!important;max-width:82px!important;text-align:center!important;background:#fff!important;white-space:nowrap!important;}
-    .v108-action-wrap{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;}
-    .v108-edit-btn,.v108-del-btn{border:none!important;border-radius:7px!important;padding:4px 6px!important;font-size:12px!important;font-weight:800!important;line-height:1.1!important;cursor:pointer!important;white-space:nowrap!important;}
-    .v108-edit-btn{background:#dbeafe!important;color:#1d4ed8!important;}
-    .v108-del-btn{background:#fee2e2!important;color:#991b1b!important;}
-    .v108-edit-btn:disabled,.v108-del-btn:disabled{background:#e5e7eb!important;color:#9ca3af!important;cursor:not-allowed!important;}
-    .v108-muted{color:#94a3b8!important;font-size:11px!important;}
-    .v108-edit-mask{position:fixed;inset:0;background:rgba(15,23,42,.46);z-index:50000;display:flex;align-items:flex-end;justify-content:center;padding:12px;}
-    .v108-edit-panel{width:min(760px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 12px 12px;box-shadow:0 18px 60px rgba(0,0,0,.26);padding:14px 14px 12px;border:1px solid #e5e7eb;}
-    .v108-edit-title{font-size:18px;font-weight:900;color:#0f172a;margin:0 0 10px;}
-    .v108-section{margin:10px 0 12px;}
-    .v108-section-title{border-left:4px solid #0078d4;padding-left:8px;margin-bottom:8px;color:#075985;font-size:14px;font-weight:900;}
-    .v108-chip-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
-    .v108-chip{border:1px solid #d7dde5;border-radius:11px;background:#f8fbff;color:#0f4c81;min-height:42px;padding:8px 6px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;font-weight:800;line-height:1.15;cursor:pointer;box-shadow:0 1px 5px rgba(15,23,42,.06);word-break:break-word;}
-    .v108-chip.active{background:#dcfce7!important;color:#166534!important;border-color:#16a34a!important;outline:2px solid #16a34a!important;outline-offset:-2px!important;}
-    .v108-empty{min-height:48px;border-bottom:1px solid #e5e7eb;color:#94a3b8;font-weight:900;display:flex;align-items:center;justify-content:center;text-align:center;}
-    .v108-remark-input{width:100%!important;height:40px!important;border:1px solid #bcd0e5!important;border-radius:11px!important;padding:8px 10px!important;font-size:15px!important;font-weight:700!important;background:#fff!important;}
-    .v108-actions{position:sticky;bottom:0;background:#fff;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:1fr 1.3fr;gap:10px;padding-top:10px;margin-top:12px;}
-    .v108-actions button{height:42px;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;}
-    .v108-cancel{background:#f3f4f6;color:#111827;}
-    .v108-save{background:#16a34a;color:#fff;}
-    @media(max-width:760px){.v108-action-col{width:56px!important;min-width:56px!important;max-width:56px!important;}.v108-action-wrap{gap:2px!important;flex-direction:column!important;}.v108-edit-btn,.v108-del-btn{font-size:9px!important;padding:2px 3px!important;border-radius:5px!important;min-width:30px!important;}.v108-edit-panel{padding:12px 10px 10px;border-radius:16px 16px 10px 10px;}.v108-chip-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}.v108-chip{min-height:38px;font-size:13px;padding:7px 5px;}.v108-section-title{font-size:13px;margin-bottom:7px;}.v108-actions{grid-template-columns:1fr 1fr;gap:8px;}.v108-actions button{height:40px;font-size:14px;}.main-timesheet-table{min-width:820px!important;}}
-  `;
-  document.head.appendChild(style);
-
-  function v108MetaFromRow(tr){
-    const cells = Array.from(tr.children).filter(td=>!td.classList.contains('v108-action-col')&&!td.classList.contains('v107-action-col')&&!td.classList.contains('delete-col-v95')&&!td.classList.contains('v106-edit-cell'));
-    if(typeof isAdmin === 'function' && isAdmin()) return {task:v108Text(cells[2]), project:v108Text(cells[3]), unit:v108Text(cells[4]), remark:v108Text(cells[5])};
-    return {task:v108Text(cells[0]), project:v108Text(cells[1]), unit:v108Text(cells[2]), remark:v108Text(cells[3])};
-  }
-  function v108MatchRecords(meta){
-    return (currentWeekRecords || []).filter(r=> String(r.employeeId||'')===String(empId||'') && String(r.week||'')===String(state.week||'') && String(r.task||'')===String(meta.task||'') && String(r.project||'')===String(meta.project||'') && String(r.unit||'')===String(meta.unit||'') && String(r.remark||'').trim()===String(meta.remark||'').trim());
-  }
-  function v108RenderChips(box, arr, selected, onClick, disabledText){
-    if(!box) return; box.innerHTML='';
-    if(disabledText){ box.innerHTML='<div class="v108-empty">'+v108Safe(disabledText)+'</div>'; return; }
-    (arr||[]).forEach(item=>{const btn=document.createElement('button');btn.type='button';btn.className='v108-chip'+(String(item)===String(selected)?' active':'');btn.textContent=item;btn.onclick=()=>onClick(item);box.appendChild(btn);});
-  }
-  function v108OpenEdit(meta){
-    if(typeof isAdmin === 'function' && isAdmin()) return;
-    if(v108IsLocked()) return v108Msg('该 Week 已被管理员锁定，不能修改。', false);
-    const matched = v108MatchRecords(meta);
-    if(!matched.length) return v108Msg('未找到可修改的原始记录，请刷新后重试。', false);
-    const draft={task:meta.task||'',project:meta.project||'',unit:meta.unit||'',remark:v108DefaultRemark(meta.task,meta.remark||'')};
-    const mask=document.createElement('div'); mask.className='v108-edit-mask';
-    mask.innerHTML=`<div class="v108-edit-panel" onclick="event.stopPropagation()"><div class="v108-edit-title">✏️ 修改前置信息</div><div class="v108-section"><div class="v108-section-title">1. 工时类别（单选）</div><div id="v108TaskGrid" class="v108-chip-grid"></div></div><div class="v108-section"><div class="v108-section-title">2. 项目号（单选）</div><div id="v108ProjectGrid" class="v108-chip-grid"></div></div><div class="v108-section"><div class="v108-section-title">3. 单元号（单选）</div><div id="v108UnitGrid" class="v108-chip-grid"></div></div><div class="v108-section"><div class="v108-section-title">4. 备注（单选/自定义）</div><input id="v108RemarkInput" class="v108-remark-input" placeholder="可手动输入备注" /><div id="v108RemarkGrid" class="v108-chip-grid" style="margin-top:8px"></div></div><div class="v108-actions"><button type="button" class="v108-cancel">取消</button><button type="button" class="v108-save">保存修改</button></div></div>`;
-    document.body.appendChild(mask); mask.addEventListener('click',()=>mask.remove());
-    const render=()=>{
-      const taskGrid=mask.querySelector('#v108TaskGrid'), projectGrid=mask.querySelector('#v108ProjectGrid'), unitGrid=mask.querySelector('#v108UnitGrid'), remarkGrid=mask.querySelector('#v108RemarkGrid'), remarkInput=mask.querySelector('#v108RemarkInput');
-      remarkInput.value=draft.remark||'';
-      v108RenderChips(taskGrid,(typeof taskOptions!=='undefined'?taskOptions:[]),draft.task,task=>{draft.task=task;draft.project='';draft.unit='';draft.remark=v108DefaultRemark(task,'');render();});
-      if(!v108NeedProject(draft.task)){draft.project='';v108RenderChips(projectGrid,[],'',null,'该类别无需项目号');}
-      else v108RenderChips(projectGrid,Object.keys(projectUnits||{}),draft.project,project=>{draft.project=project;draft.unit='';render();},draft.task?'':'请选择工时类别后显示项目');
-      if(!v108NeedUnit(draft.task)){draft.unit='';v108RenderChips(unitGrid,[],'',null,'该类别无需单元号');}
-      else if(!draft.project) v108RenderChips(unitGrid,[],'',null,'请先选择项目号');
-      else v108RenderChips(unitGrid,(projectUnits&&projectUnits[draft.project])?projectUnits[draft.project]:[],draft.unit,unit=>{draft.unit=unit;render();});
-      v108RenderChips(remarkGrid,v108RemarkOptions(draft.task),draft.remark,remark=>{draft.remark=remark;render();},draft.task?'':'选择工时类别后显示备注');
-      remarkInput.oninput=()=>{draft.remark=remarkInput.value;};
-    };
-    render();
-    mask.querySelector('.v108-cancel').onclick=()=>mask.remove();
-    mask.querySelector('.v108-save').onclick=async()=>{
-      const remarkInput=mask.querySelector('#v108RemarkInput'); draft.remark=v108DefaultRemark(draft.task,remarkInput?remarkInput.value:draft.remark);
-      if(!draft.task) return v108Msg('请选择工时类别。',false);
-      if(v108NeedProject(draft.task)&&!draft.project) return v108Msg('请选择项目号。',false);
-      if(v108NeedUnit(draft.task)&&!draft.unit) return v108Msg('请选择单元号。',false);
-      v108Wait('正在保存修改...');
-      try{for(const r of matched){const id=v108RowId(r); if(!id) continue; const body={task:draft.task,project:v108NeedProject(draft.task)?draft.project:'',unit:v108NeedUnit(draft.task)?draft.unit:'',remark:draft.remark}; const res=await fetch(rowUrl(id),{method:'PATCH',headers:headers(),body:JSON.stringify(body)}); if(!res.ok) throw new Error('保存失败：'+res.status);} mask.remove(); if(typeof loadWeekRecords==='function') await loadWeekRecords(); v108RemoveToday(); v108NormalizeActionColumn(); v108Msg('✅ 修改成功。',true);}catch(e){v108Msg('❌ 修改失败：'+(e&&e.message?e.message:String(e)),false);}
-    };
-  }
-  window.v106OpenEdit=v108OpenEdit; window.v108OpenEdit=v108OpenEdit;
-  function v108IsDataRow(tr){if(!tr||tr.classList.contains('integrated-input-row')) return false; const txt=v108Text(tr); if(!txt||txt.includes('汇总')) return false; return !!tr.querySelector('.inline-hour-input[data-row-key]');}
-  function v108NormalizeActionColumn(){
-    v108FixText(); v108RemoveToday(); const table=document.querySelector('.main-timesheet-table'); if(!table) return;
-    table.querySelectorAll('.v106-edit-head,.v106-edit-cell,.v107-action-col').forEach(el=>el.remove());
-    const headRows=table.querySelectorAll('thead tr'); if(headRows[0]){let th=headRows[0].querySelector('.v108-action-col')||headRows[0].querySelector('.delete-col-v95'); if(!th){th=document.createElement('th');th.rowSpan=2;headRows[0].appendChild(th);} th.className='delete-col-v95 v108-action-col';th.rowSpan=2;th.textContent='操作';}
-    table.querySelectorAll('tbody tr').forEach(tr=>{tr.querySelectorAll('.v106-edit-cell,.v107-action-col').forEach(el=>el.remove()); let td=tr.querySelector('td.v108-action-col')||tr.querySelector('td.delete-col-v95'); if(!td){td=document.createElement('td');tr.appendChild(td);} td.className='delete-col-v95 v108-action-col'; if(tr.classList.contains('integrated-input-row')){td.innerHTML='<span class="v108-muted">草稿</span>';return;} if(!v108IsDataRow(tr)){td.innerHTML='';return;} const input=tr.querySelector('.inline-hour-input[data-row-key]'); const rowKey=input?input.getAttribute('data-row-key'):''; const locked=v108IsLocked(); td.innerHTML='<div class="v108-action-wrap"><button type="button" class="v108-edit-btn" '+(locked?'disabled':'')+'>编辑</button><button type="button" class="v108-del-btn" '+(locked?'disabled':'')+'>删除</button></div>'; td.querySelector('.v108-edit-btn').onclick=()=>v108OpenEdit(v108MetaFromRow(tr)); td.querySelector('.v108-del-btn').onclick=()=>{if(locked)return;if(typeof deleteMainRowV95==='function'&&rowKey) deleteMainRowV95(rowKey);};});
-  }
-  window.v108NormalizeActionColumn=v108NormalizeActionColumn; window.v106AddEditButtons=v108NormalizeActionColumn; window.addDeleteColumnV95=function(){if(!(typeof isAdmin==='function'&&isAdmin())) v108NormalizeActionColumn();};
-  if(typeof renderWeekRecords==='function'&&!window.__v108RenderPatched){window.__v108RenderPatched=true;const oldRender=renderWeekRecords;window.renderWeekRecords=function(rows,err=''){const result=oldRender(rows,err);requestAnimationFrame(v108NormalizeActionColumn);setTimeout(v108NormalizeActionColumn,80);setTimeout(v108NormalizeActionColumn,240);return result;};}
-  if(typeof renderWeekRecordsKeepScroll==='function'&&!window.__v108KeepScrollPatched){window.__v108KeepScrollPatched=true;const oldKeep=renderWeekRecordsKeepScroll;window.renderWeekRecordsKeepScroll=function(){const result=oldKeep();requestAnimationFrame(v108NormalizeActionColumn);setTimeout(v108NormalizeActionColumn,80);return result;};}
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{v108FixText();v108RemoveToday();v108NormalizeActionColumn();}); else {v108FixText();v108RemoveToday();v108NormalizeActionColumn();}
-  setInterval(v108RemoveToday,600); setInterval(v108NormalizeActionColumn,1200); setTimeout(v108NormalizeActionColumn,0); setTimeout(v108NormalizeActionColumn,400);
 })();
 </script>
 </body>
