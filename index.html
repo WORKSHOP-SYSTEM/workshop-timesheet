@@ -1,10 +1,10 @@
-<!-- VERSION: V10.2 CLOUDBASE MODE - DELETE ID FIX FINAL -->
+<!-- VERSION: V10.3 CLOUDBASE OPTIMIZED FINAL - DELETE FIX + MOBILE UX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V10.2 CloudBase版</title>
+  <title>车间工时填报系统 - V10.3 CloudBase优化版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1737,6 +1737,20 @@
     .muted-delete-v95{color:#94a3b8!important;font-size:11px!important;}
     @media(max-width:760px){.delete-col-v95{width:34px!important;min-width:34px!important;max-width:34px!important;}.row-delete-btn-v95{font-size:10px!important;padding:3px 4px!important;border-radius:6px!important;}.main-timesheet-table{min-width:800px!important;}}
 
+
+
+/* ===== V10.3 手机端和触控体验优化 ===== */
+@media (max-width: 760px){
+  th, td{font-size:12px!important;padding:3px 4px!important;}
+  .week-btn, .btn, button{touch-action:manipulation;}
+  input, select, textarea{font-size:14px!important;}
+  .summary-table input{min-width:34px!important;height:26px!important;padding:2px!important;}
+  .card{border-radius:14px!important;}
+}
+.del-btn, .delete-btn, button[onclick*="removeRecord"], button[onclick*="delete"]{
+  touch-action:manipulation;
+}
+
 </style>
 </head>
 <body>
@@ -1818,7 +1832,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V10.2 CloudBase版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V10.3 CloudBase优化版</div>
     </div>
   </div>
 
@@ -1899,8 +1913,12 @@
 <script>
 
 
-/* ===== V10.2 CLOUDBASE MODE：腾讯云 CloudBase 接口适配层（删除ID修复最终版） =====
-   修复点：CloudBase 的 _id 是字母数字混合，不能再用只匹配数字的正则；删除/修改统一兼容 id 和 _id。
+/* ===== V10.3 CLOUDBASE MODE：腾讯云 CloudBase 接口适配层（优化最终版） =====
+   版本说明：
+   1) 保留当前页面 UI / 批量新增 / 平分工时 / 锁周 / 导出逻辑。
+   2) 替代 Baserow，所有数据读写走腾讯云 CloudBase。
+   3) 修复 CloudBase _id 字母数字混合导致删除失败的问题。
+   4) 修复 DELETE 成功后 204 + body 导致浏览器 Response 报错的问题。
 */
 const CLOUD_BASE_FUNCTION_URL = "https://timesheet-d6g9cfu6c9d0e7fce-1448165566.ap-shanghai.app.tcloudbase.com/timesheetApi";
 const CLOUD_BASE_ENABLED = true;
@@ -1908,7 +1926,7 @@ const CLOUD_BASE_ENABLED = true;
 (function(){
   const BASEROW_TABLE_ID = "1030254";
   const API_MATCH = "/api/database/rows/table/" + BASEROW_TABLE_ID + "/";
-  const originalFetchV102CloudBase = window.fetch.bind(window);
+  const originalFetchV103CloudBase = window.fetch.bind(window);
 
   function normalizeUrl(input){
     return typeof input === "string" ? input : (input && input.url ? input.url : String(input || ""));
@@ -1922,15 +1940,12 @@ const CLOUD_BASE_ENABLED = true;
       headers:{"Content-Type":"application/json;charset=utf-8"}
     }));
   }
-  function emptyResponse(status=204){
-    return Promise.resolve(new Response("", {status}));
-  }
   function parseBody(options){
     if(!options || !options.body) return {};
     try{ return JSON.parse(options.body); }catch(e){ return {}; }
   }
   function getRowIdFromUrl(url){
-    // ✅ V10.2：CloudBase _id 是字母数字混合，必须匹配任意非 / 字符，不能只匹配数字
+    // ✅ V10.3：CloudBase 的 _id 是字母数字混合，必须匹配任意非 / 字符
     const m = String(url).match(/\/api\/database\/rows\/table\/1030254\/([^\/]+)\//);
     return m ? decodeURIComponent(String(m[1])) : "";
   }
@@ -1957,7 +1972,7 @@ const CLOUD_BASE_ENABLED = true;
       return {ok:false, status:500, data:{error:"CloudBase接口未配置"}};
     }
     try{
-      const res = await originalFetchV102CloudBase(CLOUD_BASE_FUNCTION_URL, {
+      const res = await originalFetchV103CloudBase(CLOUD_BASE_FUNCTION_URL, {
         method:"POST",
         headers:{"Content-Type":"application/json;charset=utf-8"},
         body:JSON.stringify(Object.assign({action}, payload || {}))
@@ -1974,7 +1989,7 @@ const CLOUD_BASE_ENABLED = true;
   window.fetch = async function(input, options={}){
     const url = normalizeUrl(input);
     if(!CLOUD_BASE_ENABLED || !url.includes(API_MATCH)){
-      return originalFetchV102CloudBase(input, options);
+      return originalFetchV103CloudBase(input, options);
     }
 
     const method = String((options && options.method) || "GET").toUpperCase();
@@ -2005,26 +2020,16 @@ const CLOUD_BASE_ENABLED = true;
       return jsonResponse(ret.data || {}, ret.ok ? 200 : (ret.status || 500));
     }
 
-if(method === "DELETE"){
-  const body = parseBody(options)
-  const finalId = rowId || body.id || body._id || ""
-
-  const ret = await callCloudBase("delete", {
-    rowId: finalId,
-    id: finalId,
-    _id: finalId,
-    body,
-    data: body,
-    params
-  })
-
-  // ✅ 修复：不要用204
-  if(ret.ok && !(ret.data && ret.data.error)){
-    return jsonResponse({ success: true }, 200)
-  }
-
-  return jsonResponse(ret.data || {}, ret.status || 400)
-}
+    if(method === "DELETE"){
+      const body = parseBody(options);
+      const finalId = rowId || body.id || body._id || "";
+      const ret = await callCloudBase("delete", {rowId: finalId, id: finalId, _id: finalId, body, data: body, params});
+      // ✅ V10.3：删除成功必须返回 200 + JSON，不能返回 204 + body
+      if(ret.ok && !(ret.data && ret.data.error)){
+        return jsonResponse({success:true, id:finalId}, 200);
+      }
+      return jsonResponse(ret.data || {}, ret.status || 400);
+    }
 
     return jsonResponse({error:"unsupported method", method}, 405);
   };
