@@ -1,10 +1,10 @@
-<!-- VERSION: V10.6 EDIT ENHANCED FINAL - CLOUDBASE -->
+<!-- VERSION: V10.10 FULL FINAL - CLOUDBASE -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V10.9最终UI版</title>
+  <title>车间工时填报系统 - V10.10完整最终版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1752,23 +1752,6 @@
 }
 
 </style>
-
-<style>
-@media (max-width:760px){
-  .v108-action-wrap{
-    display:grid !important;
-    grid-template-columns:1fr 1fr !important;
-    gap:4px !important;
-  }
-  .v108-edit-btn,.v108-del-btn{height:28px !important;font-size:11px !important;}
-}
-.v108-chip-grid{grid-template-columns:repeat(3,1fr) !important;}
-.v108-chip{font-size:15px !important;font-weight:500 !important;}
-@media (max-width:760px){
-  .v108-chip-grid{grid-template-columns:repeat(2,1fr) !important;}
-  .v108-chip{font-size:14px !important;}
-}
-</style>
 </head>
 <body>
   <div class="header">车间工时填报系统</div>
@@ -1849,7 +1832,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V10.9最终UI版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V10.10完整最终版</div>
     </div>
   </div>
 
@@ -5989,6 +5972,354 @@ setTimeout(async ()=>{
       v106AddEditButtons();
     }catch(e){ v106RemoveToday(); v106AddEditButtons(); }
   }, 0);
+})();
+
+
+/* ===== V10.10 FULL FINAL PATCH：完整版本修正，非演示文件 =====
+   1) 编辑弹窗改为“新增单条/多条工时”的卡片选择风格；
+   2) 手机端操作列改为编辑/删除两列大按钮，减少误触；
+   3) 保留原有 CloudBase、锁定/解锁、提交、删除、导出等完整逻辑；
+   4) 强制清理“今日/今天”标识；
+   5) 页脚/标题统一为 V10.10完整最终版。
+*/
+(function(){
+  const V1010_VERSION = 'V10.10完整最终版';
+
+  function msg(text, ok=true){
+    if(typeof showStatusModal === 'function') showStatusModal(text, ok);
+    else if(typeof showMsg === 'function') showMsg(text, ok);
+    else alert(String(text || ''));
+  }
+  function waitMsg(text){
+    if(typeof showStatusModal === 'function') showStatusModal(text, true);
+    else if(typeof showMsg === 'function') showMsg(text, true);
+  }
+  function esc(s){
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function txt(el){ return String(el ? el.textContent : '').replace(/\s+/g,' ').trim(); }
+  function rowId(row){ return String((row && (row.id || row._id || row.rowId)) || ''); }
+  function isLockedWeek(){ return typeof isWeekLocked === 'function' && isWeekLocked(state.week); }
+  function needProject(task){ return typeof needsProjectByTask === 'function' ? needsProjectByTask(task) : true; }
+  function needUnit(task){ return typeof needsUnitByTask === 'function' ? needsUnitByTask(task) : true; }
+  function remarkOptions(task){
+    if(typeof remarkOptionsForTask === 'function') return remarkOptionsForTask(task) || [];
+    if(typeof remarkTemplates !== 'undefined' && remarkTemplates[task]) return remarkTemplates[task] || [];
+    return [];
+  }
+  function defaultRemark(task, oldValue){
+    const v = String(oldValue || '').trim();
+    if(v) return v;
+    const arr = remarkOptions(task);
+    return arr.length ? arr[0] : String(task || '');
+  }
+  function fixVersionText(){
+    try{ document.title = '车间工时填报系统 - ' + V1010_VERSION; }catch(e){}
+    document.querySelectorAll('.foot').forEach(el => el.textContent = 'Ningbo Workshop Timesheet · ' + V1010_VERSION);
+  }
+  function removeToday(){
+    document.querySelectorAll('.today-badge').forEach(el=>el.remove());
+    document.querySelectorAll('th').forEach(th=>{
+      if(String(th.innerText || '').includes('今日') || String(th.innerText || '').includes('今天')){
+        th.innerHTML = th.innerHTML
+          .replace(/<br\s*\/?>\s*<span[^>]*today-badge[^>]*>[\s\S]*?<\/span>/gi,'')
+          .replace(/<span[^>]*today-badge[^>]*>[\s\S]*?<\/span>/gi,'')
+          .replace(/\/今天/g,'')
+          .replace(/今天/g,'')
+          .replace(/今日/g,'');
+      }
+    });
+  }
+
+  window.dayHeaderLabel = function(label){ return label; };
+  window.displayChipText = function(value, field){
+    if(field === 'week'){
+      const icon = (typeof isWeekLocked === 'function' && isWeekLocked(value)) ? ' 🔒' : '';
+      if(typeof getCurrentWeek === 'function' && value === getCurrentWeek()) return value + icon + '（本周）';
+      return value + icon;
+    }
+    if(field === 'weekday') return value;
+    return value;
+  };
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .today-badge{display:none!important;visibility:hidden!important;width:0!important;height:0!important;max-width:0!important;max-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;font-size:0!important;line-height:0!important;}
+    .v106-edit-head,.v106-edit-cell{display:none!important;}
+    .v1010-action-col{width:92px!important;min-width:92px!important;max-width:92px!important;text-align:center!important;background:#fff!important;white-space:nowrap!important;}
+    .v1010-action-wrap{display:grid!important;grid-template-columns:1fr 1fr!important;align-items:center!important;justify-content:center!important;gap:5px!important;}
+    .v1010-edit-btn,.v1010-del-btn{border:none!important;border-radius:7px!important;padding:5px 4px!important;font-size:12px!important;font-weight:600!important;line-height:1.1!important;cursor:pointer!important;white-space:nowrap!important;min-height:26px!important;}
+    .v1010-edit-btn{background:#dbeafe!important;color:#1d4ed8!important;}
+    .v1010-del-btn{background:#fee2e2!important;color:#991b1b!important;}
+    .v1010-edit-btn:disabled,.v1010-del-btn:disabled{background:#e5e7eb!important;color:#9ca3af!important;cursor:not-allowed!important;}
+    .v1010-muted{color:#94a3b8!important;font-size:11px!important;}
+
+    .v1010-edit-mask{position:fixed;inset:0;background:rgba(15,23,42,.46);z-index:50000;display:flex;align-items:flex-end;justify-content:center;padding:10px;}
+    .v1010-edit-panel{width:min(880px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 12px 12px;box-shadow:0 18px 60px rgba(0,0,0,.26);padding:12px;border:1px solid #e5e7eb;}
+    .v1010-edit-title{font-size:18px;font-weight:800;color:#0f172a;margin:0 0 8px;}
+    .v1010-section{margin:8px 0 10px;}
+    .v1010-section-title{border-left:4px solid #0078d4;padding-left:8px;margin-bottom:6px;color:#075985;font-size:14px;font-weight:800;}
+    .v1010-chip-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+    .v1010-chip{border:1px solid #d7dde5;border-radius:11px;background:#f8fbff;color:#0f4c81;min-height:42px;padding:8px 6px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:500;line-height:1.15;cursor:pointer;box-shadow:0 1px 5px rgba(15,23,42,.06);word-break:break-word;}
+    .v1010-chip.active{background:#dcfce7!important;color:#166534!important;border-color:#16a34a!important;outline:2px solid #16a34a!important;outline-offset:-2px!important;}
+    .v1010-empty{min-height:46px;border-bottom:1px solid #e5e7eb;color:#94a3b8;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center;}
+    .v1010-remark-input{width:100%!important;height:38px!important;border:1px solid #bcd0e5!important;border-radius:10px!important;padding:7px 10px!important;font-size:15px!important;font-weight:500!important;background:#fff!important;}
+    .v1010-actions{position:sticky;bottom:0;background:#fff;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:1fr 1.3fr;gap:10px;padding-top:10px;margin-top:10px;}
+    .v1010-actions button{height:42px;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;}
+    .v1010-cancel{background:#f3f4f6;color:#111827;}
+    .v1010-save{background:#16a34a;color:#fff;}
+
+    @media(max-width:760px){
+      .v1010-action-col{width:70px!important;min-width:70px!important;max-width:70px!important;}
+      .v1010-action-wrap{grid-template-columns:1fr 1fr!important;gap:4px!important;}
+      .v1010-edit-btn,.v1010-del-btn{font-size:11px!important;padding:3px 2px!important;border-radius:6px!important;height:28px!important;min-height:28px!important;}
+      .v1010-edit-panel{padding:10px;border-radius:16px 16px 10px 10px;}
+      .v1010-chip-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;}
+      .v1010-chip{min-height:38px;font-size:14px;padding:7px 5px;font-weight:500!important;}
+      .v1010-section-title{font-size:13px;margin-bottom:6px;}
+      .v1010-actions{grid-template-columns:1fr 1fr;gap:8px;}
+      .v1010-actions button{height:40px;font-size:14px;}
+      .main-timesheet-table{min-width:840px!important;}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function metaFromRow(tr){
+    const cells = Array.from(tr.children).filter(td=>
+      !td.classList.contains('v1010-action-col') &&
+      !td.classList.contains('v108-action-col') &&
+      !td.classList.contains('v107-action-col') &&
+      !td.classList.contains('delete-col-v95') &&
+      !td.classList.contains('v106-edit-cell')
+    );
+    if(typeof isAdmin === 'function' && isAdmin()){
+      return {task:txt(cells[2]), project:txt(cells[3]), unit:txt(cells[4]), remark:txt(cells[5])};
+    }
+    return {task:txt(cells[0]), project:txt(cells[1]), unit:txt(cells[2]), remark:txt(cells[3])};
+  }
+  function matchRecords(meta){
+    return (currentWeekRecords || []).filter(r=>
+      String(r.employeeId || '') === String(empId || '') &&
+      String(r.week || '') === String(state.week || '') &&
+      String(r.task || '') === String(meta.task || '') &&
+      String(r.project || '') === String(meta.project || '') &&
+      String(r.unit || '') === String(meta.unit || '') &&
+      String(r.remark || '').trim() === String(meta.remark || '').trim()
+    );
+  }
+  function renderChipGrid(box, items, selected, onClick, emptyText){
+    if(!box) return;
+    box.innerHTML = '';
+    if(emptyText){
+      box.innerHTML = '<div class="v1010-empty">' + esc(emptyText) + '</div>';
+      return;
+    }
+    (items || []).forEach(item=>{
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'v1010-chip' + (String(item) === String(selected) ? ' active' : '');
+      b.textContent = item;
+      b.onclick = () => onClick(item);
+      box.appendChild(b);
+    });
+  }
+
+  function openCardEdit(meta){
+    if(typeof isAdmin === 'function' && isAdmin()) return;
+    if(isLockedWeek()) return msg('该 Week 已被管理员锁定，不能修改。', false);
+    const matched = matchRecords(meta);
+    if(!matched.length) return msg('未找到可修改的原始记录，请刷新后重试。', false);
+
+    const draft = {
+      task: meta.task || '',
+      project: meta.project || '',
+      unit: meta.unit || '',
+      remark: defaultRemark(meta.task, meta.remark || '')
+    };
+
+    const mask = document.createElement('div');
+    mask.className = 'v1010-edit-mask';
+    mask.innerHTML = `
+      <div class="v1010-edit-panel" onclick="event.stopPropagation()">
+        <div class="v1010-edit-title">✏️ 修改前置信息</div>
+        <div class="v1010-section"><div class="v1010-section-title">1. 工时类别（单选）</div><div id="v1010TaskGrid" class="v1010-chip-grid"></div></div>
+        <div class="v1010-section"><div class="v1010-section-title">2. 项目号（单选）</div><div id="v1010ProjectGrid" class="v1010-chip-grid"></div></div>
+        <div class="v1010-section"><div class="v1010-section-title">3. 单元号（单选）</div><div id="v1010UnitGrid" class="v1010-chip-grid"></div></div>
+        <div class="v1010-section"><div class="v1010-section-title">4. 备注（单选/自定义）</div><input id="v1010RemarkInput" class="v1010-remark-input" placeholder="可手动输入备注" /><div id="v1010RemarkGrid" class="v1010-chip-grid" style="margin-top:8px"></div></div>
+        <div class="v1010-actions"><button type="button" class="v1010-cancel">取消</button><button type="button" class="v1010-save">保存修改</button></div>
+      </div>`;
+    document.body.appendChild(mask);
+    mask.addEventListener('click', ()=>mask.remove());
+
+    const draw = ()=>{
+      const taskBox = mask.querySelector('#v1010TaskGrid');
+      const projectBox = mask.querySelector('#v1010ProjectGrid');
+      const unitBox = mask.querySelector('#v1010UnitGrid');
+      const remarkBox = mask.querySelector('#v1010RemarkGrid');
+      const remarkInput = mask.querySelector('#v1010RemarkInput');
+      remarkInput.value = draft.remark || '';
+
+      renderChipGrid(taskBox, (typeof taskOptions !== 'undefined' ? taskOptions : []), draft.task, task=>{
+        draft.task = task;
+        draft.project = '';
+        draft.unit = '';
+        draft.remark = defaultRemark(task, '');
+        draw();
+      });
+
+      if(!needProject(draft.task)){
+        draft.project = '';
+        renderChipGrid(projectBox, [], '', null, '该类别无需项目号');
+      }else{
+        renderChipGrid(projectBox, Object.keys(projectUnits || {}), draft.project, project=>{
+          draft.project = project;
+          draft.unit = '';
+          draw();
+        }, draft.task ? '' : '请选择工时类别后显示项目');
+      }
+
+      if(!needUnit(draft.task)){
+        draft.unit = '';
+        renderChipGrid(unitBox, [], '', null, '该类别无需单元号');
+      }else if(!draft.project){
+        renderChipGrid(unitBox, [], '', null, '请先选择项目号');
+      }else{
+        renderChipGrid(unitBox, (projectUnits && projectUnits[draft.project]) ? projectUnits[draft.project] : [], draft.unit, unit=>{
+          draft.unit = unit;
+          draw();
+        });
+      }
+
+      renderChipGrid(remarkBox, remarkOptions(draft.task), draft.remark, remark=>{
+        draft.remark = remark;
+        draw();
+      }, draft.task ? '' : '选择工时类别后显示备注');
+      remarkInput.oninput = ()=>{ draft.remark = remarkInput.value; };
+    };
+    draw();
+
+    mask.querySelector('.v1010-cancel').onclick = ()=>mask.remove();
+    mask.querySelector('.v1010-save').onclick = async ()=>{
+      const remarkInput = mask.querySelector('#v1010RemarkInput');
+      draft.remark = defaultRemark(draft.task, remarkInput ? remarkInput.value : draft.remark);
+      if(!draft.task) return msg('请选择工时类别。', false);
+      if(needProject(draft.task) && !draft.project) return msg('请选择项目号。', false);
+      if(needUnit(draft.task) && !draft.unit) return msg('请选择单元号。', false);
+      waitMsg('正在保存修改...');
+      try{
+        for(const r of matched){
+          const id = rowId(r);
+          if(!id) continue;
+          const body = {
+            task: draft.task,
+            project: needProject(draft.task) ? draft.project : '',
+            unit: needUnit(draft.task) ? draft.unit : '',
+            remark: draft.remark
+          };
+          const res = await fetch(rowUrl(id), {method:'PATCH', headers:headers(), body:JSON.stringify(body)});
+          if(!res.ok) throw new Error('保存失败：' + res.status);
+        }
+        mask.remove();
+        if(typeof loadWeekRecords === 'function') await loadWeekRecords();
+        removeToday();
+        normalizeActionColumn();
+        msg('✅ 修改成功。', true);
+      }catch(e){
+        msg('❌ 修改失败：' + (e && e.message ? e.message : String(e)), false);
+      }
+    };
+  }
+  window.v1010OpenEdit = openCardEdit;
+  window.v106OpenEdit = openCardEdit;
+
+  function isDataRow(tr){
+    if(!tr || tr.classList.contains('integrated-input-row')) return false;
+    const text = txt(tr);
+    if(!text || text.includes('汇总')) return false;
+    return !!tr.querySelector('.inline-hour-input[data-row-key]');
+  }
+
+  function normalizeActionColumn(){
+    fixVersionText();
+    removeToday();
+    const table = document.querySelector('.main-timesheet-table');
+    if(!table) return;
+    table.querySelectorAll('.v106-edit-head,.v106-edit-cell,.v107-action-col,.v108-action-col').forEach(el=>el.remove());
+
+    const headRows = table.querySelectorAll('thead tr');
+    if(headRows[0]){
+      let th = headRows[0].querySelector('.v1010-action-col') || headRows[0].querySelector('.delete-col-v95');
+      if(!th){ th = document.createElement('th'); th.rowSpan = 2; headRows[0].appendChild(th); }
+      th.className = 'delete-col-v95 v1010-action-col';
+      th.rowSpan = 2;
+      th.textContent = '操作';
+    }
+
+    table.querySelectorAll('tbody tr').forEach(tr=>{
+      tr.querySelectorAll('.v106-edit-cell,.v107-action-col,.v108-action-col').forEach(el=>el.remove());
+      let td = tr.querySelector('td.v1010-action-col') || tr.querySelector('td.delete-col-v95');
+      if(!td){ td = document.createElement('td'); tr.appendChild(td); }
+      td.className = 'delete-col-v95 v1010-action-col';
+
+      if(tr.classList.contains('integrated-input-row')){
+        td.innerHTML = '<span class="v1010-muted">草稿</span>';
+        return;
+      }
+      if(!isDataRow(tr)){
+        td.innerHTML = '';
+        return;
+      }
+      const input = tr.querySelector('.inline-hour-input[data-row-key]');
+      const rowKey = input ? input.getAttribute('data-row-key') : '';
+      const locked = isLockedWeek();
+      td.innerHTML = '<div class="v1010-action-wrap">'
+        + '<button type="button" class="v1010-edit-btn" '+(locked?'disabled':'')+'>编辑</button>'
+        + '<button type="button" class="v1010-del-btn" '+(locked?'disabled':'')+'>删除</button>'
+        + '</div>';
+      td.querySelector('.v1010-edit-btn').onclick = ()=>openCardEdit(metaFromRow(tr));
+      td.querySelector('.v1010-del-btn').onclick = ()=>{
+        if(locked) return;
+        if(typeof deleteMainRowV95 === 'function' && rowKey) deleteMainRowV95(rowKey);
+      };
+    });
+  }
+  window.v1010NormalizeActionColumn = normalizeActionColumn;
+  window.v106AddEditButtons = normalizeActionColumn;
+  window.addDeleteColumnV95 = function(){ if(!(typeof isAdmin === 'function' && isAdmin())) normalizeActionColumn(); };
+
+  if(typeof renderWeekRecords === 'function' && !window.__v1010RenderPatched){
+    window.__v1010RenderPatched = true;
+    const oldRender = renderWeekRecords;
+    window.renderWeekRecords = function(rows, err=''){
+      const result = oldRender(rows, err);
+      requestAnimationFrame(normalizeActionColumn);
+      setTimeout(normalizeActionColumn, 80);
+      setTimeout(normalizeActionColumn, 240);
+      return result;
+    };
+  }
+  if(typeof renderWeekRecordsKeepScroll === 'function' && !window.__v1010KeepScrollPatched){
+    window.__v1010KeepScrollPatched = true;
+    const oldKeep = renderWeekRecordsKeepScroll;
+    window.renderWeekRecordsKeepScroll = function(){
+      const result = oldKeep();
+      requestAnimationFrame(normalizeActionColumn);
+      setTimeout(normalizeActionColumn, 80);
+      return result;
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', ()=>{ fixVersionText(); removeToday(); normalizeActionColumn(); });
+  }else{
+    fixVersionText();
+    removeToday();
+    normalizeActionColumn();
+  }
+  setInterval(removeToday, 600);
+  setInterval(normalizeActionColumn, 1200);
+  setTimeout(normalizeActionColumn, 0);
+  setTimeout(normalizeActionColumn, 400);
 })();
 </script>
 </body>
