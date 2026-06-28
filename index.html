@@ -1,10 +1,10 @@
-<!-- VERSION: V10.3 CLOUDBASE OPTIMIZED FINAL - DELETE FIX + MOBILE UX -->
+<!-- VERSION: V10.6 EDIT ENHANCED FINAL - CLOUDBASE -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V10.3 CloudBase优化版</title>
+  <title>车间工时填报系统 - V10.6编辑增强版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1832,7 +1832,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V10.3 CloudBase优化版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V10.6编辑增强版</div>
     </div>
   </div>
 
@@ -5601,37 +5601,378 @@ setTimeout(async ()=>{
 
 
 
-/* ===== V10.5.1 编辑前置信息功能 ===== */
-document.addEventListener('click', function(e){
-  const td = e.target.closest('td');
-  if(!td) return;
-  if(td.dataset.field === 'project' || td.dataset.field === 'unit' || td.dataset.field === 'remark'){
-    const old = td.innerText;
-    const input = document.createElement('input');
-    input.value = old;
-    input.style.width = '100%';
-    td.innerHTML = '';
-    td.appendChild(input);
-    input.focus();
-    input.addEventListener('blur', async function(){
-      const val = input.value.trim();
-      td.innerText = val || old;
-      const rowId = td.closest('tr')?.dataset?.id;
-      const field = td.dataset.field;
-      if(rowId && val !== old){
-        try{
-          await fetch(rowUrl(rowId), {
-            method:'PATCH',
-            headers:headers(),
-            body: JSON.stringify({ [field]: val })
-          });
-        }catch(err){
-          td.innerText = old;
-        }
+/* ===== V10.6 EDIT ENHANCED FINAL PATCH：编辑增强 + 最终锁定 + 记忆 + 去今日 ===== */
+(function(){
+  const V106_LOCK_EMP = "__WEEK_LOCK__";
+  const V106_LOCK_TASK = "__WEEK_LOCK_MARKER__";
+  const V106_LAST_KEY = "NINGBO_WORKSHOP_V106_LAST_SELECTION";
+
+  function v106Msg(text, ok=true){
+    if(typeof showStatusModal === "function") showStatusModal(text, ok);
+    else if(typeof showMsg === "function") showMsg(text, ok);
+    else alert(String(text || ""));
+  }
+  function v106Wait(text){
+    if(typeof showStatusModal === "function") showStatusModal(text, true);
+    else if(typeof showMsg === "function") showMsg(text, true);
+  }
+  function v106RowId(row){ return String((row && (row.id || row._id || row.rowId)) || ""); }
+  function v106RowWeek(row){ return String((row && row.week) || ""); }
+  function v106CurrentWeek(){ return String((state && state.week) || ""); }
+  function v106IsMarker(row){
+    return String((row && row.employeeId) || "") === V106_LOCK_EMP || String((row && row.task) || "") === V106_LOCK_TASK;
+  }
+  function v106IsLockedValue(row){
+    if(!row) return false;
+    const keys = [];
+    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) keys.push(LOCK_FIELD);
+    keys.push("Lock Status", "Locked", "locked", "lockStatus");
+    return keys.some(k => row[k] === true || row[k] === "true" || row[k] === 1 || row[k] === "1");
+  }
+  function v106LatestTime(row){
+    const t = Date.parse(row && (row.submitTime || row.updatedAt || row.createdAt || row.createTime || ""));
+    return Number.isFinite(t) ? t : 0;
+  }
+  async function v106AllRows(){ return typeof fetchRows === "function" ? await fetchRows() : []; }
+  async function v106RawRowsByWeek(week){
+    const rows = await v106AllRows();
+    return (rows || []).filter(r => v106RowWeek(r) === String(week || ""));
+  }
+  async function v106PatchLock(id, locked){
+    if(!id) return;
+    const body = {"Lock Status":!!locked,"Locked":!!locked,"locked":!!locked,"lockStatus":!!locked};
+    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) body[LOCK_FIELD] = !!locked;
+    const res = await fetch(rowUrl(id), {method:"PATCH", headers:headers(), body:JSON.stringify(body)});
+    if(!res.ok) throw new Error("更新锁状态失败：" + res.status);
+  }
+  async function v106ClearLock(id){
+    if(!id) return;
+    const body = {"Lock Status":false,"Locked":false,"locked":false,"lockStatus":false};
+    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) body[LOCK_FIELD] = false;
+    const res = await fetch(rowUrl(id), {method:"PATCH", headers:headers(), body:JSON.stringify(body)});
+    if(!res.ok) throw new Error("解除锁状态失败：" + res.status);
+  }
+  async function v106CreateMarker(week, locked){
+    const body = {
+      submitTime:new Date().toISOString(), employeeId:V106_LOCK_EMP, employeeName:"系统锁定",
+      week:week, weekday:"", task:V106_LOCK_TASK, project:"", unit:"",
+      regularHours:0, otWeekday:0, otWeekend:0,
+      remark: locked ? "Week锁定标记" : "Week解锁标记",
+      "Lock Status":!!locked, "Locked":!!locked, "locked":!!locked, "lockStatus":!!locked
+    };
+    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) body[LOCK_FIELD] = !!locked;
+    const res = await fetch(apiUrl(), {method:"POST", headers:headers(), body:JSON.stringify(body)});
+    if(!res.ok) throw new Error((locked ? "创建锁定标记失败：" : "创建解锁标记失败：") + res.status);
+  }
+  async function v106DeleteMarkerQuiet(row){
+    const id = v106RowId(row);
+    if(!id) return false;
+    try{ const res = await fetch(rowUrl(id), {method:"DELETE", headers:headers(false)}); return res.ok; }catch(e){ return false; }
+  }
+  async function v106CompactMarkers(week){
+    const rows = await v106RawRowsByWeek(week);
+    const markers = rows.filter(v106IsMarker).sort((a,b)=>v106LatestTime(b)-v106LatestTime(a));
+    for(let i=1;i<markers.length;i++) await v106DeleteMarkerQuiet(markers[i]);
+  }
+  function v106RecomputeLockedWeeks(rows){
+    const next = new Set();
+    const latestMarker = {};
+    (rows || []).forEach(row=>{
+      if(v106IsMarker(row)){
+        const w = v106RowWeek(row);
+        if(!w) return;
+        if(!latestMarker[w] || v106LatestTime(row) >= v106LatestTime(latestMarker[w])) latestMarker[w] = row;
+      }
+    });
+    (rows || []).forEach(row=>{
+      if(v106IsMarker(row)) return;
+      const w = v106RowWeek(row);
+      if(w && v106IsLockedValue(row)) next.add(w);
+    });
+    Object.keys(latestMarker).forEach(w=>{
+      if(v106IsLockedValue(latestMarker[w])) next.add(w);
+      else next.delete(w);
+    });
+    lockedWeeks = next;
+    return next;
+  }
+  function v106ForceWeekUi(week, locked){
+    if(locked) lockedWeeks.add(String(week)); else lockedWeeks.delete(String(week));
+    if(typeof renderMainWeekChips === "function") renderMainWeekChips();
+    if(typeof renderActive === "function") renderActive();
+    document.querySelectorAll('#weekChips .chip').forEach(chip=>{
+      const t = String(chip.textContent || "");
+      if(t.includes(String(week))){
+        chip.classList.toggle('locked-week-chip', !!locked);
+        chip.classList.toggle('unlocked-week-chip', !locked);
+        chip.textContent = String(week) + (locked ? ' 🔒' : '') + (typeof getCurrentWeek === 'function' && String(week) === String(getCurrentWeek()) ? '（本周）' : '');
       }
     });
   }
-});
+
+  /* 去掉今日标识：函数 + CSS + DOM 三重保险 */
+  window.dayHeaderLabel = function(label, dayChar){ return label; };
+  function v106RemoveToday(){
+    document.querySelectorAll('.today-badge').forEach(el=>el.remove());
+    document.querySelectorAll('th').forEach(th=>{
+      if(String(th.innerText || '').includes('今日')) th.innerHTML = th.innerHTML.replace(/<br\s*\/?>\s*<span[^>]*today-badge[^>]*>.*?<\/span>/gi,'').replace(/今日/g,'');
+    });
+  }
+  const v106Style = document.createElement('style');
+  v106Style.textContent = `
+    .today-badge{display:none!important;visibility:hidden!important;width:0!important;height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;}
+    .v106-edit-btn{border:none;border-radius:7px;background:#dbeafe;color:#1d4ed8;font-weight:800;padding:4px 7px;font-size:12px;cursor:pointer;white-space:nowrap;}
+    .v106-edit-btn:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed;}
+    .v106-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:30000;display:flex;align-items:center;justify-content:center;padding:14px;}
+    .v106-panel{width:min(390px,94vw);background:#fff;border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.28);padding:15px;border:1px solid #e5e7eb;}
+    .v106-title{font-size:17px;font-weight:900;margin-bottom:12px;color:#0f172a;}
+    .v106-field{margin:9px 0;}
+    .v106-field label{display:block;font-size:13px;font-weight:900;color:#334155;margin-bottom:5px;}
+    .v106-field input,.v106-field select{width:100%!important;height:38px!important;border:1px solid #bcd0e5!important;border-radius:10px!important;padding:6px 9px!important;font-size:15px!important;background:#fff!important;}
+    .v106-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;}
+    .v106-actions button{height:40px;border:none;border-radius:11px;font-size:15px;font-weight:900;cursor:pointer;}
+    .v106-cancel{background:#f3f4f6;color:#111827;}
+    .v106-save{background:#0078d4;color:#fff;}
+    @media(max-width:760px){.v106-edit-btn{font-size:10px;padding:3px 5px}.v106-panel{padding:13px}.v106-field input,.v106-field select{height:36px!important;font-size:14px!important;}}
+  `;
+  document.head.appendChild(v106Style);
+
+  window.displayChipText = function(value, field){
+    if(field === "week"){
+      const icon = (typeof isWeekLocked === "function" && isWeekLocked(value)) ? " 🔒" : "";
+      if(typeof getCurrentWeek === "function" && value === getCurrentWeek()) return value + icon + "（本周）";
+      return value + icon;
+    }
+    return value;
+  };
+
+  window.refreshLockedWeeks = function(rows){ v106RecomputeLockedWeeks(rows || []); };
+  window.isWeekLocked = function(week){ return lockedWeeks.has(String(week || "")); };
+
+  if(typeof fetchRowsByWeek === "function" && !window.__v106FetchWeekPatched){
+    window.__v106FetchWeekPatched = true;
+    const oldFetchRowsByWeek = fetchRowsByWeek;
+    window.fetchRowsByWeek = async function(week){
+      const rows = await oldFetchRowsByWeek(week);
+      return (rows || []).filter(r => !v106IsMarker(r));
+    };
+  }
+
+  /* 记忆上次选择 + 备注默认第一个 */
+  function v106GetLast(){ try{return JSON.parse(localStorage.getItem(V106_LAST_KEY)||'{}');}catch(e){return{};} }
+  function v106SaveLast(part){ try{localStorage.setItem(V106_LAST_KEY, JSON.stringify(Object.assign({}, v106GetLast(), part||{})));}catch(e){} }
+  function v106FirstRemark(task){ const list = (typeof remarkOptionsForTask === 'function' ? remarkOptionsForTask(task) : []) || []; return list.length ? String(list[0]||'') : String(task||''); }
+  function v106DefaultRemark(task, old){ const s = String(old||'').trim(); return s || v106FirstRemark(task); }
+
+  window.openBatchCreatePicker = function(){
+    const last = v106GetLast();
+    const task = last.task || "";
+    batchDraft = {task:task, project:last.project||"", units:last.unit?[String(last.unit)]:[], remark:v106DefaultRemark(task,last.remark||"")};
+    if(task && typeof needsProjectByTask === 'function' && !needsProjectByTask(task)) batchDraft.project = "";
+    if(task && typeof needsUnitByTask === 'function' && !needsUnitByTask(task)) batchDraft.units = [];
+    if(batchDraft.project && projectUnits && !projectUnits[batchDraft.project]){batchDraft.project="";batchDraft.units=[];}
+    if(typeof renderBatchCreatePicker === "function") renderBatchCreatePicker();
+  };
+  window.batchSelectTask = function(task){ batchDraft.task=task; batchDraft.project=""; batchDraft.units=[]; batchDraft.remark=v106FirstRemark(task); v106SaveLast({task,project:"",unit:"",remark:batchDraft.remark}); renderBatchCreatePicker(); };
+  window.batchSelectProject = function(project){ batchDraft.project=project; batchDraft.units=[]; v106SaveLast({task:batchDraft.task||"",project,unit:"",remark:v106DefaultRemark(batchDraft.task,batchDraft.remark)}); renderBatchCreatePicker(); };
+  window.batchToggleUnit = function(unit){ const u=String(unit||""); if(!u)return; if(batchDraft.units.includes(u)) batchDraft.units=batchDraft.units.filter(x=>String(x)!==u); else batchDraft.units.push(u); v106SaveLast({task:batchDraft.task||"",project:batchDraft.project||"",unit:batchDraft.units[batchDraft.units.length-1]||"",remark:v106DefaultRemark(batchDraft.task,batchDraft.remark)}); renderBatchCreatePicker(); };
+  window.batchSelectRemark = function(remark){ batchDraft.remark=remark||v106FirstRemark(batchDraft.task); v106SaveLast({task:batchDraft.task||"",project:batchDraft.project||"",unit:(batchDraft.units&&batchDraft.units[0])||"",remark:batchDraft.remark}); renderBatchCreatePicker(); };
+  window.batchApplyCustomRemark = function(){ const input=document.getElementById('batchRemarkInput'); batchDraft.remark=v106DefaultRemark(batchDraft.task,input?input.value:""); v106SaveLast({task:batchDraft.task||"",project:batchDraft.project||"",unit:(batchDraft.units&&batchDraft.units[0])||"",remark:batchDraft.remark}); renderBatchCreatePicker(); };
+
+  if(typeof buildIntegratedPayloads === "function" && !window.__v106BuildPayloadPatched){
+    window.__v106BuildPayloadPatched = true;
+    const oldBuild = buildIntegratedPayloads;
+    window.buildIntegratedPayloads = function(){
+      const items = oldBuild();
+      (items||[]).forEach(item=>{ if(item&&item.payload){ item.payload.remark=v106DefaultRemark(item.payload.task,item.payload.remark); v106SaveLast({task:item.payload.task||"",project:item.payload.project||"",unit:item.payload.unit||"",remark:item.payload.remark||""}); }});
+      return items;
+    };
+  }
+
+  /* 最终锁定 / 解锁 */
+  window.lockAllVisibleRows = async function(){
+    if(!isAdmin()) return v106Msg("只有管理员可以锁定。", false);
+    const week = v106CurrentWeek();
+    if(!week) return v106Msg("请先选择 Week。", false);
+    if(!confirm("确认锁定所选 Week？锁定后员工不能新增、修改或删除。")) return;
+    v106Wait("正在锁定中...");
+    try{
+      const rows = await v106RawRowsByWeek(week);
+      for(const r of rows){ if(!v106IsMarker(r)) await v106PatchLock(v106RowId(r), true); }
+      await v106CreateMarker(week, true);
+      await v106CompactMarkers(week);
+      const all = await v106AllRows();
+      v106RecomputeLockedWeeks(all);
+      v106ForceWeekUi(week, true);
+      await loadWeekRecords();
+      v106RemoveToday();
+      v106Msg("✅ 所选 Week 已锁定。", true);
+    }catch(e){ v106Msg("❌ 锁定失败：" + (e && e.message ? e.message : String(e)), false); }
+  };
+  window.unlockAllVisibleRows = async function(){
+    if(!isAdmin()) return v106Msg("只有管理员可以解锁。", false);
+    const week = v106CurrentWeek();
+    if(!week) return v106Msg("请先选择 Week。", false);
+    if(!confirm("确认解除所选 Week 的锁定？")) return;
+    v106Wait("正在解锁中...");
+    try{
+      const rows = await v106RawRowsByWeek(week);
+      for(const r of rows){ const id=v106RowId(r); if(id) await v106ClearLock(id); }
+      await v106CreateMarker(week, false);
+      await v106CompactMarkers(week);
+      const all = await v106AllRows();
+      v106RecomputeLockedWeeks(all);
+      lockedWeeks.delete(String(week));
+      v106ForceWeekUi(week, false);
+      await loadWeekRecords();
+      v106RemoveToday();
+      v106Msg("✅ 所选 Week 已解除锁定。", true);
+    }catch(e){
+      try{ lockedWeeks.delete(String(week)); v106ForceWeekUi(week,false); await loadWeekRecords(); v106RemoveToday(); }catch(_e){}
+      v106Msg("❌ 解锁失败：" + (e && e.message ? e.message : String(e)), false);
+    }
+  };
+  window.lockOne = async function(id){
+    if(!isAdmin()) return v106Msg("只有管理员可以锁定。", false);
+    if(!confirm("确认锁定这条记录？锁定后员工不能修改或删除。")) return;
+    v106Wait("正在锁定中...");
+    try{ await v106PatchLock(id,true); const all=await v106AllRows(); v106RecomputeLockedWeeks(all); if(typeof renderActive==='function') renderActive(); await loadWeekRecords(); v106RemoveToday(); v106Msg("✅ 已锁定。",true); }catch(e){ v106Msg("❌ 锁定失败："+(e&&e.message?e.message:String(e)),false); }
+  };
+  window.unlockOne = async function(id){
+    if(!isAdmin()) return v106Msg("只有管理员可以解锁。", false);
+    if(!confirm("确认解除这条记录的锁定？")) return;
+    v106Wait("正在解锁中...");
+    try{ await v106ClearLock(id); const all=await v106AllRows(); v106RecomputeLockedWeeks(all); if(typeof renderActive==='function') renderActive(); await loadWeekRecords(); v106RemoveToday(); v106Msg("✅ 已解锁。",true); }catch(e){ v106Msg("❌ 解锁失败："+(e&&e.message?e.message:String(e)),false); }
+  };
+
+  /* 编辑增强：员工端每行加“编辑”按钮，弹窗修改 工时类别/项目号/单元号/备注 */
+  function v106CellText(td){ return String(td ? td.textContent : '').replace(/\s+/g,' ').trim(); }
+  function v106MatchRecords(meta){
+    return (currentWeekRecords || []).filter(r=>{
+      return String(r.employeeId||'') === String(empId||'') &&
+             String(r.week||'') === String(state.week||'') &&
+             String(r.task||'') === String(meta.task||'') &&
+             String(r.project||'') === String(meta.project||'') &&
+             String(r.unit||'') === String(meta.unit||'') &&
+             String(r.remark||'').trim() === String(meta.remark||'').trim();
+    });
+  }
+  function v106TaskOptionsHtml(selected){
+    const arr = (typeof taskOptions !== 'undefined' ? taskOptions : []);
+    return arr.map(t=>`<option value="${String(t).replace(/"/g,'&quot;')}" ${String(t)===String(selected)?'selected':''}>${t}</option>`).join('');
+  }
+  function v106OpenEdit(meta){
+    if(isAdmin()) return;
+    if(typeof isWeekLocked === 'function' && isWeekLocked(state.week)) return v106Msg('该 Week 已被管理员锁定，不能修改。', false);
+    const matched = v106MatchRecords(meta);
+    if(!matched.length) return v106Msg('未找到可修改的原始记录，请刷新后重试。', false);
+    const mask = document.createElement('div');
+    mask.className = 'v106-mask';
+    mask.innerHTML = `
+      <div class="v106-panel" onclick="event.stopPropagation()">
+        <div class="v106-title">✏️ 修改前置信息</div>
+        <div class="v106-field"><label>工时类别</label><select id="v106EditTask">${v106TaskOptionsHtml(meta.task)}</select></div>
+        <div class="v106-field"><label>项目号</label><input id="v106EditProject" value="${String(meta.project||'').replace(/"/g,'&quot;')}"></div>
+        <div class="v106-field"><label>单元号</label><input id="v106EditUnit" value="${String(meta.unit||'').replace(/"/g,'&quot;')}"></div>
+        <div class="v106-field"><label>备注</label><input id="v106EditRemark" value="${String(meta.remark||'').replace(/"/g,'&quot;')}"></div>
+        <div class="v106-actions"><button class="v106-cancel" type="button">取消</button><button class="v106-save" type="button">保存</button></div>
+      </div>`;
+    mask.addEventListener('click', ()=>mask.remove());
+    document.body.appendChild(mask);
+    mask.querySelector('.v106-cancel').onclick = ()=>mask.remove();
+    mask.querySelector('.v106-save').onclick = async ()=>{
+      const newTask = mask.querySelector('#v106EditTask').value;
+      const newProject = mask.querySelector('#v106EditProject').value.trim();
+      const newUnit = mask.querySelector('#v106EditUnit').value.trim();
+      const newRemark = v106DefaultRemark(newTask, mask.querySelector('#v106EditRemark').value.trim());
+      if(typeof needsProjectByTask === 'function' && needsProjectByTask(newTask) && !newProject) return v106Msg('项目号不能为空。', false);
+      if(typeof needsUnitByTask === 'function' && needsUnitByTask(newTask) && !newUnit) return v106Msg('单元号不能为空。', false);
+      v106Wait('正在保存修改...');
+      try{
+        for(const r of matched){
+          const id = v106RowId(r);
+          if(!id) continue;
+          const body = {task:newTask, project:(typeof needsProjectByTask==='function' && needsProjectByTask(newTask))?newProject:'', unit:(typeof needsUnitByTask==='function' && needsUnitByTask(newTask))?newUnit:'', remark:newRemark};
+          const res = await fetch(rowUrl(id), {method:'PATCH', headers:headers(), body:JSON.stringify(body)});
+          if(!res.ok) throw new Error(res.status);
+        }
+        v106SaveLast({task:newTask,project:newProject,unit:newUnit,remark:newRemark});
+        mask.remove();
+        await loadWeekRecords();
+        v106RemoveToday();
+        v106Msg('✅ 修改成功。', true);
+      }catch(e){ v106Msg('❌ 修改失败：' + (e && e.message ? e.message : String(e)), false); }
+    };
+  }
+  window.v106OpenEdit = v106OpenEdit;
+
+  function v106AddEditButtons(){
+    v106RemoveToday();
+    if(isAdmin()) return;
+    const table = document.querySelector('.main-timesheet-table');
+    if(!table) return;
+    const headRows = table.querySelectorAll('thead tr');
+    if(headRows[0] && !headRows[0].querySelector('.v106-edit-head')){
+      const th = document.createElement('th');
+      th.className = 'v106-edit-head';
+      th.rowSpan = 2;
+      th.textContent = '编辑';
+      headRows[0].appendChild(th);
+    }
+    table.querySelectorAll('tbody tr').forEach(tr=>{
+      if(tr.classList.contains('integrated-input-row')) return;
+      if(tr.querySelector('.v106-edit-cell')) return;
+      const cells = tr.children;
+      if(!cells || cells.length < 4) return;
+      const first = v106CellText(cells[0]);
+      const fourth = v106CellText(cells[3]);
+      if(first === '' || first === '汇总' || fourth === '汇总' || first.includes('未提交')) return;
+      const meta = {task:v106CellText(cells[0]), project:v106CellText(cells[1]), unit:v106CellText(cells[2]), remark:v106CellText(cells[3])};
+      const td = document.createElement('td');
+      td.className = 'v106-edit-cell';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'v106-edit-btn';
+      btn.textContent = '✏️编辑';
+      btn.disabled = (typeof isWeekLocked === 'function' && isWeekLocked(state.week));
+      btn.onclick = ()=>v106OpenEdit(meta);
+      td.appendChild(btn);
+      tr.appendChild(td);
+    });
+  }
+
+  if(typeof renderWeekRecords === 'function' && !window.__v106RenderPatched){
+    window.__v106RenderPatched = true;
+    const oldRender = renderWeekRecords;
+    window.renderWeekRecords = function(rows, err=''){
+      const result = oldRender((rows || []).filter(r=>!v106IsMarker(r)), err);
+      requestAnimationFrame(()=>{v106RemoveToday(); v106AddEditButtons();});
+      setTimeout(()=>{v106RemoveToday(); v106AddEditButtons();}, 80);
+      return result;
+    };
+  }
+  if(typeof renderWeekRecordsKeepScroll === 'function' && !window.__v106KeepScrollPatched){
+    window.__v106KeepScrollPatched = true;
+    const oldKeep = renderWeekRecordsKeepScroll;
+    window.renderWeekRecordsKeepScroll = function(){
+      const result = oldKeep();
+      requestAnimationFrame(()=>{v106RemoveToday(); v106AddEditButtons();});
+      return result;
+    };
+  }
+
+  setInterval(v106RemoveToday, 1000);
+  setTimeout(async function(){
+    try{
+      const all = await v106AllRows();
+      v106RecomputeLockedWeeks(all);
+      if(typeof renderActive === 'function') renderActive();
+      if(typeof loadWeekRecords === 'function') await loadWeekRecords();
+      v106RemoveToday();
+      v106AddEditButtons();
+    }catch(e){ v106RemoveToday(); v106AddEditButtons(); }
+  }, 0);
+})();
 </script>
 </body>
 </html>
