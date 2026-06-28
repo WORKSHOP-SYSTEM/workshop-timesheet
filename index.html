@@ -1,10 +1,10 @@
-<!-- VERSION: V10.5 FINAL LOCK - CLOUDBASE -->
+<!-- VERSION: V10.3 CLOUDBASE OPTIMIZED FINAL - DELETE FIX + MOBILE UX -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V10.5最终锁定版</title>
+  <title>车间工时填报系统 - V10.3 CloudBase优化版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1832,7 +1832,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V10.5最终锁定版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V10.3 CloudBase优化版</div>
     </div>
   </div>
 
@@ -5601,284 +5601,37 @@ setTimeout(async ()=>{
 
 
 
-/* ===== V10.5 FINAL LOCK PATCH：最终锁定版 =====
-   修复点：
-   1) 无数据 Week：锁定后也可以解锁。
-   2) 解锁后：不需要手动刷新，Week 按钮立即切换为未锁状态。
-   3) 兼容 CloudBase 返回 id / _id / rowId。
-   4) 锁状态以 Week 最新锁标记为准，避免旧 true 标记导致假锁。
-*/
-(function(){
-  const V105_LOCK_EMP = "__WEEK_LOCK__";
-  const V105_LOCK_TASK = "__WEEK_LOCK_MARKER__";
-
-  function msg(text, ok=true){
-    if(typeof showStatusModal === "function") showStatusModal(text, ok);
-    else if(typeof showMsg === "function") showMsg(text, ok);
-    else alert(String(text || ""));
-  }
-  function waitMsg(text){
-    if(typeof showStatusModal === "function") showStatusModal(text, true);
-    else if(typeof showMsg === "function") showMsg(text, true);
-  }
-  function rowId(row){ return String((row && (row.id || row._id || row.rowId)) || ""); }
-  function rowWeek(row){ return String((row && row.week) || ""); }
-  function currentWeek(){ return String((state && state.week) || ""); }
-  function isMarker(row){
-    return String((row && row.employeeId) || "") === V105_LOCK_EMP || String((row && row.task) || "") === V105_LOCK_TASK;
-  }
-  function isLockedValue(row){
-    if(!row) return false;
-    const keys = [];
-    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) keys.push(LOCK_FIELD);
-    keys.push("Lock Status", "Locked", "locked", "lockStatus");
-    return keys.some(k => row[k] === true || row[k] === "true" || row[k] === 1 || row[k] === "1");
-  }
-  function latestTime(row){
-    const t = Date.parse(row && (row.submitTime || row.updatedAt || row.createdAt || row.createTime || ""));
-    return Number.isFinite(t) ? t : 0;
-  }
-  async function allRows(){
-    return typeof fetchRows === "function" ? await fetchRows() : [];
-  }
-  async function rawRowsByWeek(week){
-    const rows = await allRows();
-    return (rows || []).filter(r => rowWeek(r) === String(week || ""));
-  }
-  async function patchLock(id, locked){
-    if(!id) return;
-    const body = {
-      "Lock Status": !!locked,
-      "Locked": !!locked,
-      "locked": !!locked,
-      "lockStatus": !!locked
-    };
-    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) body[LOCK_FIELD] = !!locked;
-    const res = await fetch(rowUrl(id), {method:"PATCH", headers:headers(), body:JSON.stringify(body)});
-    if(!res.ok) throw new Error("更新锁状态失败：" + res.status);
-  }
-  async function clearLock(id){
-    if(!id) return;
-    const bodyFalse = {
-      "Lock Status": false,
-      "Locked": false,
-      "locked": false,
-      "lockStatus": false
-    };
-    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) bodyFalse[LOCK_FIELD] = false;
-    const res = await fetch(rowUrl(id), {method:"PATCH", headers:headers(), body:JSON.stringify(bodyFalse)});
-    if(!res.ok) throw new Error("解除锁状态失败：" + res.status);
-  }
-  async function createMarker(week, locked){
-    const body = {
-      submitTime:new Date().toISOString(),
-      employeeId:V105_LOCK_EMP,
-      employeeName:"系统锁定",
-      week:week,
-      weekday:"",
-      task:V105_LOCK_TASK,
-      project:"",
-      unit:"",
-      regularHours:0,
-      otWeekday:0,
-      otWeekend:0,
-      remark: locked ? "Week锁定标记" : "Week解锁标记",
-      "Lock Status":!!locked,
-      "Locked":!!locked,
-      "locked":!!locked,
-      "lockStatus":!!locked
-    };
-    if(typeof LOCK_FIELD !== "undefined" && LOCK_FIELD) body[LOCK_FIELD] = !!locked;
-    const res = await fetch(apiUrl(), {method:"POST", headers:headers(), body:JSON.stringify(body)});
-    if(!res.ok) throw new Error((locked ? "创建锁定标记失败：" : "创建解锁标记失败：") + res.status);
-  }
-  async function deleteMarkerQuiet(row){
-    const id = rowId(row);
-    if(!id) return false;
-    try{
-      const res = await fetch(rowUrl(id), {method:"DELETE", headers:headers(false)});
-      return res.ok;
-    }catch(e){ return false; }
-  }
-  async function compactOldMarkers(week){
-    // 尝试删除同 Week 较旧 marker；删除失败也不影响最终判断，因为最新 marker 优先。
-    const rows = await rawRowsByWeek(week);
-    const markers = rows.filter(isMarker).sort((a,b)=>latestTime(b)-latestTime(a));
-    for(let i=1;i<markers.length;i++) await deleteMarkerQuiet(markers[i]);
-  }
-  function recomputeLockedWeeks(rows){
-    const next = new Set();
-    const latestMarkerByWeek = {};
-    (rows || []).forEach(row=>{
-      if(isMarker(row)){
-        const w = rowWeek(row);
-        if(!w) return;
-        const old = latestMarkerByWeek[w];
-        if(!old || latestTime(row) >= latestTime(old)) latestMarkerByWeek[w] = row;
-      }
-    });
-    (rows || []).forEach(row=>{
-      if(isMarker(row)) return;
-      const w = rowWeek(row);
-      if(w && isLockedValue(row)) next.add(w);
-    });
-    Object.keys(latestMarkerByWeek).forEach(w=>{
-      if(isLockedValue(latestMarkerByWeek[w])) next.add(w);
-      else next.delete(w);
-    });
-    lockedWeeks = next;
-    return next;
-  }
-  function forceWeekUi(week, locked){
-    if(locked) lockedWeeks.add(String(week));
-    else lockedWeeks.delete(String(week));
-    if(typeof renderMainWeekChips === "function") renderMainWeekChips();
-    if(typeof renderActive === "function") renderActive();
-    const chips = document.querySelectorAll('#weekChips .chip');
-    chips.forEach(chip=>{
-      const t = String(chip.textContent || "");
-      if(t.includes(String(week))){
-        chip.classList.toggle('locked-week-chip', !!locked);
-        chip.classList.toggle('unlocked-week-chip', !locked);
-        chip.textContent = (String(week) + (locked ? ' 🔒' : '') + (typeof getCurrentWeek === 'function' && String(week) === String(getCurrentWeek()) ? '（本周）' : ''));
+/* ===== V10.5.1 编辑前置信息功能 ===== */
+document.addEventListener('click', function(e){
+  const td = e.target.closest('td');
+  if(!td) return;
+  if(td.dataset.field === 'project' || td.dataset.field === 'unit' || td.dataset.field === 'remark'){
+    const old = td.innerText;
+    const input = document.createElement('input');
+    input.value = old;
+    input.style.width = '100%';
+    td.innerHTML = '';
+    td.appendChild(input);
+    input.focus();
+    input.addEventListener('blur', async function(){
+      const val = input.value.trim();
+      td.innerText = val || old;
+      const rowId = td.closest('tr')?.dataset?.id;
+      const field = td.dataset.field;
+      if(rowId && val !== old){
+        try{
+          await fetch(rowUrl(rowId), {
+            method:'PATCH',
+            headers:headers(),
+            body: JSON.stringify({ [field]: val })
+          });
+        }catch(err){
+          td.innerText = old;
+        }
       }
     });
   }
-
-  // 覆盖锁状态计算：不再让旧 marker 永久残留影响判断。
-  window.refreshLockedWeeks = function(rows){
-    recomputeLockedWeeks(rows || []);
-  };
-  window.isWeekLocked = function(week){
-    return lockedWeeks.has(String(week || ""));
-  };
-
-  // 隐藏 marker，不显示在明细表。
-  if(typeof fetchRowsByWeek === "function" && !window.__v105FetchWeekPatched){
-    window.__v105FetchWeekPatched = true;
-    const oldFetchRowsByWeek = fetchRowsByWeek;
-    window.fetchRowsByWeek = async function(week){
-      const rows = await oldFetchRowsByWeek(week);
-      return (rows || []).filter(r => !isMarker(r));
-    };
-  }
-  if(typeof renderWeekRecords === "function" && !window.__v105RenderPatched){
-    window.__v105RenderPatched = true;
-    const oldRenderWeekRecords = renderWeekRecords;
-    window.renderWeekRecords = function(rows, err=""){
-      return oldRenderWeekRecords((rows || []).filter(r => !isMarker(r)), err);
-    };
-  }
-
-  // 取消 今日 标识。
-  window.dayHeaderLabel = function(label, dayChar){ return label; };
-  const css = document.createElement('style');
-  css.textContent = '.today-badge{display:none!important;}';
-  document.head.appendChild(css);
-
-  // Week 显示：锁定才有锁，未锁无符号。
-  window.displayChipText = function(value, field){
-    if(field === "week"){
-      const icon = (typeof isWeekLocked === "function" && isWeekLocked(value)) ? " 🔒" : "";
-      if(typeof getCurrentWeek === "function" && value === getCurrentWeek()) return value + icon + "（本周）";
-      return value + icon;
-    }
-    return value;
-  };
-
-  window.lockAllVisibleRows = async function(){
-    if(!isAdmin()) return msg("只有管理员可以锁定。", false);
-    const week = currentWeek();
-    if(!week) return msg("请先选择 Week。", false);
-    if(!confirm("确认锁定所选 Week？锁定后员工不能新增、修改或删除。")) return;
-    waitMsg("正在锁定中...");
-    try{
-      const rows = await rawRowsByWeek(week);
-      for(const r of rows){
-        if(!isMarker(r)) await patchLock(rowId(r), true);
-      }
-      await createMarker(week, true);
-      await compactOldMarkers(week);
-      const all = await allRows();
-      recomputeLockedWeeks(all);
-      forceWeekUi(week, true);
-      await loadWeekRecords();
-      msg("✅ 所选 Week 已锁定。", true);
-    }catch(e){
-      msg("❌ 锁定失败：" + (e && e.message ? e.message : String(e)), false);
-    }
-  };
-
-  window.unlockAllVisibleRows = async function(){
-    if(!isAdmin()) return msg("只有管理员可以解锁。", false);
-    const week = currentWeek();
-    if(!week) return msg("请先选择 Week。", false);
-    if(!confirm("确认解除所选 Week 的锁定？")) return;
-    waitMsg("正在解锁中...");
-    try{
-      // 关键：全量读取当前 Week，包括无数据 Week 里的锁标记。
-      const rows = await rawRowsByWeek(week);
-      for(const r of rows){
-        const id = rowId(r);
-        if(id) await clearLock(id);
-      }
-      // 关键：创建一条最新 false marker，覆盖任何旧 true marker。
-      await createMarker(week, false);
-      await compactOldMarkers(week);
-      const all = await allRows();
-      recomputeLockedWeeks(all);
-      lockedWeeks.delete(String(week));
-      forceWeekUi(week, false);
-      await loadWeekRecords();
-      msg("✅ 所选 Week 已解除锁定。", true);
-    }catch(e){
-      try{
-        lockedWeeks.delete(String(week));
-        forceWeekUi(week, false);
-        await loadWeekRecords();
-      }catch(_e){}
-      msg("❌ 解锁失败：" + (e && e.message ? e.message : String(e)), false);
-    }
-  };
-
-  window.lockOne = async function(id){
-    if(!isAdmin()) return msg("只有管理员可以锁定。", false);
-    if(!confirm("确认锁定这条记录？锁定后员工不能修改或删除。")) return;
-    waitMsg("正在锁定中...");
-    try{
-      await patchLock(id, true);
-      const all = await allRows();
-      recomputeLockedWeeks(all);
-      if(typeof renderActive === "function") renderActive();
-      await loadWeekRecords();
-      msg("✅ 已锁定。", true);
-    }catch(e){ msg("❌ 锁定失败：" + (e && e.message ? e.message : String(e)), false); }
-  };
-
-  window.unlockOne = async function(id){
-    if(!isAdmin()) return msg("只有管理员可以解锁。", false);
-    if(!confirm("确认解除这条记录的锁定？")) return;
-    waitMsg("正在解锁中...");
-    try{
-      await clearLock(id);
-      const all = await allRows();
-      recomputeLockedWeeks(all);
-      if(typeof renderActive === "function") renderActive();
-      await loadWeekRecords();
-      msg("✅ 已解锁。", true);
-    }catch(e){ msg("❌ 解锁失败：" + (e && e.message ? e.message : String(e)), false); }
-  };
-
-  // 初始加载后再强制同步一次，避免旧缓存 UI。
-  setTimeout(async function(){
-    try{
-      const all = await allRows();
-      recomputeLockedWeeks(all);
-      if(typeof renderActive === "function") renderActive();
-      if(typeof loadWeekRecords === "function") await loadWeekRecords();
-    }catch(e){}
-  }, 0);
-})();
+});
 </script>
 </body>
 </html>
