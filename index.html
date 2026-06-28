@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V9.7免部署版</title>
+  <title>车间工时填报系统 - V9.7 Cloudflare版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -2258,10 +2258,10 @@ function needsProject(){ return needsProjectByTask(state.task); }
 function needsUnit(){ return needsUnitByTask(state.task); }
 
 function apiUrl(){
-  return "https://api.allorigins.win/raw?url=https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/?user_field_names=true&size=200";
+  return "https://empty-smoke-a80e.robin-zheng.workers.dev/api/database/rows/table/" + TABLE_ID + "/?user_field_names=true&size=200";
 }
 function apiUrlWithParams(params={}){
-  const base = "https://api.allorigins.win/raw?url=https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/";
+  const base = "https://empty-smoke-a80e.robin-zheng.workers.dev/api/database/rows/table/" + TABLE_ID + "/";
   const q = new URLSearchParams();
   q.set("user_field_names", "true");
   q.set("size", "200");
@@ -2272,7 +2272,7 @@ function apiUrlWithParams(params={}){
 }
 
 function rowUrl(id){
-  return "https://api.allorigins.win/raw?url=https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/" + id + "/?user_field_names=true";
+  return "https://empty-smoke-a80e.robin-zheng.workers.dev/api/database/rows/table/" + TABLE_ID + "/" + id + "/?user_field_names=true";
 }
 
 function headers(json=true){
