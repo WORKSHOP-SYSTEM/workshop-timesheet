@@ -6070,9 +6070,15 @@ setTimeout(async ()=>{
     .v1010-save{background:#16a34a;color:#fff;}
 
     @media(max-width:760px){
-      .v1010-action-col{width:70px!important;min-width:70px!important;max-width:70px!important;}
+      .v1010-action-col{width:100px!important;min-width:100px!important;max-width:100px!important;}
       .v1010-action-wrap{grid-template-columns:1fr 1fr!important;gap:4px!important;}
-      .v1010-edit-btn,.v1010-del-btn{font-size:11px!important;padding:3px 2px!important;border-radius:6px!important;height:28px!important;min-height:28px!important;}
+      .v1010-edit-btn,.v1010-del-btn{font-size:11px!important;padding:3px 2px!important;border-radius:6px!important;height:28px!important;min-height:28px!important;
+te-space:nowrap!important;   /* ✅ 禁止换行 */
+  overflow:hidden!important;
+font-size:11px!important;
+  padding:3px 2px!important;
+
+}
       .v1010-edit-panel{padding:10px;border-radius:16px 16px 10px 10px;}
       .v1010-chip-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;}
       .v1010-chip{min-height:38px;font-size:14px;padding:7px 5px;font-weight:500!important;}
