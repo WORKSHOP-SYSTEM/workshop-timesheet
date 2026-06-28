@@ -1,10 +1,10 @@
-<!-- VERSION: V9.5 FINAL - LOCK STATE CONSOLIDATED + FASTER LOCK -->
+<!-- VERSION: V9.6 STABLE - WEEKEND REMARK OPTIONAL + NETWORK FETCH GUARD -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V9.7 Cloudflare版</title>
+  <title>车间工时填报系统</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -2258,10 +2258,10 @@ function needsProject(){ return needsProjectByTask(state.task); }
 function needsUnit(){ return needsUnitByTask(state.task); }
 
 function apiUrl(){
-  return "https://empty-smoke-a80e.robin-zheng.workers.dev/api/database/rows/table/" + TABLE_ID + "/?user_field_names=true&size=200";
+  return "https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/?user_field_names=true&size=200";
 }
 function apiUrlWithParams(params={}){
-  const base = "https://empty-smoke-a80e.robin-zheng.workers.dev/api/database/rows/table/" + TABLE_ID + "/";
+  const base = "https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/";
   const q = new URLSearchParams();
   q.set("user_field_names", "true");
   q.set("size", "200");
@@ -2272,7 +2272,7 @@ function apiUrlWithParams(params={}){
 }
 
 function rowUrl(id){
-  return "https://empty-smoke-a80e.robin-zheng.workers.dev/api/database/rows/table/" + TABLE_ID + "/" + id + "/?user_field_names=true";
+  return "https://api.baserow.io/api/database/rows/table/" + TABLE_ID + "/" + id + "/?user_field_names=true";
 }
 
 function headers(json=true){
@@ -2349,13 +2349,30 @@ function isWeekLocked(week){
 async function fetchRowsFromUrl(url){
   let all = [];
   while(url){
-    const res = await fetch(url, { headers:headers() });
-    if(!res.ok) throw new Error("读取记录失败：" + res.status);
-    const data = await res.json();
+    let res;
+    try{
+      res = await fetch(url, { headers:headers() });
+    }catch(e){
+      // ✅ V9.6：fetch 本身失败时，不再把浏览器原始 Failed to fetch 直接丢给员工
+      throw new Error("网络连接异常：请检查是否已连接公司网络/VPN，或稍后重新打开页面。原始错误：" + (e && e.message ? e.message : "Failed to fetch"));
+    }
+
+    if(!res.ok){
+      throw new Error("数据接口异常：HTTP " + res.status + "，请检查网络或稍后重试。");
+    }
+
+    let data;
+    try{
+      data = await res.json();
+    }catch(e){
+      throw new Error("数据接口返回格式异常，请刷新页面重试。");
+    }
+
     if(Array.isArray(data)){
       all = all.concat(data);
       break;
     }
+
     const rows = data.results || [];
     all = all.concat(rows);
     url = data.next || "";
@@ -2999,7 +3016,7 @@ async function loadWeekRecords(){
     }
   }catch(e){
     currentWeekRecords = [];
-    renderWeekRecords([], "本周记录读取失败：" + e.message);
+    renderWeekRecords([], "❌ 数据加载失败，请检查：<br>1. 是否连接公司网络/VPN<br>2. 当前网络是否正常<br>3. 刷新页面后重新进入<br><br>错误：" + safe(e.message));
   }
 }
 
@@ -4011,7 +4028,8 @@ function validatePayload(payload, excludeRowId){
   if(!payload.week) return "请选择 Week。";
   if(!payload.weekday) return "请选择星期。";
   if(!payload.task) return "请选择工时类别。";
-if(!payload.remark || !payload.remark.trim()) return "备注不能为空，请填写或选择备注。";
+// ✅ V9.6：只有工作日才强制备注；周六/周日允许备注为空
+  if(!isWeekendDay(payload.weekday) && (!payload.remark || !payload.remark.trim())) return "备注不能为空，请填写或选择备注。";
   if(needsProjectByTask(payload.task) && !payload.project) return "请选择项目号。";
   if(needsUnitByTask(payload.task) && !payload.unit) return "请选择单元号。";
   if(hasLockedSameDay(payload)) return "当天数据已被管理员锁定，不能新增、修改或删除。";
@@ -5456,6 +5474,18 @@ setTimeout(async ()=>{
   syncWeekLockUIV95();
   addDeleteColumnV95();
 },0);
+
+
+
+/* ===== V9.6 STABLE：周末备注放行 + 网络错误友好提示 ===== */
+window.VERSION_LABEL = "V9.6 Stable";
+function friendlyNetworkErrorV96(e){
+  const msg = String((e && e.message) ? e.message : e || "");
+  if(msg.includes("Failed to fetch") || msg.includes("NetworkError") || msg.includes("网络")){
+    return "网络连接异常：请检查是否已连接公司网络/VPN，或稍后重新打开页面。";
+  }
+  return msg || "未知错误";
+}
 
 </script>
 </body>
