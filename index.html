@@ -1,10 +1,10 @@
-<!-- VERSION: V10.10 FULL FINAL - CLOUDBASE -->
+<!-- VERSION: V11.0 FULL FINAL - CLOUDBASE - UTF8 FIXED -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V10.10完整最终版</title>
+  <title>车间工时填报系统 - V11.0最终版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1751,6 +1751,53 @@
   touch-action:manipulation;
 }
 
+
+
+/* ===== V11.0 手机端操作列最终修复：编辑/删除完整显示 ===== */
+.v1010-action-col{
+  min-width:132px !important;
+  width:132px !important;
+  max-width:160px !important;
+  text-align:center !important;
+  white-space:normal !important;
+}
+.v1010-action-wrap{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:center !important;
+  gap:6px !important;
+  width:100% !important;
+}
+.v1010-edit-btn,
+.v1010-del-btn{
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  border:none !important;
+  border-radius:8px !important;
+  padding:7px 0 !important;
+  font-size:14px !important;
+  line-height:1.2 !important;
+  color:#fff !important;
+  white-space:nowrap !important;
+}
+.v1010-edit-btn{background:#1677d2 !important;}
+.v1010-del-btn{background:#ef4444 !important;}
+@media (max-width:760px){
+  .v1010-action-col{
+    min-width:142px !important;
+    width:142px !important;
+  }
+  .v1010-edit-btn,
+  .v1010-del-btn{
+    font-size:14px !important;
+    padding:8px 0 !important;
+  }
+}
+/* ===== V11.0 手机端操作列最终修复结束 ===== */
+
 </style>
 </head>
 <body>
@@ -1832,7 +1879,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V10.10完整最终版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V11.0最终版</div>
     </div>
   </div>
 
@@ -5975,15 +6022,15 @@ setTimeout(async ()=>{
 })();
 
 
-/* ===== V10.10 FULL FINAL PATCH：完整版本修正，非演示文件 =====
+/* ===== V11.0 FULL FINAL PATCH：完整版本修正，非演示文件 =====
    1) 编辑弹窗改为“新增单条/多条工时”的卡片选择风格；
    2) 手机端操作列改为编辑/删除两列大按钮，减少误触；
    3) 保留原有 CloudBase、锁定/解锁、提交、删除、导出等完整逻辑；
    4) 强制清理“今日/今天”标识；
-   5) 页脚/标题统一为 V10.10完整最终版。
+   5) 页脚/标题统一为 V11.0最终版。
 */
 (function(){
-  const V1010_VERSION = 'V10.10完整最终版';
+  const V1010_VERSION = 'V11.0最终版';
 
   function msg(text, ok=true){
     if(typeof showStatusModal === 'function') showStatusModal(text, ok);
