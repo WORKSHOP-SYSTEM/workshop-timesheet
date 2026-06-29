@@ -1,4 +1,4 @@
-<!-- VERSION: V11.0 FINAL FIX - ACTION BUTTONS + UNIT TWO COLUMNS - UTF8 -->
+<!-- VERSION: V11.0 FINAL - ACTION BUTTONS TWO COLUMNS + UNIT TWO COLUMNS - UTF8 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1753,34 +1753,29 @@
 
 
 
-/* ===== V11.0 最终修复：手机端操作列 + 新增工时单元类两列 ===== */
-/* 1) 主表操作列：加宽并强制编辑/删除上下排列 */
+/* ===== V11.0 最终修复：操作按钮两列 + 单元类两列 ===== */
+/* 主表操作列：编辑/删除横向两列，手机和电脑保持一致 */
 .main-timesheet-table th.delete-col-v95,
 .main-timesheet-table td.delete-col-v95,
 .main-timesheet-table th.v1010-action-col,
 .main-timesheet-table td.v1010-action-col{
-  width:118px !important;
-  min-width:118px !important;
-  max-width:118px !important;
+  width:128px !important;
+  min-width:128px !important;
+  max-width:128px !important;
   box-sizing:border-box !important;
   text-align:center !important;
   padding:4px 6px !important;
   overflow:visible !important;
   white-space:normal !important;
-}
-.main-timesheet-table td.delete-col-v95,
-.main-timesheet-table td.v1010-action-col{
-  height:auto !important;
-  min-height:72px !important;
   vertical-align:middle !important;
 }
 .main-timesheet-table td.delete-col-v95 .v1010-action-wrap,
 .main-timesheet-table td.v1010-action-col .v1010-action-wrap{
   display:grid !important;
-  grid-template-columns:1fr !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   gap:6px !important;
   width:100% !important;
-  align-items:stretch !important;
+  align-items:center !important;
 }
 .main-timesheet-table td.delete-col-v95 button,
 .main-timesheet-table td.v1010-action-col button,
@@ -1798,10 +1793,10 @@
   max-width:100% !important;
   box-sizing:border-box !important;
   margin:0 !important;
-  padding:8px 0 !important;
+  padding:7px 0 !important;
   border:0 !important;
-  border-radius:10px !important;
-  font-size:14px !important;
+  border-radius:9px !important;
+  font-size:13px !important;
   line-height:1.15 !important;
   font-weight:900 !important;
   white-space:nowrap !important;
@@ -1814,28 +1809,31 @@
 .main-timesheet-table .v1010-del-btn,
 .main-timesheet-table .small-btn.delete-btn,
 .main-timesheet-table .delete-btn{background:#ef4444 !important;color:#fff !important;}
-
-/* 手机端再加一层优先级，避免旧样式把按钮压回去 */
 @media(max-width:760px){
   .main-timesheet-table th.delete-col-v95,
   .main-timesheet-table td.delete-col-v95,
   .main-timesheet-table th.v1010-action-col,
   .main-timesheet-table td.v1010-action-col{
-    width:120px !important;
-    min-width:120px !important;
-    max-width:120px !important;
-    padding:4px 6px !important;
+    width:124px !important;
+    min-width:124px !important;
+    max-width:124px !important;
+    padding:4px 5px !important;
+  }
+  .main-timesheet-table td.delete-col-v95 .v1010-action-wrap,
+  .main-timesheet-table td.v1010-action-col .v1010-action-wrap{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:5px !important;
   }
   .main-timesheet-table td.delete-col-v95 button,
   .main-timesheet-table td.v1010-action-col button,
   .main-timesheet-table .v1010-edit-btn,
   .main-timesheet-table .v1010-del-btn{
-    font-size:14px !important;
-    padding:8px 0 !important;
+    font-size:13px !important;
+    padding:7px 0 !important;
   }
 }
 
-/* 2) 新增工时弹框：只把“单元类（可多选）”里面的按钮改为两列 */
+/* 新增工时弹框：单元类固定两列 */
 .picker-col.unit .picker-list.batch-multi-list,
 .picker-col.unit .batch-multi-list{
   display:grid !important;
@@ -6429,19 +6427,19 @@ setTimeout(async ()=>{
 
 <script>
 (function(){
-  function v110FinalFixActionButtons(){
+  function v110FinalTwoColumnActionButtons(){
     document.querySelectorAll('table.main-timesheet-table tbody tr').forEach(function(tr){
       var td = tr.querySelector('td.v1010-action-col') || tr.querySelector('td.delete-col-v95');
       if(!td) return;
-      var text = (td.textContent || '');
       var buttons = Array.prototype.slice.call(td.querySelectorAll('button'));
+      var text = (td.textContent || '');
       if(!buttons.length && text.indexOf('编辑') < 0 && text.indexOf('删除') < 0) return;
       td.classList.add('delete-col-v95','v1010-action-col');
-      td.style.width = '120px';
-      td.style.minWidth = '120px';
-      td.style.maxWidth = '120px';
-      td.style.overflow = 'visible';
-      td.style.whiteSpace = 'normal';
+      td.style.width='124px';
+      td.style.minWidth='124px';
+      td.style.maxWidth='124px';
+      td.style.overflow='visible';
+      td.style.whiteSpace='normal';
       buttons = Array.prototype.slice.call(td.querySelectorAll('button'));
       if(buttons.length){
         var wrap = td.querySelector('.v1010-action-wrap');
@@ -6452,14 +6450,18 @@ setTimeout(async ()=>{
           td.innerHTML = '';
           td.appendChild(wrap);
         }
+        wrap.style.display='grid';
+        wrap.style.gridTemplateColumns='repeat(2,minmax(0,1fr))';
+        wrap.style.gap='5px';
+        wrap.style.width='100%';
         Array.prototype.slice.call(td.querySelectorAll('button')).forEach(function(btn){
           var label = (btn.textContent || '').trim();
           if(label.indexOf('编辑') >= 0 || label.indexOf('修改') >= 0){
-            btn.textContent = '编辑';
+            btn.textContent='编辑';
             btn.classList.add('v1010-edit-btn');
           }
           if(label.indexOf('删除') >= 0){
-            btn.textContent = '删除';
+            btn.textContent='删除';
             btn.classList.add('v1010-del-btn');
           }
         });
@@ -6467,24 +6469,24 @@ setTimeout(async ()=>{
     });
   }
   var oldRender = window.renderWeekRecords;
-  if(typeof oldRender === 'function' && !window.__v110FinalActionPatch){
-    window.__v110FinalActionPatch = true;
+  if(typeof oldRender === 'function' && !window.__v110TwoColumnActionPatch){
+    window.__v110TwoColumnActionPatch = true;
     window.renderWeekRecords = function(){
       var result = oldRender.apply(this, arguments);
-      v110FinalFixActionButtons();
-      setTimeout(v110FinalFixActionButtons, 0);
-      setTimeout(v110FinalFixActionButtons, 150);
+      v110FinalTwoColumnActionButtons();
+      setTimeout(v110FinalTwoColumnActionButtons,0);
+      setTimeout(v110FinalTwoColumnActionButtons,150);
       return result;
     };
   }
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', function(){
-      v110FinalFixActionButtons();
-      setTimeout(v110FinalFixActionButtons, 300);
+      v110FinalTwoColumnActionButtons();
+      setTimeout(v110FinalTwoColumnActionButtons,300);
     });
   }else{
-    v110FinalFixActionButtons();
-    setTimeout(v110FinalFixActionButtons, 300);
+    v110FinalTwoColumnActionButtons();
+    setTimeout(v110FinalTwoColumnActionButtons,300);
   }
 })();
 </script>
