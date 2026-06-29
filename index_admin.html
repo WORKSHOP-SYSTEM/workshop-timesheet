@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车间工时管理员后台</title>
+<style>
+body{font-family:Arial;background:#eef2f6;margin:0}
+.header{background:#1f4e79;color:#fff;padding:15px;font-size:18px;font-weight:bold}
+.container{padding:15px}
+button{padding:6px 10px;background:#2563eb;color:#fff;border:0;border-radius:6px;cursor:pointer}
+table{border-collapse:collapse;width:100%;margin-top:10px}
+td,th{border:1px solid #ccc;padding:6px;text-align:center}
+</style>
+</head>
+
+<body>
+
+<div class="header">车间工时管理员后台 VAdmin</div>
+
+<div class="container">
+<button onclick="loadData()">加载数据</button>
+<div id="table"></div>
+</div>
+
+<script>
+
+const CLOUD_BASE_FUNCTION_URL = "在这里替换成你原系统里的这个URL";
+
+async function loadData(){
+  try{
+    const res = await fetch(CLOUD_BASE_FUNCTION_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"list"})
+    });
+
+    const data = await res.json();
+    render(data.result || data.data || []);
+  }catch(e){
+    alert("读取失败："+e.message);
+  }
+}
+
+function render(rows){
+  if(!rows.length){
+    document.getElementById("table").innerHTML="暂无数据";
+    return;
+  }
+
+  let html = "<table><tr><th>员工</th><th>日期</th><th>工时</th></tr>";
+
+  rows.forEach(r=>{
+    html += `<tr>
+      <td>${r.employeeName || ""}</td>
+      <td>${r.weekday || ""}</td>
+      <td>${r.regularHours || 0}</td>
+    </tr>`;
+  });
+
+  html += "</table>";
+
+  document.getElementById("table").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
