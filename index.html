@@ -1,11 +1,11 @@
-<!-- VERSION: V11.5 MES DENSITY + READABLE FONT - UTF8 -->
+<!-- VERSION: V12.1 SAFE STRUCTURE OPTIMIZED - BASED ON V11.5 - UTF8 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V11.5 MES密度与字号平衡版</title>
-  <style>
+  <title>车间工时填报系统 - V12.1 安全结构优化版</title>
+<style>
     :root{
       --brand:#0078d4;
       --ok:#16833b;
@@ -631,14 +631,14 @@
       box-shadow:0 2px 8px rgba(146,64,14,.18);
     }
 
-    .missing-row td{  
-      background:#fff1f2!important;  
-      color:#991b1b!important;  
-      font-weight:900;  
-    }  
-    .filter-area.hidden{  
-      display:none!important;  
-    }  
+    .missing-row td{
+      background:#fff1f2!important;
+      color:#991b1b!important;
+      font-weight:900;
+    }
+    .filter-area.hidden{
+      display:none!important;
+    }
     .filter-note{
       font-size:12px;
       color:#64748b;
@@ -1737,8 +1737,6 @@
     .muted-delete-v95{color:#94a3b8!important;font-size:11px!important;}
     @media(max-width:760px){.delete-col-v95{width:34px!important;min-width:34px!important;max-width:34px!important;}.row-delete-btn-v95{font-size:10px!important;padding:3px 4px!important;border-radius:6px!important;}.main-timesheet-table{min-width:800px!important;}}
 
-
-
 /* ===== V10.3 手机端和触控体验优化 ===== */
 @media (max-width: 760px){
   th, td{font-size:12px!important;padding:3px 4px!important;}
@@ -1751,9 +1749,7 @@
   touch-action:manipulation;
 }
 
-
-
-/* ===== V11.5 MES密度与字号平衡版：顶部保存/关闭固定 + 单元清晰字号 + 模块紧凑 ===== */
+/* ===== V12.1 安全结构优化版：顶部保存/关闭固定 + 单元清晰字号 + 模块紧凑 ===== */
 :root{
   --brand:#1769aa !important;
   --ok:#16a34a !important;
@@ -1852,9 +1848,9 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
 .v1010-edit-panel .remark-picker-custom{display:grid!important;grid-template-columns:1fr 72px!important;gap:5px!important;margin-bottom:6px!important;}
 .v1010-edit-panel .remark-picker-input{height:38px!important;border:1px solid #cbd5e1!important;border-radius:9px!important;padding:0 9px!important;font-size:15px!important;font-weight:400!important;background:#fff!important;}
 .v1010-edit-panel .remark-picker-apply{height:38px!important;border:0!important;border-radius:9px!important;background:#2563eb!important;color:#fff!important;font-size:14px!important;font-weight:500!important;}
-/* 底部操作区取消：V11.5 不再显示底部取消/保存 */
+/* 底部操作区取消：V12.1 不再显示底部取消/保存 */
 .v1010-edit-panel .batch-actions{display:none!important;}
-/* ===== V11.5 MES密度与字号平衡结束 ===== */
+/* ===== V12.1 MES密度与字号平衡结束 ===== */
 </style>
 </head>
 <body>
@@ -1893,7 +1889,7 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
       <div id="adminPanel" class="admin-panel">
         <button class="admin-btn lock-btn" onclick="lockAllVisibleRows()">🔒 锁定</button>
         <button class="admin-btn unlock-btn" onclick="unlockAllVisibleRows()">🔓 解锁</button>
-      
+
         <button class="admin-btn export-btn" onclick="exportSelectedWeekExcel()">📥 导出</button>
       </div>     <div id="anomalyFilterArea" class="filter-area hidden">
         <button id="anomalyFilterBtn" class="filter-btn" onclick="toggleAnomalyFilter()">异常</button>
@@ -1936,7 +1932,7 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V11.5 MES密度与字号平衡版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V12.1 安全结构优化版</div>
     </div>
   </div>
 
@@ -2013,7 +2009,6 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
       </div>
     </div>
   </div>
-
 <script>
 
 
@@ -2138,9 +2133,6 @@ const CLOUD_BASE_ENABLED = true;
     return jsonResponse({error:"unsupported method", method}, 405);
   };
 })();
-
-
-
 
 /************ 只需要替换这一处 TOKEN ************/
 const API_TOKEN = "";
@@ -2346,7 +2338,7 @@ const quickHoursMap = {
   otWeekend:[0,0.5,1,2,3,4,8]
 };
 const remarkTemplates = {
-  
+
   "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
   "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
   "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
@@ -4941,8 +4933,6 @@ function renderBatchCreatePicker(){
   restoreBatchPanelScroll(prevTop);
 }
 
-
-
 /* ===== V8.5 TEST：批量平分总工时 ===== */
 function ensureBatchSplitFields(){
   if(!batchDraft) batchDraft = {task:"", project:"", units:[], remark:""};
@@ -5053,8 +5043,6 @@ function confirmBatchCreateRows(){
   renderWeekRecordsKeepScroll();
   showMsg("已生成 " + units.length + " 条工时草稿" + (batchDraft.splitEven ? "，并已完成总工时平分。" : "，请填写每日具体工时后提交。"), true);
 }
-
-
 
 /* ===== V8.9：平分类型+剩余防错、顶部置顶、过滤异常备注 ===== */
 function isRemarkOptionAllowedV89(v){ const s=String(v||"").trim(); return !s || s !== "酸"; }
@@ -5199,8 +5187,6 @@ function moveActionBarToStickyV89(){
 setTimeout(setupStickyTopAreaV89,0);
 window.addEventListener('DOMContentLoaded',()=>setTimeout(setupStickyTopAreaV89,0));
 
-
-
 /* ===== V9.0 FINAL：结构收口，顶部置顶栏稳定化，彻底防止按钮重复 ===== */
 function setupStickyTopAreaV89(){
   const card = document.querySelector('.card');
@@ -5282,8 +5268,6 @@ setTimeout(()=>{
   moveActionBarToStickyV89();
   normalizeStickyToolbarV90();
 }, 0);
-
-
 
 /* ===== V9.1 FINAL：临时隐藏原始记录管理 + 修改未提交高亮提醒 ===== */
 function hideRawRecordSectionV91(){
@@ -5411,10 +5395,6 @@ setTimeout(()=>{
   hideRawRecordSectionV91();
   syncUnsavedStateV91();
 },0);
-
-
-
-
 
 /* ===== V9.5 FINAL：锁状态统一来源 + 刷新后稳定 + 锁/解锁加速 ===== */
 const V95_LOCK_CACHE_KEY = 'NINGBO_TIMESHEET_WEEK_LOCK_CACHE_V95';
@@ -5702,8 +5682,6 @@ setTimeout(async ()=>{
   syncWeekLockUIV95();
   addDeleteColumnV95();
 },0);
-
-
 
 /* ===== V10.6 EDIT ENHANCED FINAL PATCH：编辑增强 + 最终锁定 + 记忆 + 去今日 ===== */
 (function(){
@@ -6079,15 +6057,15 @@ setTimeout(async ()=>{
 })();
 
 
-/* ===== V11.5 FULL FINAL PATCH：完整版本修正，非演示文件 =====
+/* ===== V12.1 FULL FINAL PATCH：完整版本修正，非演示文件 =====
    1) 编辑弹窗改为“新增单条/多条工时”的卡片选择风格；
    2) 手机端操作列改为编辑/删除两列大按钮，减少误触；
    3) 保留原有 CloudBase、锁定/解锁、提交、删除、导出等完整逻辑；
    4) 强制清理“今日/今天”标识；
-   5) 页脚/标题统一为 V11.5 MES密度与字号平衡版。
+   5) 页脚/标题统一为 V12.1 安全结构优化版。
 */
 (function(){
-  const V1010_VERSION = 'V11.5 MES密度与字号平衡版';
+  const V1010_VERSION = 'V12.1 安全结构优化版';
 
   function msg(text, ok=true){
     if(typeof showStatusModal === 'function') showStatusModal(text, ok);
