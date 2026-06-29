@@ -29,11 +29,15 @@ const CLOUD_BASE_FUNCTION_URL = "https://timesheet-d6g9cfu6c9d0e7fce-1448165566.
 
 async function loadData(){
   try{
-    const res = await fetch(CLOUD_BASE_FUNCTION_URL,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({action:"list"})
-    });
+const res = await fetch(CLOUD_BASE_FUNCTION_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    action: "listRecords"   // ⚠️ 这里改成你的真实接口动作
+  })
+});
 
     const data = await res.json();
     render(data.result || data.data || []);
