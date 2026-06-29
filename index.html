@@ -1,12 +1,12 @@
-<!-- VERSION: V11.5 MES DENSITY + READABLE FONT - UTF8 -->
+<!-- VERSION: V12.0 STRUCTURE OPTIMIZED - BASED ON V11.5 - UTF8 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V11.5 MES密度与字号平衡版</title>
+  <title>车间工时填报系统 - V12.0 结构优化版</title>
   <style>
-    :root{
+:root{
       --brand:#0078d4;
       --ok:#16833b;
       --danger:#b91c1c;
@@ -60,37 +60,32 @@
       padding-left:8px;
     }
 
-/* ✅ 身份整体 */
 .id-row{
   display:flex;
-  background:#ffffff;              /* ✅ 白底 */
+  background:#ffffff;
   padding:10px 8px;
   border-radius:12px;
   gap:8px;
   min-height:60px;
 
-  /* ✅ 卡片效果 */
   box-shadow:0 2px 8px rgba(0,0,0,0.06);
   border:1px solid #e5e7eb;
 }
 
-/* ✅ 每个块 */
 .id-card{
   flex:1;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  color:#111;     /* ✅ 文字恢复黑色 */
+  color:#111;
 }
 
-/* ✅ 标签 */
 .id-label{
   font-size:11px;
   color:#aaa;
 }
 
-/* ✅ 核心信息（大字） */
 .id-value{
   font-size:20px;
   font-weight:900;
@@ -98,7 +93,6 @@
   margin-top:2px;
 }
 
-/* ✅ 状态颜色（醒目） */
 .id-value.ok{
   color:#2ecc71;
 }
@@ -111,7 +105,6 @@
   color:#ffa940;
 }
 
-/* ✅ 状态加图标（高级版重点） */
 .id-value.ok::before{
   content:"✅ ";
 }
@@ -124,14 +117,12 @@
   content:"⚠ ";
 }
 
-/* ✅ 管理员特殊高亮 */
 .id-value.admin{
   color:#ff4d4f;
   background:rgba(255,77,79,0.15);
   padding:2px 6px;
   border-radius:6px;
 }
-
 
     .tip{
       margin:12px 0;
@@ -202,21 +193,19 @@
       user-select:none;
       word-break:break-word;
     }
-/* ✅ U类（单元） */
+
 .unit-u{
   background:#e8f4ff;
   border:1px solid #9cc9f5;
   color:#0f4c81;
 }
 
-/* ✅ NIN类（容器） */
 .unit-n{
   background:#fff4e6;
   border:1px solid #f7c58a;
   color:#b45309;
 }
 
-/* ✅ hover增强（更明显） */
 .unit-u:hover{
   background:#d6ecff;
 }
@@ -225,32 +214,27 @@
   background:#ffe8cc;
 }
 
-/* ✅ 工时类别区域放大 */
 .task-grid .chip{
   font-size:15px;
   min-height:40px;
 }
 
-/* ✅ 项目号区域放大 */
 .project-grid .chip{
   font-size:15px;
   min-height:42px;
 }
 
-/* ✅ 专门压缩 Week 按钮 */
 .week-grid .chip{
   min-height:30px;
   padding:3px 2px;
   font-size:12px;
 }
-/* ✅ 星期按钮再压一点 */
+
 .weekday-grid .chip{
   min-height:28px;
   font-size:12px;
 }
 
-
-/* ✅ 单元号按钮更大、更适合手机点击 */
 .unit-grid .chip{
   font-size:17px;
   min-height:46px;
@@ -259,7 +243,6 @@
   word-break:break-all;
 }
 
-/* ✅ 单元号分组标题 */
 .unit-group-title{
   grid-column:1 / -1;
   font-size:12px;
@@ -284,7 +267,6 @@
   border-color:#f7c58a;
 }
 
-/* ✅ 手机端单元号每行3个，更清楚 */
 @media(max-width:560px){
   .unit-grid{
     grid-template-columns:repeat(3,1fr)!important;
@@ -631,14 +613,14 @@
       box-shadow:0 2px 8px rgba(146,64,14,.18);
     }
 
-    .missing-row td{  
-      background:#fff1f2!important;  
-      color:#991b1b!important;  
-      font-weight:900;  
-    }  
-    .filter-area.hidden{  
-      display:none!important;  
-    }  
+    .missing-row td{
+      background:#fff1f2!important;
+      color:#991b1b!important;
+      font-weight:900;
+    }
+    .filter-area.hidden{
+      display:none!important;
+    }
     .filter-note{
       font-size:12px;
       color:#64748b;
@@ -707,7 +689,6 @@
       font-size:12px;
       margin-top:16px;
     }
-
 
     .integrated-action-bar{
       display:flex;
@@ -799,12 +780,6 @@
       th,td{min-width:42px;height:28px;padding:2px;}
     }
 
-    /* =========================================================
-       V7.3 CLEAN：统一最终样式层
-       说明：旧版多套冲突 CSS 已清理，只保留这一套最终参数。
-       如需手动调手机端前4列宽度，只改下面 :root 里的 --m-* 和 --pc-* 即可。
-       left 会自动按变量计算，不再手算。
-       ========================================================= */
     :root{
       --pc-task-w:68px;
       --pc-project-w:86px;
@@ -915,8 +890,6 @@
       .hour-picker-option{min-height:40px;font-size:17px;}
     }
 
-
-    /* V7.5：管理员筛选器 + 导出当前筛选结果 */
     .admin-filter-select{
       width:auto!important;
       min-width:110px!important;
@@ -933,7 +906,6 @@
       .admin-filter-select{min-width:96px!important;max-width:140px!important;font-size:12px!important;padding:6px 8px!important;}
     }
 
-    /* V7.6：手机兼容终极版 - 防止国产/内嵌浏览器把主表压缩成一团 */
     .table-scroll{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain!important;}
     .main-timesheet-table{table-layout:auto!important;width:max-content!important;border-collapse:separate!important;border-spacing:0!important;}
     .main-timesheet-table th,.main-timesheet-table td{white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;}
@@ -957,13 +929,11 @@
       .today-badge{font-size:9px!important;padding:1px 2px!important;max-width:26px!important;}
     }
 
-    /* V7.7.1：细线条 + 普通字体 + 异常只填充颜色 + 备注列加宽 */
     :root{
       --thin-border:#cfd6df;
       --thin-border-dark:#9ca3af;
     }
 
-    /* 全局表格线条统一细线，避免电脑端看起来粗重 */
     table,
     .main-timesheet-table,
     .raw-record-table{
@@ -987,7 +957,6 @@
       font-weight:600!important;
     }
 
-    /* 按钮保留适度字重，不影响表格正文 */
     .btn,
     .filter-btn,
     .picker-btn,
@@ -1004,7 +973,6 @@
       font-weight:700!important;
     }
 
-    /* 异常只显示填充颜色，不改变边框颜色/粗细 */
     .warn-cell,
     .warn-soft,
     .missing-row td,
@@ -1026,7 +994,6 @@
       background:#fff1f2!important;
     }
 
-    /* PC端备注列加宽，避免“整周未提交”等内容竖向换行导致行高异常 */
     @media(min-width:761px){
       .main-timesheet-table thead tr:first-child th:nth-child(4),
       .main-timesheet-table tbody td:nth-child(4){
@@ -1056,7 +1023,6 @@
       }
     }
 
-    /* 手机端保持V7.6横向兼容，不让右侧压成一团，同时备注不再过窄 */
     @media(max-width:760px){
       .main-timesheet-table{
         table-layout:auto!important;
@@ -1088,7 +1054,6 @@
       }
     }
 
-    /* V7.9：新增按钮=提交按钮尺寸，绿色；并在存在未提交草稿时禁用 */
     .integrated-action-bar{
       display:flex!important;
       align-items:center!important;
@@ -1132,7 +1097,6 @@
       }
     }
 
-    /* V8.0：提交状态弹窗 + 手机端管理员按钮/筛选器单行紧凑 */
     .status-modal{
       position:fixed;
       inset:0;
@@ -1254,7 +1218,6 @@
       .status-text{font-size:14px;}
     }
 
-    /* V8.1：管理员专属界面修复 - 员工端彻底隐藏锁定/解锁/导出/筛选 */
     #adminPanel.admin-panel:not(.show){
       display:none!important;
       visibility:hidden!important;
@@ -1323,7 +1286,6 @@
       #filterNote{display:none!important;}
     }
 
-    /* V8.2：缺失工时异常修复 + 异常文字统一黑色，只用背景提示 */
     .warn-cell,
     .warn-soft,
     .missing-row td,
@@ -1354,7 +1316,6 @@
       color:#111827!important;
     }
 
-    /* V8.3 TEST：批量新增前置信息弹窗（类别单选 / 项目单选 / 单元多选 / 备注单选） */
     .batch-summary{
       background:#f0f9ff;
       color:#075985;
@@ -1430,7 +1391,6 @@
       .batch-summary{font-size:13px;padding:8px 10px;}
     }
 
-    /* V8.4 TEST：批量弹窗和修改弹窗统一卡片风格，减少空间浪费 */
     .batch-unified-list{
       display:grid!important;
       grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -1468,7 +1428,6 @@
     .batch-remark-input-row .remark-picker-input{height:36px!important;font-size:14px!important;}
     .batch-remark-input-row .remark-picker-apply{height:36px!important;font-size:13px!important;padding:0 8px!important;}
 
-    /* 原始记录管理-修改弹窗：工时类别/项目/单元/备注选择统一为紧凑卡片风格 */
     #editModal .chip-grid{
       display:grid!important;
       grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -1517,8 +1476,6 @@
       #editModal .chip,#editModal .chip-btn,#editModal button[class*="chip"]{min-height:34px!important;font-size:12px!important;padding:6px 4px!important;}
     }
 
-
-    /* V8.5 TEST：批量平分总工时 */
     .batch-split-box{
       border:1px solid #d7dde5;
       background:#f8fafc;
@@ -1570,8 +1527,6 @@
       .batch-split-check{font-size:13px;}
     }
 
-
-    /* V8.9：顶部区域置顶 + 手机端日列压缩重构 */
     body{overflow-x:hidden!important;}
     .wrap{width:100%!important;max-width:1120px!important;overflow:visible!important;}
     .card{width:100%!important;max-width:100%!important;overflow:visible!important;}
@@ -1633,8 +1588,6 @@
       .batch-split-controls select,.batch-split-controls input{height:34px!important;font-size:12px!important;padding:5px 5px!important;}
     }
 
-
-    /* V9.0 FINAL：稳定顶部结构 + 避免重复按钮造成的视觉堆叠 */
     #stickyTopArea .integrated-action-bar{
       display:flex!important;
       flex-wrap:nowrap!important;
@@ -1664,8 +1617,6 @@
       }
     }
 
-
-    /* V9.1：临时隐藏原始记录管理，修改未提交高亮 */
     .raw-record-table,
     .raw-record-table.closest-hidden{
       display:none!important;
@@ -1710,7 +1661,6 @@
       }
     }
 
-    /* V9.5：锁状态最终版样式，未锁无图标，锁定才显示🔒 */
     #weekChips .chip.locked-week-chip{
       background:#fee2e2!important;
       color:#991b1b!important;
@@ -1737,9 +1687,6 @@
     .muted-delete-v95{color:#94a3b8!important;font-size:11px!important;}
     @media(max-width:760px){.delete-col-v95{width:34px!important;min-width:34px!important;max-width:34px!important;}.row-delete-btn-v95{font-size:10px!important;padding:3px 4px!important;border-radius:6px!important;}.main-timesheet-table{min-width:800px!important;}}
 
-
-
-/* ===== V10.3 手机端和触控体验优化 ===== */
 @media (max-width: 760px){
   th, td{font-size:12px!important;padding:3px 4px!important;}
   .week-btn, .btn, button{touch-action:manipulation;}
@@ -1751,9 +1698,6 @@
   touch-action:manipulation;
 }
 
-
-
-/* ===== V11.5 MES密度与字号平衡版：顶部保存/关闭固定 + 单元清晰字号 + 模块紧凑 ===== */
 :root{
   --brand:#1769aa !important;
   --ok:#16a34a !important;
@@ -1772,7 +1716,6 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
 .main-timesheet-table th,.raw-record-table th{background:#e6edf5!important;color:#1f4e79!important;font-weight:600!important;}
 .main-timesheet-table td,.raw-record-table td{font-weight:400!important;color:#1f2937!important;}
 
-/* 编辑、删除拆成两个独立表格列 */
 .main-timesheet-table th.v115-edit-head,
 .main-timesheet-table th.v115-delete-head,
 .main-timesheet-table td.v115-edit-cell,
@@ -1791,7 +1734,6 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
   .main-timesheet-table .v115-table-edit-btn,.main-timesheet-table .v115-table-delete-btn{font-size:13px!important;padding:7px 0!important;}
 }
 
-/* 单元类：字号放大到14px，仍保持两列和适中密度 */
 .picker-col.unit .picker-list,
 .picker-col.unit .batch-multi-list,
 .picker-col.unit .v115-unit-two-col,
@@ -1812,14 +1754,12 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
   line-height:1.08!important;
 }
 
-/* MES视觉 */
 .picker-panel,.v1010-edit-panel{background:#f8fafc!important;border-radius:14px!important;border:1px solid #cbd5e1!important;box-shadow:0 16px 36px rgba(15,23,42,.18)!important;}
 .picker-head,.v1010-edit-title-row{background:#e6edf5!important;border-radius:10px!important;padding:8px 10px!important;margin-bottom:7px!important;}
 .v1010-edit-mask{position:fixed!important;inset:0!important;z-index:9999!important;background:rgba(15,23,42,.45)!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;padding:0!important;overflow:auto!important;}
 .v1010-edit-panel{width:min(440px,100vw)!important;max-height:100vh!important;overflow:auto!important;padding:0 12px 10px!important;font-size:14px!important;font-weight:400!important;}
 .v1010-edit-panel *{font-weight:400!important;}
 
-/* 顶部操作区固定：保存修改 + 关闭 常驻顶部 */
 .v115-sticky-tools{
   position:sticky!important;
   top:0!important;
@@ -1836,7 +1776,6 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
 .v1010-edit-close{border:0!important;border-radius:10px!important;background:#dbe4ef!important;color:#1f2937!important;font-weight:500!important;padding:8px 12px!important;font-size:14px!important;}
 .v1010-edit-panel .batch-summary{font-size:13px!important;font-weight:500!important;background:#eef6ff!important;color:#1f4e79!important;border:1px solid #c9dff5!important;border-radius:10px!important;padding:6px 8px!important;margin:0!important;line-height:1.3!important;}
 
-/* 工时类别/项目号/备注：字号保持清晰，压缩高度与间距 */
 .v1010-edit-panel .batch-section-title{font-size:14px!important;font-weight:600!important;color:#1f4e79!important;margin-top:8px!important;margin-bottom:5px!important;}
 .v1010-edit-panel .picker-grid,.v1010-edit-panel .batch-compact-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;}
 .v1010-edit-panel .picker-card{min-height:35px!important;border:1px solid #d1d9e6!important;border-radius:9px!important;background:#fff!important;color:#1f4e79!important;font-size:14px!important;font-weight:500!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;box-shadow:0 1px 3px rgba(15,23,42,.05)!important;padding:5px 4px!important;line-height:1.1!important;}
@@ -1852,9 +1791,8 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
 .v1010-edit-panel .remark-picker-custom{display:grid!important;grid-template-columns:1fr 72px!important;gap:5px!important;margin-bottom:6px!important;}
 .v1010-edit-panel .remark-picker-input{height:38px!important;border:1px solid #cbd5e1!important;border-radius:9px!important;padding:0 9px!important;font-size:15px!important;font-weight:400!important;background:#fff!important;}
 .v1010-edit-panel .remark-picker-apply{height:38px!important;border:0!important;border-radius:9px!important;background:#2563eb!important;color:#fff!important;font-size:14px!important;font-weight:500!important;}
-/* 底部操作区取消：V11.5 不再显示底部取消/保存 */
+
 .v1010-edit-panel .batch-actions{display:none!important;}
-/* ===== V11.5 MES密度与字号平衡结束 ===== */
 </style>
 </head>
 <body>
@@ -1893,7 +1831,7 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
       <div id="adminPanel" class="admin-panel">
         <button class="admin-btn lock-btn" onclick="lockAllVisibleRows()">🔒 锁定</button>
         <button class="admin-btn unlock-btn" onclick="unlockAllVisibleRows()">🔓 解锁</button>
-      
+
         <button class="admin-btn export-btn" onclick="exportSelectedWeekExcel()">📥 导出</button>
       </div>     <div id="anomalyFilterArea" class="filter-area hidden">
         <button id="anomalyFilterBtn" class="filter-btn" onclick="toggleAnomalyFilter()">异常</button>
@@ -1936,7 +1874,7 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V11.5 MES密度与字号平衡版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V12.0 结构优化版</div>
     </div>
   </div>
 
@@ -2015,15 +1953,6 @@ button,.btn,.week-btn,.picker-card,.picker-item{font-weight:500!important;}
   </div>
 
 <script>
-
-
-/* ===== V10.3 CLOUDBASE MODE：腾讯云 CloudBase 接口适配层（优化最终版） =====
-   版本说明：
-   1) 保留当前页面 UI / 批量新增 / 平分工时 / 锁周 / 导出逻辑。
-   2) 替代 Baserow，所有数据读写走腾讯云 CloudBase。
-   3) 修复 CloudBase _id 字母数字混合导致删除失败的问题。
-   4) 修复 DELETE 成功后 204 + body 导致浏览器 Response 报错的问题。
-*/
 const CLOUD_BASE_FUNCTION_URL = "https://timesheet-d6g9cfu6c9d0e7fce-1448165566.ap-shanghai.app.tcloudbase.com/timesheetApi";
 const CLOUD_BASE_ENABLED = true;
 
@@ -2049,7 +1978,6 @@ const CLOUD_BASE_ENABLED = true;
     try{ return JSON.parse(options.body); }catch(e){ return {}; }
   }
   function getRowIdFromUrl(url){
-    // ✅ V10.3：CloudBase 的 _id 是字母数字混合，必须匹配任意非 / 字符
     const m = String(url).match(/\/api\/database\/rows\/table\/1030254\/([^\/]+)\//);
     return m ? decodeURIComponent(String(m[1])) : "";
   }
@@ -2062,7 +1990,6 @@ const CLOUD_BASE_ENABLED = true;
     return out;
   }
   function normalizeCloudBasePayload(payload){
-    // 兼容 CloudBase HTTP 网关返回 {statusCode, body}
     if(payload && payload.body && typeof payload.body === "string"){
       try{ return JSON.parse(payload.body); }catch(e){}
     }
@@ -2128,7 +2055,6 @@ const CLOUD_BASE_ENABLED = true;
       const body = parseBody(options);
       const finalId = rowId || body.id || body._id || "";
       const ret = await callCloudBase("delete", {rowId: finalId, id: finalId, _id: finalId, body, data: body, params});
-      // ✅ V10.3：删除成功必须返回 200 + JSON，不能返回 204 + body
       if(ret.ok && !(ret.data && ret.data.error)){
         return jsonResponse({success:true, id:finalId}, 200);
       }
@@ -2139,12 +2065,7 @@ const CLOUD_BASE_ENABLED = true;
   };
 })();
 
-
-
-
-/************ 只需要替换这一处 TOKEN ************/
 const API_TOKEN = "";
-/************************************************/
 
 const TABLE_ID = "1030254";
 const ADMIN_ID = "1237794";
@@ -2346,7 +2267,7 @@ const quickHoursMap = {
   otWeekend:[0,0.5,1,2,3,4,8]
 };
 const remarkTemplates = {
-  
+
   "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
   "机械组装":["下料组装","焊接","压力测试","配件打磨","气管安装"],
   "保温作业":["管道补漆","保温下料","保温安装","保温发泡","保温清理"],
@@ -2463,13 +2384,11 @@ function shouldCheckMissingDay(day){
   const dayIndex = workdays.indexOf(day);
   const todayIndex = workdays.indexOf(today);
   if(dayIndex < 0) return false;
-  // 当前周如果今天是周六/周日，说明周一~周五都已经过去，都需要检查。
   if(todayIndex < 0 && (today === "六" || today === "日")) return true;
   if(todayIndex < 0) return false;
   return dayIndex <= todayIndex;
 }
 
-// ✅ 三级异常颜色规则：0=正常，1=轻微异常（黄色），2=严重异常（红色）
 function getRegularLevel(v){
   v = num(v);
   if(v === 8) return 0;
@@ -2611,7 +2530,6 @@ async function fetchRows(){
   return fetchRowsFromUrl(apiUrl());
 }
 async function fetchRowsByWeek(week){
-  // ✅ 性能优化：优先让 Baserow 只返回当前 Week；失败则自动回退全量读取后前端过滤
   try{
     const rows = await fetchRowsFromUrl(apiUrlWithParams({["filter__week__equal"]: String(week || "")}));
     return rows.filter(row=>String(row.week || "") === String(week));
@@ -2632,7 +2550,6 @@ async function loadAllWeeks(){
     rows.forEach(r=>{ if(r.week) set.add(r.week); });
     const current = getCurrentWeek();
     const currentNum = Number(current.replace("W", ""));
-    // ✅ 只显示当前周及之前3周；不显示本周后面的 Week
     for(let i=-3;i<=0;i++){
       const w = currentNum + i;
       if(w > 0) set.add("W" + w);
@@ -2693,7 +2610,6 @@ function displayChipText(value, field){
     return value + lockIcon;
   }
 
-  // ✅ 星期加“今天”
   if(field === "weekday"){
     const today = getTodayWeekday();
     if(value === today){
@@ -2954,7 +2870,6 @@ function applyAutoHoursByWeekday(){
   }
 
   if(isWeekendDay(state.weekday)){
-    // ✅ 周末：正常工时和工作日加班自动归零，只显示周末加班
     state.regularHours = 0;
     state.otWeekday = 0;
     state.otWeekend = Math.max(0, Math.min(num(state.otWeekend), maxHours("otWeekend")));
@@ -2962,8 +2877,6 @@ function applyAutoHoursByWeekday(){
     $("weekendOTCard").classList.remove("hidden");
     disableRegularInputs(true);
   }else{
-    // ✅ 工作日：正常工时自动填“当天剩余可填工时”
-    // 例：当天已提交3h，则默认填5h；当天已提交8h，则默认填0h。
     state.regularHours = remainingRegularHoursForCurrentDay();
     state.otWeekend = 0;
     state.otWeekday = Math.max(0, Math.min(num(state.otWeekday), maxHours("otWeekday")));
@@ -3046,7 +2959,6 @@ function calcEmployeeAnomalies(rows){
       if(d && d.hasRecord) hasAnyRecord = true;
     });
 
-    // ✅ 名单里有，但所选 Week 整周一条都没提交 = 严重异常
     if(!hasAnyRecord){
       if(isAdmin() && hasAdminProjectOrUnitFilter()) return;
       const checkableDays = ["一","二","三","四","五"].filter(day=>shouldCheckMissingDay(day));
@@ -3071,7 +2983,6 @@ function calcEmployeeAnomalies(rows){
 
     ["一","二","三","四","五"].forEach(day=>{
       const d = item.days[day];
-      // ✅ 已过去的 Week：工作日没填也算严重异常；本周不提前标红未来未填日期
       if(!d || !d.hasRecord){
         if(shouldCheckMissingDay(day)){
           badDays.push(day);
@@ -3211,7 +3122,6 @@ function toggleAnomalyFilter(){
 }
 
 function renderAnomalyBox(rows){
-  // ✅ V5.4：上方异常列表已取消；异常只在下方表格中显示
   return;
 }
 async function loadWeekRecords(){
@@ -3247,7 +3157,6 @@ async function loadWeekRecords(){
     renderWeekRecords([], "本周记录读取失败：" + e.message);
   }
 }
-
 
 const remarkOptionsByTask = {
   "仓库作业":["点料入库","发料退料","装箱发货","仓库帮忙"],
@@ -3499,7 +3408,6 @@ async function submitInlineAndIntegratedRows(){
   }
 }
 
-
 let hourPickerContext = null;
 function hourQuickValues(field){
   if(field === "regular") return [0.25,0.5,1,2,3,4,6,8];
@@ -3603,7 +3511,6 @@ function renderWeekRecords(rows, err=""){
   const employeeAnomaly = !isAdmin() ? allAnomalies[String(empId)] : null;
   const employeeMissingAllWeek = !isAdmin() && employeeAnomaly && employeeAnomaly.missingAllWeek;
   if(!rows.length && !isAdmin() && !employeeMissingAllWeek){
-    // 员工没有提交记录时，也直接显示集成填写表，避免进入空白状态。
   }
   if(onlyShowAnomaly && isAdmin() && !Object.keys(adminAnomalies).length){
     box.innerHTML = '<div class="record-empty">当前 Week 没有异常记录</div>';
@@ -3661,7 +3568,6 @@ function renderWeekRecords(rows, err=""){
     totalWeekendOt += num(record.otWeekend);
   });
 
-  // ✅ 管理员主表补入“整周未提交”的名单人员，让异常真正综合到本周明细表里
   if(isAdmin()){
     Object.keys(adminAnomalies).forEach(id=>{
       const a = adminAnomalies[id];
@@ -3685,7 +3591,6 @@ function renderWeekRecords(rows, err=""){
       });
     });
   }
-  // ✅ 员工界面：如果已过去的 Week 整周未填，也在本周明细表中显示红色“未提交”行
   if(!isAdmin() && employeeMissingAllWeek){
     const key = String(empId) + "||__EMPLOYEE_MISSING_ALL_WEEK__";
     if(!grouped.has(key)){
@@ -3753,7 +3658,6 @@ function renderWeekRecords(rows, err=""){
     let otLevel = 0;
     if(!isAdmin()){
       if(missingLevel > 0 && !hasData){
-        // ✅ 已过去 Week 的工作日完全没填：正常/加班两个格子都标红，提醒缺填
         regularLevel = 2;
         otLevel = 2;
       }else if(hasData){
@@ -3835,7 +3739,6 @@ function createIntegratedRow(){
   };
 }
 function ensureIntegratedRows(){
-  // 不默认生成填写行，必须点击“＋ 新增一条工时”才出现。
   return;
 }
 function optionHtml(value, selected){
@@ -3893,7 +3796,6 @@ function updateIntegratedMeta(rowId, field, value){
   const row = integratedRows.find(r=>String(r.id)===String(rowId));
   if(!row) return;
   row[field] = value;
-  // 备注输入时不重绘整张表，避免手机输入法每删/输一个字就关闭。
   if(field === "remark") return;
   if(field === "task"){
     if(!needsProjectByTask(value)){
@@ -4030,7 +3932,6 @@ function confirmBatchCreateRows(){
   showMsg("已生成 " + units.length + " 条工时草稿，请填写每日具体工时后提交。", true);
 }
 function deleteIntegratedRow(rowId){
-  // V5.9.8：删除新增行时直接移除整行，不再清空后保留空白行。
   integratedRows = integratedRows.filter(row=>String(row.id)!==String(rowId));
   renderWeekRecordsKeepScroll();
 }
@@ -4256,7 +4157,6 @@ function validatePayload(payload, excludeRowId){
   if(!payload.week) return "请选择 Week。";
   if(!payload.weekday) return "请选择星期。";
   if(!payload.task) return "请选择工时类别。";
-// ✅ V9.8：只有工作日才强制备注；周六/周日允许备注为空
   if(!isWeekendDay(payload.weekday) && (!payload.remark || !payload.remark.trim())) return "备注不能为空，请填写或选择备注。";
   if(needsProjectByTask(payload.task) && !payload.project) return "请选择项目号。";
   if(needsUnitByTask(payload.task) && !payload.unit) return "请选择单元号。";
@@ -4342,14 +4242,12 @@ function editSyncDay(){
   }
 
   if(isWeekendDay(editState.weekday)){
-    // ✅ 编辑时切到周末：正常工时和工作日加班自动归零
     editState.regularHours = 0;
     editState.otWeekday = 0;
     editState.otWeekend = Math.max(0, Math.min(num(editState.otWeekend), maxHours("otWeekend")));
     $("editWeekdayOTCard").classList.add("hidden");
     $("editWeekendOTCard").classList.remove("hidden");
   }else{
-    // ✅ 编辑时切到工作日：默认正常工时8h，周末加班归零
     if(editState.regularHours === 0) editState.regularHours = 8;
     editState.otWeekend = 0;
     editState.otWeekday = Math.max(0, Math.min(num(editState.otWeekday), maxHours("otWeekday")));
@@ -4591,7 +4489,6 @@ function exportDateText(){
 function buildSelectedWeekExportSummary(rows){
   const result = {};
 
-  // ✅ 管理员导出：先把名单内所有员工放进去，整周未提交也会导出
   Object.keys(employeeMap).forEach(id=>{
     if(id === ADMIN_ID) return;
     result[id] = {
@@ -4687,7 +4584,6 @@ function exportSelectedWeekExcel(){
   let totalEveningOt = 0;
   let totalWeekendOt = 0;
 
-  // ✅ 与页面“本周已提交工时明细”完全一致的分组：员工 + 工时类别 + 项目号 + 单元号 + 备注
   rows.forEach(record=>{
     const empPart = String(record.employeeId || "") + "||" + String(record.employeeName || employeeMap[record.employeeId] || "");
     const key = [empPart, record.task || "", record.project || "", record.unit || "", String(record.remark || "").trim()].join("||");
@@ -4728,7 +4624,6 @@ function exportSelectedWeekExcel(){
     totalWeekendOt += num(record.otWeekend);
   });
 
-  // ✅ 整周未提交保持页面同款红色行
   Object.keys(adminAnomalies).forEach(id=>{
     const a = adminAnomalies[id];
     if(!a || !a.missingAllWeek) return;
@@ -4763,10 +4658,10 @@ function exportSelectedWeekExcel(){
 
   let html = '';
   html += '<!DOCTYPE html><html><head><meta charset="UTF-8">';
-  html += '<style>';
+  html += '<style>
+';
   html += 'body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111827;margin:0;}';
   html += 'table{border-collapse:collapse;font-size:12px;}';
-  // ✅ 按你截图：黑色细线、不加粗、颜色和页面接近
   html += 'th,td{border:1px solid #000000;padding:3px 5px;text-align:center;font-weight:400;white-space:nowrap;}';
   html += 'th{background:#ffffff;font-weight:400;}';
   html += '.title{font-size:16px;font-weight:400;text-align:left;background:#ffffff;}';
@@ -4775,7 +4670,8 @@ function exportSelectedWeekExcel(){
   html += '.soft{background:#fff2cc;color:#7c4a03;font-weight:400;}';
   html += '.bad{background:#ffdede;color:#b91c1c;font-weight:400;}';
   html += '.missing td{background:#fff1f2;color:#b91c1c;font-weight:400;}';
-  html += '</style></head><body>';
+  html += '
+</style></head><body>';
   html += '<table>';
   html += '<tr><td class="title" colspan="21">车间工时明细 - ' + excelEscape(state.week) + '</td></tr>';
   html += '<tr><td class="subTitle" colspan="21">导出时间：' + excelEscape(new Date().toLocaleString()) + '</td></tr>';
@@ -4833,7 +4729,6 @@ function exportSelectedWeekExcel(){
   html += exportCell(totalWeekendOt || 0);
   html += '</tr></table></body></html>';
 
-  // ✅ 关键：改成 .html，不再把HTML伪装成 .xls，Excel 打开不会再弹“格式和扩展名不匹配”提醒
   const blob = new Blob(["\ufeff" + html], {type:"text/html;charset=utf-8"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -4869,12 +4764,10 @@ async function init(){
   renderMainWeekChips();
   renderMainWeekdayChips();
 
-  // ✅ 第一次进入页面时自动选中当天星期，减少员工一步操作
   if(!state.weekday){
     state.weekday = getTodayWeekday();
   }
 
-  // ✅ 根据当天是工作日/周末，自动设置默认工时区
   syncHourSectionByWeekday();
 
   renderMainTaskChips();
@@ -4888,8 +4781,6 @@ async function init(){
 }
 init();
 
-
-/* ===== V8.4 TEST：批量弹窗统一样式 + 连续选择不跳回顶部 ===== */
 function batchPanelScrollTop(){
   const body = document.querySelector('#pickerMask .picker-body');
   return body ? body.scrollTop : 0;
@@ -4941,9 +4832,6 @@ function renderBatchCreatePicker(){
   restoreBatchPanelScroll(prevTop);
 }
 
-
-
-/* ===== V8.5 TEST：批量平分总工时 ===== */
 function ensureBatchSplitFields(){
   if(!batchDraft) batchDraft = {task:"", project:"", units:[], remark:""};
   if(typeof batchDraft.splitEven === "undefined") batchDraft.splitEven = false;
@@ -4983,7 +4871,6 @@ function batchSplitPreviewText(){
   return "将 " + total + "h 平分到 " + count + " 条，周" + batchDraft.splitDay + "填写到“" + fieldText + "”，每条约 " + unique.join(" / ") + "h";
 }
 
-/* 覆盖 V8.4 的批量弹窗渲染，加入第5项：平分总工时 */
 function renderBatchCreatePicker(){
   ensureBatchSplitFields();
   const prevTop = batchPanelScrollTop();
@@ -5025,7 +4912,6 @@ function renderBatchCreatePicker(){
   restoreBatchPanelScroll(prevTop);
 }
 
-/* 覆盖确认生成：如果勾选平分，自动把总工时分配到所选星期 */
 function confirmBatchCreateRows(){
   ensureBatchSplitFields();
   if(!batchDraft.task) return showMsg("请选择工时类别。", false);
@@ -5054,9 +4940,6 @@ function confirmBatchCreateRows(){
   showMsg("已生成 " + units.length + " 条工时草稿" + (batchDraft.splitEven ? "，并已完成总工时平分。" : "，请填写每日具体工时后提交。"), true);
 }
 
-
-
-/* ===== V8.9：平分类型+剩余防错、顶部置顶、过滤异常备注 ===== */
 function isRemarkOptionAllowedV89(v){ const s=String(v||"").trim(); return !s || s !== "酸"; }
 function combinedRemarkOptionsForRow(row){
   const preset=(remarkOptionsForTask(row&&row.task)||[]).filter(isRemarkOptionAllowedV89);
@@ -5199,9 +5082,6 @@ function moveActionBarToStickyV89(){
 setTimeout(setupStickyTopAreaV89,0);
 window.addEventListener('DOMContentLoaded',()=>setTimeout(setupStickyTopAreaV89,0));
 
-
-
-/* ===== V9.0 FINAL：结构收口，顶部置顶栏稳定化，彻底防止按钮重复 ===== */
 function setupStickyTopAreaV89(){
   const card = document.querySelector('.card');
   if(!card) return;
@@ -5229,14 +5109,12 @@ function moveActionBarToStickyV89(){
   const newBar = document.querySelector('#recordList > .integrated-action-bar');
   const oldBars = Array.from(sticky.querySelectorAll('.integrated-action-bar'));
 
-  // 关键：每次渲染只保留一组按钮，先清掉旧按钮，再移动新按钮
   if(newBar){
     oldBars.forEach(bar => bar.remove());
     sticky.appendChild(newBar);
     return;
   }
 
-  // 如果当前没有新按钮，确保 sticky 内最多保留一组，避免历史遗留重复
   oldBars.forEach((bar, idx) => { if(idx > 0) bar.remove(); });
 }
 function normalizeStickyToolbarV90(){
@@ -5248,7 +5126,6 @@ function normalizeStickyToolbarV90(){
   }
 }
 
-// 覆盖重新渲染入口：每次表格重绘后，只刷新一次顶部工具栏，不再依赖 MutationObserver。
 if(typeof renderWeekRecords === 'function' && !window.__v90RenderPatched){
   window.__v90RenderPatched = true;
   const __renderWeekRecordsV90 = renderWeekRecords;
@@ -5276,16 +5153,12 @@ if(typeof renderWeekRecordsKeepScroll === 'function' && !window.__v90RenderKeepS
   };
 }
 
-// 当前页面如果已经有重复按钮，立即清理。
 setTimeout(()=>{
   setupStickyTopAreaV89();
   moveActionBarToStickyV89();
   normalizeStickyToolbarV90();
 }, 0);
 
-
-
-/* ===== V9.1 FINAL：临时隐藏原始记录管理 + 修改未提交高亮提醒 ===== */
 function hideRawRecordSectionV91(){
   document.querySelectorAll('.raw-record-table').forEach(table=>{
     const wrap = table.closest('.table-scroll');
@@ -5412,11 +5285,6 @@ setTimeout(()=>{
   syncUnsavedStateV91();
 },0);
 
-
-
-
-
-/* ===== V9.5 FINAL：锁状态统一来源 + 刷新后稳定 + 锁/解锁加速 ===== */
 const V95_LOCK_CACHE_KEY = 'NINGBO_TIMESHEET_WEEK_LOCK_CACHE_V95';
 let weekLockStateV95 = {};
 try{ weekLockStateV95 = JSON.parse(localStorage.getItem(V95_LOCK_CACHE_KEY) || '{}') || {}; }catch(e){ weekLockStateV95 = {}; }
@@ -5480,7 +5348,6 @@ function setWeekLockStateV95(week, locked){
 refreshLockedWeeks = function(rows){
   lockedWeeks = new Set();
   const recent = new Set(recentFourWeeksV95());
-  // start from local cache so refresh does not lose manually confirmed lock state
   Object.keys(weekLockStateV95 || {}).forEach(w=>{ if(weekLockStateV95[w] && recent.has(w)) lockedWeeks.add(w); });
   const grouped = {};
   (rows || []).forEach(row=>{
@@ -5505,7 +5372,6 @@ isWeekLocked = function(week){
 
 async function refreshRecentWeekLockStatesV95(){
   const recent = recentFourWeeksV95();
-  // Full fetch first: fastest if API is healthy
   try{
     const rows = await fetchRows();
     if(rows.length) LOCK_FIELD = detectLockFieldV95(rows[0]);
@@ -5514,7 +5380,6 @@ async function refreshRecentWeekLockStatesV95(){
   }catch(e){
     console.warn('全量读取锁状态失败，改为按周读取：', e);
   }
-  // Fallback by week; do not show blocking popup
   for(const w of recent){
     try{
       const rows = await fetchRowsByWeek(w);
@@ -5549,7 +5414,6 @@ function syncWeekChipLockClassV95(){
   });
 }
 function syncWeekLockUIV95(){
-  // currentWeekRecords is authoritative for the currently selected week
   const w = String(state.week || '');
   if(w && (currentWeekRecords || []).some(r=>String(r.week || '')===w)){
     setWeekLockStateV95(w, (currentWeekRecords || []).some(r=>String(r.week || '')===w && isLocked(r)));
@@ -5629,7 +5493,6 @@ async function setSelectedWeekLockV95(locked){
 lockAllVisibleRows = async function(){ return setSelectedWeekLockV95(true); };
 unlockAllVisibleRows = async function(){ return setSelectedWeekLockV95(false); };
 
-// 保留员工删除列能力
 function collectRecordIdsForRowKeyV95(rowKey){
   const meta = (typeof inlineEditMeta !== 'undefined') ? inlineEditMeta[String(rowKey)] : null;
   const ids = new Set();
@@ -5703,9 +5566,6 @@ setTimeout(async ()=>{
   addDeleteColumnV95();
 },0);
 
-
-
-/* ===== V10.6 EDIT ENHANCED FINAL PATCH：编辑增强 + 最终锁定 + 记忆 + 去今日 ===== */
 (function(){
   const V106_LOCK_EMP = "__WEEK_LOCK__";
   const V106_LOCK_TASK = "__WEEK_LOCK_MARKER__";
@@ -5814,7 +5674,6 @@ setTimeout(async ()=>{
     });
   }
 
-  /* 去掉今日标识：函数 + CSS + DOM 三重保险 */
   window.dayHeaderLabel = function(label, dayChar){ return label; };
   function v106RemoveToday(){
     document.querySelectorAll('.today-badge').forEach(el=>el.remove());
@@ -5862,7 +5721,6 @@ setTimeout(async ()=>{
     };
   }
 
-  /* 记忆上次选择 + 备注默认第一个 */
   function v106GetLast(){ try{return JSON.parse(localStorage.getItem(V106_LAST_KEY)||'{}');}catch(e){return{};} }
   function v106SaveLast(part){ try{localStorage.setItem(V106_LAST_KEY, JSON.stringify(Object.assign({}, v106GetLast(), part||{})));}catch(e){} }
   function v106FirstRemark(task){ const list = (typeof remarkOptionsForTask === 'function' ? remarkOptionsForTask(task) : []) || []; return list.length ? String(list[0]||'') : String(task||''); }
@@ -5893,7 +5751,6 @@ setTimeout(async ()=>{
     };
   }
 
-  /* 最终锁定 / 解锁 */
   window.lockAllVisibleRows = async function(){
     if(!isAdmin()) return v106Msg("只有管理员可以锁定。", false);
     const week = v106CurrentWeek();
@@ -5949,7 +5806,6 @@ setTimeout(async ()=>{
     try{ await v106ClearLock(id); const all=await v106AllRows(); v106RecomputeLockedWeeks(all); if(typeof renderActive==='function') renderActive(); await loadWeekRecords(); v106RemoveToday(); v106Msg("✅ 已解锁。",true); }catch(e){ v106Msg("❌ 解锁失败："+(e&&e.message?e.message:String(e)),false); }
   };
 
-  /* 编辑增强：员工端每行加“编辑”按钮，弹窗修改 工时类别/项目号/单元号/备注 */
   function v106CellText(td){ return String(td ? td.textContent : '').replace(/\s+/g,' ').trim(); }
   function v106MatchRecords(meta){
     return (currentWeekRecords || []).filter(r=>{
@@ -6078,16 +5934,8 @@ setTimeout(async ()=>{
   }, 0);
 })();
 
-
-/* ===== V11.5 FULL FINAL PATCH：完整版本修正，非演示文件 =====
-   1) 编辑弹窗改为“新增单条/多条工时”的卡片选择风格；
-   2) 手机端操作列改为编辑/删除两列大按钮，减少误触；
-   3) 保留原有 CloudBase、锁定/解锁、提交、删除、导出等完整逻辑；
-   4) 强制清理“今日/今天”标识；
-   5) 页脚/标题统一为 V11.5 MES密度与字号平衡版。
-*/
 (function(){
-  const V1010_VERSION = 'V11.5 MES密度与字号平衡版';
+  const V1010_VERSION = 'V12.0 结构优化版';
 
   function msg(text, ok=true){
     if(typeof showStatusModal === 'function') showStatusModal(text, ok);
