@@ -1,10 +1,10 @@
-<!-- VERSION: V11.0 FULL FINAL - CLOUDBASE - UTF8 FIXED -->
+<!-- VERSION: V11.0 FINAL FIX - ACTION BUTTONS + UNIT TWO COLUMNS - UTF8 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统 - V11.0最终版</title>
+  <title>车间工时填报系统 - V11.0最终修复版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1753,51 +1753,108 @@
 
 
 
-/* ===== V11.0 手机端操作列最终修复：编辑/删除完整显示 ===== */
-.v1010-action-col{
-  min-width:132px !important;
-  width:132px !important;
-  max-width:160px !important;
+/* ===== V11.0 最终修复：手机端操作列 + 新增工时单元类两列 ===== */
+/* 1) 主表操作列：加宽并强制编辑/删除上下排列 */
+.main-timesheet-table th.delete-col-v95,
+.main-timesheet-table td.delete-col-v95,
+.main-timesheet-table th.v1010-action-col,
+.main-timesheet-table td.v1010-action-col{
+  width:118px !important;
+  min-width:118px !important;
+  max-width:118px !important;
+  box-sizing:border-box !important;
   text-align:center !important;
+  padding:4px 6px !important;
+  overflow:visible !important;
   white-space:normal !important;
 }
-.v1010-action-wrap{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  justify-content:center !important;
+.main-timesheet-table td.delete-col-v95,
+.main-timesheet-table td.v1010-action-col{
+  height:auto !important;
+  min-height:72px !important;
+  vertical-align:middle !important;
+}
+.main-timesheet-table td.delete-col-v95 .v1010-action-wrap,
+.main-timesheet-table td.v1010-action-col .v1010-action-wrap{
+  display:grid !important;
+  grid-template-columns:1fr !important;
   gap:6px !important;
   width:100% !important;
+  align-items:stretch !important;
 }
-.v1010-edit-btn,
-.v1010-del-btn{
+.main-timesheet-table td.delete-col-v95 button,
+.main-timesheet-table td.v1010-action-col button,
+.main-timesheet-table .v1010-edit-btn,
+.main-timesheet-table .v1010-del-btn,
+.main-timesheet-table .small-btn.edit-btn,
+.main-timesheet-table .small-btn.delete-btn,
+.main-timesheet-table .edit-btn,
+.main-timesheet-table .delete-btn{
   display:block !important;
+  float:none !important;
+  position:static !important;
   width:100% !important;
   min-width:0 !important;
+  max-width:100% !important;
   box-sizing:border-box !important;
-  border:none !important;
-  border-radius:8px !important;
-  padding:7px 0 !important;
+  margin:0 !important;
+  padding:8px 0 !important;
+  border:0 !important;
+  border-radius:10px !important;
   font-size:14px !important;
-  line-height:1.2 !important;
-  color:#fff !important;
+  line-height:1.15 !important;
+  font-weight:900 !important;
   white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
 }
-.v1010-edit-btn{background:#1677d2 !important;}
-.v1010-del-btn{background:#ef4444 !important;}
-@media (max-width:760px){
-  .v1010-action-col{
-    min-width:142px !important;
-    width:142px !important;
+.main-timesheet-table .v1010-edit-btn,
+.main-timesheet-table .small-btn.edit-btn,
+.main-timesheet-table .edit-btn{background:#1677d2 !important;color:#fff !important;}
+.main-timesheet-table .v1010-del-btn,
+.main-timesheet-table .small-btn.delete-btn,
+.main-timesheet-table .delete-btn{background:#ef4444 !important;color:#fff !important;}
+
+/* 手机端再加一层优先级，避免旧样式把按钮压回去 */
+@media(max-width:760px){
+  .main-timesheet-table th.delete-col-v95,
+  .main-timesheet-table td.delete-col-v95,
+  .main-timesheet-table th.v1010-action-col,
+  .main-timesheet-table td.v1010-action-col{
+    width:120px !important;
+    min-width:120px !important;
+    max-width:120px !important;
+    padding:4px 6px !important;
   }
-  .v1010-edit-btn,
-  .v1010-del-btn{
+  .main-timesheet-table td.delete-col-v95 button,
+  .main-timesheet-table td.v1010-action-col button,
+  .main-timesheet-table .v1010-edit-btn,
+  .main-timesheet-table .v1010-del-btn{
     font-size:14px !important;
     padding:8px 0 !important;
   }
 }
-/* ===== V11.0 手机端操作列最终修复结束 ===== */
 
+/* 2) 新增工时弹框：只把“单元类（可多选）”里面的按钮改为两列 */
+.picker-col.unit .picker-list.batch-multi-list,
+.picker-col.unit .batch-multi-list{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:6px !important;
+}
+.picker-col.unit .picker-item{
+  min-height:36px !important;
+  font-size:13px !important;
+  padding:6px 4px !important;
+}
+@media(max-width:760px){
+  .picker-col.unit .picker-list.batch-multi-list,
+  .picker-col.unit .batch-multi-list{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:5px !important;
+  }
+}
+/* ===== V11.0 最终修复结束 ===== */
 </style>
 </head>
 <body>
@@ -1879,7 +1936,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V11.0最终版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V11.0最终修复版</div>
     </div>
   </div>
 
@@ -6027,10 +6084,10 @@ setTimeout(async ()=>{
    2) 手机端操作列改为编辑/删除两列大按钮，减少误触；
    3) 保留原有 CloudBase、锁定/解锁、提交、删除、导出等完整逻辑；
    4) 强制清理“今日/今天”标识；
-   5) 页脚/标题统一为 V11.0最终版。
+   5) 页脚/标题统一为 V11.0最终修复版。
 */
 (function(){
-  const V1010_VERSION = 'V11.0最终版';
+  const V1010_VERSION = 'V11.0最终修复版';
 
   function msg(text, ok=true){
     if(typeof showStatusModal === 'function') showStatusModal(text, ok);
@@ -6369,5 +6426,68 @@ setTimeout(async ()=>{
   setTimeout(normalizeActionColumn, 400);
 })();
 </script>
+
+<script>
+(function(){
+  function v110FinalFixActionButtons(){
+    document.querySelectorAll('table.main-timesheet-table tbody tr').forEach(function(tr){
+      var td = tr.querySelector('td.v1010-action-col') || tr.querySelector('td.delete-col-v95');
+      if(!td) return;
+      var text = (td.textContent || '');
+      var buttons = Array.prototype.slice.call(td.querySelectorAll('button'));
+      if(!buttons.length && text.indexOf('编辑') < 0 && text.indexOf('删除') < 0) return;
+      td.classList.add('delete-col-v95','v1010-action-col');
+      td.style.width = '120px';
+      td.style.minWidth = '120px';
+      td.style.maxWidth = '120px';
+      td.style.overflow = 'visible';
+      td.style.whiteSpace = 'normal';
+      buttons = Array.prototype.slice.call(td.querySelectorAll('button'));
+      if(buttons.length){
+        var wrap = td.querySelector('.v1010-action-wrap');
+        if(!wrap){
+          wrap = document.createElement('div');
+          wrap.className = 'v1010-action-wrap';
+          buttons.forEach(function(btn){ wrap.appendChild(btn); });
+          td.innerHTML = '';
+          td.appendChild(wrap);
+        }
+        Array.prototype.slice.call(td.querySelectorAll('button')).forEach(function(btn){
+          var label = (btn.textContent || '').trim();
+          if(label.indexOf('编辑') >= 0 || label.indexOf('修改') >= 0){
+            btn.textContent = '编辑';
+            btn.classList.add('v1010-edit-btn');
+          }
+          if(label.indexOf('删除') >= 0){
+            btn.textContent = '删除';
+            btn.classList.add('v1010-del-btn');
+          }
+        });
+      }
+    });
+  }
+  var oldRender = window.renderWeekRecords;
+  if(typeof oldRender === 'function' && !window.__v110FinalActionPatch){
+    window.__v110FinalActionPatch = true;
+    window.renderWeekRecords = function(){
+      var result = oldRender.apply(this, arguments);
+      v110FinalFixActionButtons();
+      setTimeout(v110FinalFixActionButtons, 0);
+      setTimeout(v110FinalFixActionButtons, 150);
+      return result;
+    };
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      v110FinalFixActionButtons();
+      setTimeout(v110FinalFixActionButtons, 300);
+    });
+  }else{
+    v110FinalFixActionButtons();
+    setTimeout(v110FinalFixActionButtons, 300);
+  }
+})();
+</script>
+
 </body>
 </html>
