@@ -1,10 +1,10 @@
-<!-- VERSION: V11.2 FINAL - FONT NORMAL + EDIT DELETE TWO COLUMNS + UNIT TWO COLUMNS + EDIT UI UNIFIED - UTF8 -->
+<!-- VERSION: V11.3 MES VISUAL OPTIMIZED - UTF8 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>车间工时填报系统</title>
+  <title>车间工时填报系统 - V11.3 MES视觉优化版</title>
   <style>
     :root{
       --brand:#0078d4;
@@ -1753,12 +1753,65 @@
 
 
 
-/* ===== V11.2 最终修复：字体正常 + 编辑/删除拆列 + 单元类两列 + 编辑界面统一 ===== */
+/* ===== V11.3 MES视觉优化版：工业风低对比 + 编辑删除拆列 + 单元两列 + 编辑界面统一 ===== */
+:root{
+  --brand:#1769aa !important;
+  --ok:#16a34a !important;
+  --danger:#dc2626 !important;
+  --line:#cbd5e1 !important;
+  --text:#1f2937 !important;
+  --sub:#64748b !important;
+  --shadow:0 4px 14px rgba(15,23,42,.08) !important;
+}
+body{
+  background:#eef2f6 !important;
+  color:#1f2937 !important;
+  font-family:Arial,"Microsoft YaHei",sans-serif !important;
+  font-size:14px !important;
+}
+.header{
+  background:#1f4e79 !important;
+  color:#fff !important;
+  font-size:20px !important;
+  font-weight:600 !important;
+  letter-spacing:.5px !important;
+  padding:12px !important;
+}
+.card{
+  border-radius:12px !important;
+  box-shadow:0 3px 12px rgba(15,23,42,.08) !important;
+  border:1px solid #d8e0ea !important;
+}
+.sec-title,
+.batch-section-title{
+  color:#1f4e79 !important;
+  font-size:14px !important;
+  font-weight:600 !important;
+}
+button,.btn,.week-btn,.picker-card,.picker-item{
+  font-weight:500 !important;
+}
+.table-scroll{
+  border-radius:10px !important;
+  border:1px solid #cbd5e1 !important;
+}
+.main-timesheet-table th,
+.raw-record-table th{
+  background:#e6edf5 !important;
+  color:#1f4e79 !important;
+  font-weight:600 !important;
+}
+.main-timesheet-table td,
+.raw-record-table td{
+  font-weight:400 !important;
+  color:#1f2937 !important;
+}
+
 /* 1. 编辑、删除拆成两个独立表格列 */
-.main-timesheet-table th.v112-edit-head,
-.main-timesheet-table th.v112-delete-head,
-.main-timesheet-table td.v112-edit-cell,
-.main-timesheet-table td.v112-delete-cell{
+.main-timesheet-table th.v113-edit-head,
+.main-timesheet-table th.v113-delete-head,
+.main-timesheet-table td.v113-edit-cell,
+.main-timesheet-table td.v113-delete-cell{
   width:56px !important;
   min-width:56px !important;
   max-width:56px !important;
@@ -1768,8 +1821,8 @@
   vertical-align:middle !important;
   white-space:nowrap !important;
 }
-.main-timesheet-table .v112-table-edit-btn,
-.main-timesheet-table .v112-table-delete-btn{
+.main-timesheet-table .v113-table-edit-btn,
+.main-timesheet-table .v113-table-delete-btn{
   display:block !important;
   width:100% !important;
   min-width:0 !important;
@@ -1778,40 +1831,40 @@
   margin:0 !important;
   padding:7px 0 !important;
   border:0 !important;
-  border-radius:8px !important;
+  border-radius:7px !important;
   font-size:13px !important;
   line-height:1.15 !important;
   font-weight:500 !important;
   color:#fff !important;
   white-space:nowrap !important;
 }
-.main-timesheet-table .v112-table-edit-btn{background:#1677d2 !important;}
-.main-timesheet-table .v112-table-delete-btn{background:#ef4444 !important;}
-.main-timesheet-table .v112-muted{font-size:11px;color:#94a3b8;font-weight:500;}
+.main-timesheet-table .v113-table-edit-btn{background:#2563eb !important;}
+.main-timesheet-table .v113-table-delete-btn{background:#dc2626 !important;}
+.main-timesheet-table .v113-muted{font-size:11px;color:#94a3b8;font-weight:500;}
 @media(max-width:760px){
-  .main-timesheet-table th.v112-edit-head,
-  .main-timesheet-table th.v112-delete-head,
-  .main-timesheet-table td.v112-edit-cell,
-  .main-timesheet-table td.v112-delete-cell{
+  .main-timesheet-table th.v113-edit-head,
+  .main-timesheet-table th.v113-delete-head,
+  .main-timesheet-table td.v113-edit-cell,
+  .main-timesheet-table td.v113-delete-cell{
     width:54px !important;
     min-width:54px !important;
     max-width:54px !important;
     padding:3px !important;
   }
-  .main-timesheet-table .v112-table-edit-btn,
-  .main-timesheet-table .v112-table-delete-btn{
+  .main-timesheet-table .v113-table-edit-btn,
+  .main-timesheet-table .v113-table-delete-btn{
     font-size:13px !important;
     padding:7px 0 !important;
   }
 }
 
-/* 2. 新增 + 编辑：单元类强制两列，覆盖 auto-fit */
+/* 2. 新增 + 编辑：单元类强制两列 */
 .picker-col.unit .picker-list,
 .picker-col.unit .batch-multi-list,
-.picker-col.unit .v112-unit-two-col,
+.picker-col.unit .v113-unit-two-col,
 .v1010-edit-panel .picker-col.unit .picker-list,
 .v1010-edit-panel .picker-col.unit .batch-multi-list,
-.v1010-edit-panel .picker-col.unit .v112-unit-two-col{
+.v1010-edit-panel .picker-col.unit .v113-unit-two-col{
   display:grid !important;
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   gap:5px !important;
@@ -1824,32 +1877,46 @@
   font-weight:500 !important;
 }
 
-/* 3. 编辑弹框统一成新增弹框风格，但字体不加粗、字号放大 */
+/* 3. 新增/编辑弹框 MES视觉：灰白卡片、蓝灰标题、正常字号 */
+.picker-panel,
+.v1010-edit-panel{
+  background:#f8fafc !important;
+  border-radius:14px !important;
+  border:1px solid #cbd5e1 !important;
+  box-shadow:0 16px 36px rgba(15,23,42,.18) !important;
+}
+.picker-head,
+.v1010-edit-title-row{
+  background:#e6edf5 !important;
+  border-radius:10px !important;
+  padding:9px 10px !important;
+  margin-bottom:10px !important;
+}
 .v1010-edit-mask{position:fixed!important;inset:0!important;z-index:9999!important;background:rgba(15,23,42,.45)!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;padding:0!important;overflow:auto!important;}
-.v1010-edit-panel{width:min(440px,100vw)!important;max-height:100vh!important;overflow:auto!important;background:#fff!important;border-radius:16px!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important;padding:12px 14px 12px!important;font-size:14px!important;font-weight:400!important;}
+.v1010-edit-panel{width:min(440px,100vw)!important;max-height:100vh!important;overflow:auto!important;padding:12px 14px 12px!important;font-size:14px!important;font-weight:400!important;}
 .v1010-edit-panel *{font-weight:400!important;}
-.v1010-edit-title-row{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:10px!important;}
-.v1010-edit-title{font-size:17px!important;font-weight:500!important;color:#111827!important;}
-.v1010-edit-close{border:0!important;border-radius:12px!important;background:#e5e7eb!important;color:#111827!important;font-weight:500!important;padding:8px 12px!important;font-size:14px!important;}
-.v1010-edit-panel .batch-summary{font-size:14px!important;font-weight:500!important;}
-.v1010-edit-panel .batch-section-title{font-size:14px!important;font-weight:500!important;}
+.v1010-edit-title-row{display:flex!important;align-items:center!important;justify-content:space-between!important;}
+.v1010-edit-title{font-size:17px!important;font-weight:600!important;color:#1f4e79!important;}
+.v1010-edit-close{border:0!important;border-radius:10px!important;background:#dbe4ef!important;color:#1f2937!important;font-weight:500!important;padding:8px 12px!important;font-size:14px!important;}
+.v1010-edit-panel .batch-summary{font-size:14px!important;font-weight:500!important;background:#eef6ff!important;color:#1f4e79!important;border:1px solid #c9dff5!important;border-radius:10px!important;padding:8px 10px!important;}
+.v1010-edit-panel .batch-section-title{font-size:14px!important;font-weight:600!important;color:#1f4e79!important;}
 .v1010-edit-panel .picker-grid,.v1010-edit-panel .batch-compact-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;}
-.v1010-edit-panel .picker-card{min-height:40px!important;border:1px solid #d7dde5!important;border-radius:10px!important;background:#f8fbff!important;color:#0f4c81!important;font-size:14px!important;font-weight:500!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;box-shadow:0 1px 4px rgba(15,23,42,.06)!important;}
-.v1010-edit-panel .picker-card.active{border-color:#22c55e!important;background:#dcfce7!important;color:#166534!important;box-shadow:0 0 0 1px rgba(34,197,94,.25)!important;}
+.v1010-edit-panel .picker-card{min-height:40px!important;border:1px solid #d1d9e6!important;border-radius:10px!important;background:#fff!important;color:#1f4e79!important;font-size:14px!important;font-weight:500!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;box-shadow:0 1px 3px rgba(15,23,42,.05)!important;}
+.v1010-edit-panel .picker-card.active{border-color:#16a34a!important;background:#e8f7ee!important;color:#166534!important;box-shadow:none!important;}
 .v1010-edit-panel .picker-columns{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;}
-.v1010-edit-panel .picker-col{border:1px solid #d7dde5!important;border-radius:14px!important;overflow:hidden!important;background:#fff!important;}
-.v1010-edit-panel .picker-col-title{padding:8px 6px!important;font-size:14px!important;font-weight:500!important;text-align:center!important;border-bottom:1px solid #d7dde5!important;}
-.v1010-edit-panel .picker-col.unit .picker-col-title{background:#e8f4ff!important;color:#0f4c81!important;}
-.v1010-edit-panel .picker-col.container .picker-col-title{background:#fff4e6!important;color:#b45309!important;}
+.v1010-edit-panel .picker-col{border:1px solid #d1d9e6!important;border-radius:12px!important;overflow:hidden!important;background:#fff!important;}
+.v1010-edit-panel .picker-col-title{padding:8px 6px!important;font-size:14px!important;font-weight:600!important;text-align:center!important;border-bottom:1px solid #d1d9e6!important;}
+.v1010-edit-panel .picker-col.unit .picker-col-title{background:#e7f1fb!important;color:#1f4e79!important;}
+.v1010-edit-panel .picker-col.container .picker-col-title{background:#f8efe2!important;color:#9a5b00!important;}
 .v1010-edit-panel .batch-multi-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;padding:6px!important;max-height:300px!important;overflow:auto!important;}
-.v1010-edit-panel .picker-item{min-height:38px!important;border:1px solid #e5e7eb!important;border-radius:8px!important;background:#f8fbff!important;color:#0f4c81!important;font-size:14px!important;font-weight:500!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;}
-.v1010-edit-panel .picker-item.active{border-color:#22c55e!important;background:#dcfce7!important;color:#166534!important;}
+.v1010-edit-panel .picker-item{min-height:38px!important;border:1px solid #d1d9e6!important;border-radius:8px!important;background:#fff!important;color:#1f4e79!important;font-size:14px!important;font-weight:500!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;}
+.v1010-edit-panel .picker-item.active{border-color:#16a34a!important;background:#e8f7ee!important;color:#166534!important;}
 .v1010-edit-panel .remark-picker-custom{display:grid!important;grid-template-columns:1fr 76px!important;gap:6px!important;margin-bottom:8px!important;}
-.v1010-edit-panel .remark-picker-input{height:42px!important;border:1px solid #cbd5e1!important;border-radius:10px!important;padding:0 10px!important;font-size:15px!important;font-weight:400!important;}
-.v1010-edit-panel .remark-picker-apply{height:42px!important;border:0!important;border-radius:10px!important;background:#0078d4!important;color:#fff!important;font-size:14px!important;font-weight:500!important;}
+.v1010-edit-panel .remark-picker-input{height:42px!important;border:1px solid #cbd5e1!important;border-radius:10px!important;padding:0 10px!important;font-size:15px!important;font-weight:400!important;background:#fff!important;}
+.v1010-edit-panel .remark-picker-apply{height:42px!important;border:0!important;border-radius:10px!important;background:#2563eb!important;color:#fff!important;font-size:14px!important;font-weight:500!important;}
 .v1010-edit-panel .batch-cancel-btn,
-.v1010-edit-panel .batch-confirm-btn{font-size:15px!important;font-weight:500!important;}
-/* ===== V11.2 最终修复结束 ===== */
+.v1010-edit-panel .batch-confirm-btn{font-size:15px!important;font-weight:500!important;border-radius:10px!important;}
+/* ===== V11.3 MES视觉优化结束 ===== */
 </style>
 </head>
 <body>
@@ -1931,7 +1998,7 @@
         </div>
       </div>
       <div id="msg" class="msg"></div>
-      <div class="foot">Ningbo Workshop Timesheet · V11.2最终修复版</div>
+      <div class="foot">Ningbo Workshop Timesheet · V11.3 MES视觉优化版</div>
     </div>
   </div>
 
@@ -3991,7 +4058,7 @@ function renderBatchCreatePicker(){
     const containerList = units.filter(u=>isContainerUnit(u));
     const makeUnit = (list, cls)=> list.length ? list.map(u=>'<div class="picker-item '+cls+' '+(batchDraft.units.includes(String(u))?'active':'')+'" onclick="batchToggleUnit(\''+safe(u)+'\')">'+safe(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
     unitHtml = '<div class="batch-unit-tools"><button type="button" class="batch-mini-btn" onclick="batchDraft.units=batchCurrentUnits().map(String);renderBatchCreatePicker();">全选</button><button type="button" class="batch-mini-btn" onclick="batchDraft.units=[];renderBatchCreatePicker();">清空</button><span>已选 '+batchDraft.units.length+' 个</span></div>'
-      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v112-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
+      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v113-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
   }
   const remarks = batchDraft.task ? combinedRemarkOptionsForRow({task:batchDraft.task, remark:batchDraft.remark}) : [];
   let remarkHtml = batchDraft.task ? '<div class="remark-picker-custom"><input id="batchRemarkInput" class="remark-picker-input" value="'+safe(batchDraft.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="batchApplyCustomRemark()">应用</button></div>' : '<div class="picker-empty">选择工时类别后显示备注</div>';
@@ -4921,7 +4988,7 @@ function renderBatchCreatePicker(){
     const containerList = units.filter(u=>isContainerUnit(u));
     const makeUnit = (list, cls)=> list.length ? list.map(u=>'<div class="picker-item '+cls+' '+(batchDraft.units.includes(String(u))?'active':'')+'" onclick="batchToggleUnit(\''+safe(u)+'\')">'+safe(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
     unitHtml = '<div class="batch-unit-tools"><button type="button" class="batch-mini-btn" onclick="batchDraft.units=batchCurrentUnits().map(String);renderBatchCreatePicker();">全选</button><button type="button" class="batch-mini-btn" onclick="batchDraft.units=[];renderBatchCreatePicker();">清空</button><span>已选 '+batchDraft.units.length+' 个</span></div>'
-      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v112-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
+      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v113-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
   }
   const remarks = batchDraft.task ? combinedRemarkOptionsForRow({task:batchDraft.task, remark:batchDraft.remark}) : [];
   let remarkHtml = batchDraft.task ? '<div class="remark-picker-custom batch-remark-input-row"><input id="batchRemarkInput" class="remark-picker-input" value="'+safe(batchDraft.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="batchApplyCustomRemark()">应用</button></div>' + batchRemarkGrid(remarks) : '<div class="picker-empty">选择工时类别后显示备注</div>';
@@ -4998,7 +5065,7 @@ function renderBatchCreatePicker(){
     const containerList = units.filter(u=>isContainerUnit(u));
     const makeUnit = (list, cls)=> list.length ? list.map(u=>'<div class="picker-item '+cls+' '+(batchDraft.units.includes(String(u))?'active':'')+'" onclick="batchToggleUnit(\''+safe(u)+'\')">'+safe(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
     unitHtml = '<div class="batch-unit-tools"><button type="button" class="batch-mini-btn" onclick="batchDraft.units=batchCurrentUnits().map(String);renderBatchCreatePicker();">全选</button><button type="button" class="batch-mini-btn" onclick="batchDraft.units=[];renderBatchCreatePicker();">清空</button><span>已选 '+batchDraft.units.length+' 个</span></div>'
-      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v112-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
+      + '<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v113-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
   }
   const remarks = batchDraft.task ? combinedRemarkOptionsForRow({task:batchDraft.task, remark:batchDraft.remark}) : [];
   let remarkHtml = batchDraft.task ? '<div class="remark-picker-custom batch-remark-input-row"><input id="batchRemarkInput" class="remark-picker-input" value="'+safe(batchDraft.remark || "")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="batchApplyCustomRemark()">应用</button></div>' + batchRemarkGrid(remarks) : '<div class="picker-empty">选择工时类别后显示备注</div>';
@@ -5133,7 +5200,7 @@ function renderBatchCreatePicker(){
     const units=batchCurrentUnits(), unitList=units.filter(u=>!isContainerUnit(u)), containerList=units.filter(u=>isContainerUnit(u));
     const makeUnit=(list,cls)=>list.length?list.map(u=>'<div class="picker-item '+cls+' '+(batchDraft.units.includes(String(u))?'active':'')+'" onclick="batchToggleUnit(\''+safe(u)+'\')">'+safe(u)+'</div>').join(''):'<div class="picker-empty">暂无</div>';
     unitHtml='<div class="batch-unit-tools"><button type="button" class="batch-mini-btn" onclick="batchDraft.units=batchCurrentUnits().map(String);renderBatchCreatePicker();">全选</button><button type="button" class="batch-mini-btn" onclick="batchDraft.units=[];renderBatchCreatePicker();">清空</button><span>已选 '+batchDraft.units.length+' 个</span></div>'
-      +'<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v112-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
+      +'<div class="picker-columns"><div class="picker-col unit"><div class="picker-col-title">单元类（可多选）</div><div class="picker-list batch-multi-list v113-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+makeUnit(unitList,'unit')+'</div></div><div class="picker-col container"><div class="picker-col-title">容器类（可多选）</div><div class="picker-list batch-multi-list">'+makeUnit(containerList,'container')+'</div></div></div>';
   }
   const remarks=batchDraft.task?combinedRemarkOptionsForRow({task:batchDraft.task,remark:batchDraft.remark}):[];
   const remarkHtml=batchDraft.task?'<div class="remark-picker-custom batch-remark-input-row"><input id="batchRemarkInput" class="remark-picker-input" value="'+safe(batchDraft.remark||"")+'" placeholder="可直接输入自定义备注"><button type="button" class="remark-picker-apply" onclick="batchApplyCustomRemark()">应用</button></div>'+batchRemarkGrid(remarks):'<div class="picker-empty">选择工时类别后显示备注</div>';
@@ -6074,15 +6141,15 @@ setTimeout(async ()=>{
 })();
 
 
-/* ===== V11.2 FULL FINAL PATCH：完整版本修正，非演示文件 =====
+/* ===== V11.3 FULL FINAL PATCH：完整版本修正，非演示文件 =====
    1) 编辑弹窗改为“新增单条/多条工时”的卡片选择风格；
    2) 手机端操作列改为编辑/删除两列大按钮，减少误触；
    3) 保留原有 CloudBase、锁定/解锁、提交、删除、导出等完整逻辑；
    4) 强制清理“今日/今天”标识；
-   5) 页脚/标题统一为 V11.2最终修复版。
+   5) 页脚/标题统一为 V11.3 MES视觉优化版。
 */
 (function(){
-  const V1010_VERSION = 'V11.2最终修复版';
+  const V1010_VERSION = 'V11.3 MES视觉优化版';
 
   function msg(text, ok=true){
     if(typeof showStatusModal === 'function') showStatusModal(text, ok);
@@ -6248,7 +6315,7 @@ setTimeout(async ()=>{
       const containerList = units.filter(u=>isContainerUnit(u)).sort(sorter);
       const make = list => list.length ? list.map(u=>'<div class="picker-item '+(String(draft.unit)===String(u)?'active':'')+'" data-click="unit" data-value="'+esc(u)+'">'+esc(u)+'</div>').join('') : '<div class="picker-empty">暂无</div>';
       return '<div class="picker-columns">'
-        + '<div class="picker-col unit"><div class="picker-col-title">单元类（单选）</div><div class="picker-list batch-multi-list v112-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+make(unitList)+'</div></div>'
+        + '<div class="picker-col unit"><div class="picker-col-title">单元类（单选）</div><div class="picker-list batch-multi-list v113-unit-two-col" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;">'+make(unitList)+'</div></div>'
         + '<div class="picker-col container"><div class="picker-col-title">容器类（单选）</div><div class="picker-list batch-multi-list">'+make(containerList)+'</div></div>'
         + '</div>';
     };
@@ -6317,26 +6384,26 @@ setTimeout(async ()=>{
     removeToday();
     const table = document.querySelector('.main-timesheet-table');
     if(!table) return;
-    table.querySelectorAll('.v106-edit-head,.v106-edit-cell,.v107-action-col,.v108-action-col,.v1010-action-col,.delete-col-v95,.v112-edit-head,.v112-delete-head,.v112-edit-cell,.v112-delete-cell').forEach(el=>el.remove());
+    table.querySelectorAll('.v106-edit-head,.v106-edit-cell,.v107-action-col,.v108-action-col,.v1010-action-col,.delete-col-v95,.v113-edit-head,.v113-delete-head,.v113-edit-cell,.v113-delete-cell').forEach(el=>el.remove());
     const headRows = table.querySelectorAll('thead tr');
     if(headRows[0]){
-      const thEdit=document.createElement('th'); thEdit.className='v112-edit-head'; thEdit.rowSpan=2; thEdit.textContent='编辑';
-      const thDelete=document.createElement('th'); thDelete.className='v112-delete-head'; thDelete.rowSpan=2; thDelete.textContent='删除';
+      const thEdit=document.createElement('th'); thEdit.className='v113-edit-head'; thEdit.rowSpan=2; thEdit.textContent='编辑';
+      const thDelete=document.createElement('th'); thDelete.className='v113-delete-head'; thDelete.rowSpan=2; thDelete.textContent='删除';
       headRows[0].appendChild(thEdit); headRows[0].appendChild(thDelete);
     }
     table.querySelectorAll('tbody tr').forEach(tr=>{
-      tr.querySelectorAll('.v106-edit-cell,.v107-action-col,.v108-action-col,.v1010-action-col,.delete-col-v95,.v112-edit-cell,.v112-delete-cell').forEach(el=>el.remove());
+      tr.querySelectorAll('.v106-edit-cell,.v107-action-col,.v108-action-col,.v1010-action-col,.delete-col-v95,.v113-edit-cell,.v113-delete-cell').forEach(el=>el.remove());
       const tdEdit=document.createElement('td'); const tdDelete=document.createElement('td');
-      tdEdit.className='v112-edit-cell'; tdDelete.className='v112-delete-cell';
-      if(tr.classList.contains('integrated-input-row')){ tdEdit.innerHTML='<span class="v112-muted">草稿</span>'; tr.appendChild(tdEdit); tr.appendChild(tdDelete); return; }
+      tdEdit.className='v113-edit-cell'; tdDelete.className='v113-delete-cell';
+      if(tr.classList.contains('integrated-input-row')){ tdEdit.innerHTML='<span class="v113-muted">草稿</span>'; tr.appendChild(tdEdit); tr.appendChild(tdDelete); return; }
       if(!isDataRow(tr)){ tr.appendChild(tdEdit); tr.appendChild(tdDelete); return; }
       const input=tr.querySelector('.inline-hour-input[data-row-key]');
       const rowKey=input ? input.getAttribute('data-row-key') : '';
       const locked=isLockedWeek();
-      tdEdit.innerHTML='<button type="button" class="v112-table-edit-btn" '+(locked?'disabled':'')+'>编辑</button>';
-      tdDelete.innerHTML='<button type="button" class="v112-table-delete-btn" '+(locked?'disabled':'')+'>删除</button>';
-      tdEdit.querySelector('.v112-table-edit-btn').onclick=()=>openCardEdit(metaFromRow(tr));
-      tdDelete.querySelector('.v112-table-delete-btn').onclick=()=>{ if(locked) return; if(typeof deleteMainRowV95 === 'function' && rowKey) deleteMainRowV95(rowKey); };
+      tdEdit.innerHTML='<button type="button" class="v113-table-edit-btn" '+(locked?'disabled':'')+'>编辑</button>';
+      tdDelete.innerHTML='<button type="button" class="v113-table-delete-btn" '+(locked?'disabled':'')+'>删除</button>';
+      tdEdit.querySelector('.v113-table-edit-btn').onclick=()=>openCardEdit(metaFromRow(tr));
+      tdDelete.querySelector('.v113-table-delete-btn').onclick=()=>{ if(locked) return; if(typeof deleteMainRowV95 === 'function' && rowKey) deleteMainRowV95(rowKey); };
       tr.appendChild(tdEdit); tr.appendChild(tdDelete);
     });
   }
