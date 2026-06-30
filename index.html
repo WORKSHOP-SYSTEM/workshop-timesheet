@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>车间工时填报系统 V4.4</title>
+<title>车间工时填报系统 V4.4.1</title>
 <style>
 :root{
   --primary:#1f4e79;--primary2:#2f75b5;--bg:#eef2f6;--card:#fff;--line:#cfd8e3;--head:#e8edf3;--sub:#f5f7fa;--danger:#d9534f;--ok:#198754;--warn:#f0ad4e;--text:#1f2937;--blue:#0078d4;
@@ -83,15 +83,126 @@ table td,table th{padding:2px}
   table td,table th{padding:1px}
 }
 
+
+
+/* ===== V4.4.1 桌面宽度 + 手机冻结列加强 ===== */
+@media (min-width: 1024px){
+  .header,
+  .role-switch,
+  #empView,
+  #adminView{
+    max-width:1440px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .header{border-radius:0 0 0 0;}
+}
+
+/* 表格整体宽度收敛：桌面不无限拉宽，手机仍可横滑 */
+table{
+  min-width:1280px !important;
+  table-layout:fixed;
+}
+
+/* 前置信息四列统一宽度：类别/项目/单元/备注 */
+table th:nth-child(1), table td:nth-child(1){
+  width:64px!important;min-width:64px!important;max-width:64px!important;
+}
+table th:nth-child(2), table td:nth-child(2){
+  width:66px!important;min-width:66px!important;max-width:66px!important;
+}
+table th:nth-child(3), table td:nth-child(3){
+  width:58px!important;min-width:58px!important;max-width:58px!important;
+}
+table th:nth-child(4), table td:nth-child(4){
+  width:72px!important;min-width:72px!important;max-width:72px!important;
+}
+
+/* 冻结左侧四列：包含表头、内容、底部汇总 */
+table th:nth-child(1), table td:nth-child(1){
+  position:sticky!important;left:0!important;z-index:20;background:#fff;
+}
+table th:nth-child(2), table td:nth-child(2){
+  position:sticky!important;left:64px!important;z-index:20;background:#fff;
+}
+table th:nth-child(3), table td:nth-child(3){
+  position:sticky!important;left:130px!important;z-index:20;background:#fff;
+}
+table th:nth-child(4), table td:nth-child(4){
+  position:sticky!important;left:188px!important;z-index:20;background:#fff;
+  box-shadow:3px 0 4px rgba(0,0,0,.06);
+}
+
+/* 冻结列的表头要压住普通表头 */
+table thead th:nth-child(1),
+table thead th:nth-child(2),
+table thead th:nth-child(3),
+table thead th:nth-child(4){
+  z-index:35!important;
+  background:#e8edf3!important;
+}
+
+/* 冻结列的底部汇总要压住普通汇总 */
+table tfoot td:nth-child(1),
+table tfoot td:nth-child(2),
+table tfoot td:nth-child(3),
+table tfoot td:nth-child(4){
+  z-index:34!important;
+  background:#f8fafc!important;
+}
+
+/* 周一到周日工时列进一步压缩 */
+table td:nth-child(n+5), table th:nth-child(n+5){
+  min-width:48px;
+}
+.time-cell{
+  width:38px!important;
+  height:26px!important;
+  font-size:12px!important;
+  padding:0!important;
+}
+.time-wrap{min-width:38px!important;}
+
+/* 表头和底部汇总保持冻结，不被横滑破坏 */
+thead th{
+  position:sticky!important;
+  top:0!important;
+  z-index:15;
+}
+thead tr:nth-child(2) th{
+  top:30px!important;
+  z-index:14;
+}
+tfoot td{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:13;
+}
+
+/* 手机端继续压缩，同时保证固定列更稳定 */
+@media(max-width:768px){
+  table{min-width:1080px!important;font-size:11px!important;}
+  .table-wrap{max-height:calc(100vh - 245px);}
+  table th,table td{height:30px!important;padding:1px!important;}
+  table th:nth-child(1), table td:nth-child(1){width:60px!important;min-width:60px!important;max-width:60px!important;left:0!important;}
+  table th:nth-child(2), table td:nth-child(2){width:62px!important;min-width:62px!important;max-width:62px!important;left:60px!important;}
+  table th:nth-child(3), table td:nth-child(3){width:54px!important;min-width:54px!important;max-width:54px!important;left:122px!important;}
+  table th:nth-child(4), table td:nth-child(4){width:66px!important;min-width:66px!important;max-width:66px!important;left:176px!important;}
+  table td:nth-child(n+5), table th:nth-child(n+5){min-width:42px!important;}
+  .time-cell{width:34px!important;height:24px!important;font-size:12px!important;}
+  .time-wrap{min-width:34px!important;}
+  thead tr:nth-child(2) th{top:30px!important;}
+}
+
 </style>
 </head>
 <body>
-<div class="header">车间工时填报系统 V4.4</div>
+<div class="header">车间工时填报系统 V4.4.1</div>
 <div class="role-switch"><button class="primary" onclick="showEmp()">员工界面</button><button onclick="showAdmin()">管理员界面</button></div>
 <div id="empView">
   <div class="card info"><span>员工：<b id="empName">测试</b></span><span>工号：<b id="empNo">000001</b></span><span class="badge">已验证</span></div>
   <div class="week-section"><div class="week-title">Week</div><div class="week-card-row" id="weekCardRow"></div></div>
-  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.4：周卡片｜手机密集优化｜固定列｜压缩布局｜实时保存提示｜锁定标识｜每日逻辑锁定</span></div>
+  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.4.1：桌面宽度优化｜手机固定列加强｜表头/汇总冻结｜压缩布局</span></div>
   <div class="card table-wrap"><table id="empTable"></table></div>
 </div>
 <div id="adminView" style="display:none;">
