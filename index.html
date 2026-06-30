@@ -4702,6 +4702,59 @@ setTimeout(async ()=>{
 })();
 /*V13.4.1-STABILITY-FIX-JS-END*/
 </script>
+<script>
+/* ===== V13.4.2：关闭自动跳转（竖向连续输入禁用） ===== */
+
+/**
+ * 核心思路：
+ * 1. 拦截所有输入框自动跳转行为
+ * 2. 禁止 focusNextInput / moveDown / autoJump 逻辑执行
+ * 3. 保证修改单个单元格时不会跳行
+ */
+
+/* ===== 1. 全局关闭开关 ===== */
+window.DISABLE_AUTO_JUMP_V1342 = true;
+
+/* ===== 2. 覆盖自动跳转函数（核心） ===== */
+if (typeof focusNextInput === 'function') {
+    const __old_focusNextInput = focusNextInput;
+    window.focusNextInput = function(){
+        if (window.DISABLE_AUTO_JUMP_V1342) {
+            return; // ✅ 直接拦截
+        }
+        return __old_focusNextInput.apply(this, arguments);
+    };
+}
+
+/* ===== 3. 强制禁止 input / change 后跳转 ===== */
+document.addEventListener('input', function(e){
+    if (!window.DISABLE_AUTO_JUMP_V1342) return;
+    if (e.target && e.target.classList && e.target.classList.contains('inline-hour-input')) {
+        // ✅ 什么都不做，彻底不跳
+    }
+}, true);
+
+/* ===== 4. 禁止 Enter 自动跳转（关键！！） ===== */
+document.addEventListener('keydown', function(e){
+    if (!window.DISABLE_AUTO_JUMP_V1342) return;
+
+    if (e.target && e.target.classList && e.target.classList.contains('inline-hour-input')) {
+        if (e.key === 'Enter') {
+            e.preventDefault();  // ✅ 阻止跳转
+        }
+    }
+}, true);
+
+/* ===== 5. 可选：如果以后你想恢复（保留能力） ===== */
+window.enableAutoJump = function(){
+    window.DISABLE_AUTO_JUMP_V1342 = false;
+};
+
+window.disableAutoJump = function(){
+    window.DISABLE_AUTO_JUMP_V1342 = true;
+};
+
+</script>
 
 </body>
 </html>
