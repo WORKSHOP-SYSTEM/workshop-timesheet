@@ -4702,57 +4702,6 @@ setTimeout(async ()=>{
 })();
 /*V13.4.1-STABILITY-FIX-JS-END*/
 </script>
-<script>
 
-// ===== V14.1 最终增强补丁（完整稳定版） =====
-
-// 1. 禁用跳格
-window.jumpDown = function(){};
-
-// 2. 禁止focus自动跳
-document.addEventListener("focusin", e=>{
-  if(e.target.classList?.contains("inline-hour-input")){
-    e.stopPropagation();
-  }
-});
-
-// 3. 编辑按钮：彻底禁用工时修改
-const oldOpenEdit = window.openEditModal;
-window.openEditModal = function(id){
-  oldOpenEdit(id);
-  setTimeout(()=>{
-    document.querySelectorAll("#editModal .hours-box, #editModal .hour-card")
-      .forEach(el => el.style.display = "none");
-  }, 80);
-};
-
-// 4. 未提交提示增强
-const oldRender = window.renderWeekRecords;
-window.renderWeekRecords = function(rows, err){
-  oldRender(rows, err);
-  document.querySelectorAll(".missing-row td").forEach(td=>{
-    if(td.innerText.includes("整周未提交")){
-      td.innerHTML =
-        '整周未提交工时<br><b>请直接点击“新增单条或多条工时”按钮来提交</b>';
-    }
-  });
-};
-
-// 5. 单格点击稳定（防错）
-document.addEventListener("click", e=>{
-  if(e.target.classList?.contains("inline-hour-input")){
-    e.stopPropagation();
-  }
-});
-
-// 6. 防止误触自动跳定位
-window.applyHourPickerValue = (function(oldFn){
-  return function(v){
-    if(!window.hourPickerContext) return;
-    oldFn(v);
-  };
-})(window.applyHourPickerValue);
-
-</script>
 </body>
 </html>
