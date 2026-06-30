@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>车间工时填报系统 V4.3.2</title>
+<title>车间工时填报系统 V4.4</title>
 <style>
 :root{
   --primary:#1f4e79;--primary2:#2f75b5;--bg:#eef2f6;--card:#fff;--line:#cfd8e3;--head:#e8edf3;--sub:#f5f7fa;--danger:#d9534f;--ok:#198754;--warn:#f0ad4e;--text:#1f2937;--blue:#0078d4;
@@ -55,15 +55,43 @@ tfoot .day-over{background:#ffd6d6!important;color:#991b1b;font-weight:bold;}
 /* 新增弹窗：按用户截图样式 */
 .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;z-index:1000;align-items:center;justify-content:center;padding:8px}.modal-panel{width:min(880px,96vw);max-height:92vh;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column}.modal-head{height:58px;background:#eaf1f8;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-weight:700}.modal-close{background:#eef0f3;color:#111;border-radius:10px;min-width:48px}.modal-body{padding:12px;overflow:auto}.modal-summary{border:1px solid #aee0ff;background:#eefaff;color:#005a8d;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700}.section-title{border-left:4px solid var(--blue);padding-left:8px;margin:10px 0 8px;color:#0b4778;font-weight:700}.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.choice-btn{border:1px solid #d8e2ec;background:#f7fbff;color:#0b5286;border-radius:8px;padding:9px 8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);min-height:38px}.choice-btn.active{background:#d9f7e4;border:2px solid #16a34a;color:#137333;padding:8px 7px}.unit-tools{display:flex;gap:8px;align-items:center;margin:5px 0 8px}.small-pill{background:#eaf6ff;color:#0b5286;border-radius:8px;padding:6px 12px;min-height:30px}.unit-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.unit-panel{border:1px solid #d6e2ee;border-radius:12px;overflow:hidden;background:#fff;min-height:220px}.unit-panel-title{padding:9px;text-align:center;background:#e8f5ff;color:#005a8d;font-weight:700;border-bottom:1px solid #d6e2ee}.unit-panel.container .unit-panel-title{background:#fff3df;color:#b45f00}.unit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:8px}.unit-empty{padding:25px;text-align:center;color:#8aa0b8}.remark-line{display:flex;gap:8px}.remark-line input{flex:1;border:1px solid #c7d7e7;border-radius:9px;padding:0 10px;height:38px;font-weight:700}.apply-btn{background:#0078d4;color:#fff;border-radius:9px;min-width:72px}.modal-foot{display:flex;gap:10px;padding:10px 12px;background:#fff;border-top:1px solid #eef2f6}.modal-foot button{flex:1;height:42px}.generate-btn{background:#16a34a;color:#fff;font-weight:700}.cancel-btn{background:#f3f4f6;color:#111}.split-box{border:1px solid #d6e2ee;border-radius:12px;padding:10px;background:#fbfdff}.split-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.split-row select,.split-row input{height:36px;border:1px solid #d6e2ee;border-radius:8px;padding:0 10px;background:#fff}.muted{font-size:12px;color:#607080;margin-top:6px}
 @media(max-width:768px){body{font-size:13px}.header{font-size:16px;padding:11px 8px}.role-switch{top:42px;padding:8px}.card{margin:7px;border-radius:8px;padding:8px}button{padding:7px 9px;font-size:13px;min-height:33px}.bar{gap:6px}table{font-size:12px;min-width:1540px}th,td{padding:4px 4px;height:32px}thead tr:nth-child(2) th{top:32px}.cell-input{width:50px;height:27px;font-size:12px}.text-input{width:78px}.remark-input{width:115px}.table-wrap{max-height:calc(100vh - 205px)}.modal-mask{align-items:flex-start;padding:44px 10px 8px}.modal-panel{width:100%;max-height:90vh;border-radius:14px}.modal-head{height:52px}.choice-grid{grid-template-columns:repeat(3,1fr);gap:7px}.choice-btn{font-size:14px;padding:9px 4px}.unit-columns{grid-template-columns:1fr 1fr;gap:8px}.unit-grid{grid-template-columns:repeat(2,1fr);gap:6px;padding:6px}.unit-panel{min-height:285px}.modal-foot{position:sticky;bottom:0}.remark-line input{height:40px}.section-title{margin-top:10px}}
+
+/* ===== V4.4 手机密集优化（核心） ===== */
+.table-wrap{overflow-x:auto;}
+
+/* 左侧4列冻结 */
+td:nth-child(1),th:nth-child(1){position:sticky;left:0;background:#fff;z-index:3}
+td:nth-child(2),th:nth-child(2){position:sticky;left:70px;background:#fff;z-index:3}
+td:nth-child(3),th:nth-child(3){position:sticky;left:140px;background:#fff;z-index:3}
+td:nth-child(4),th:nth-child(4){position:sticky;left:200px;background:#fff;z-index:3}
+
+/* 前4列压缩 */
+td:nth-child(1),th:nth-child(1){width:70px}
+td:nth-child(2),th:nth-child(2){width:70px}
+td:nth-child(3),th:nth-child(3){width:60px}
+td:nth-child(4),th:nth-child(4){width:80px}
+
+/* 工时压缩 */
+.time-cell{width:42px;height:28px;font-size:13px;padding:0}
+
+/* 表格紧凑 */
+table td,table th{padding:2px}
+
+/* 手机再压缩 */
+@media(max-width:768px){
+  .time-cell{width:36px;height:26px;font-size:12px}
+  table td,table th{padding:1px}
+}
+
 </style>
 </head>
 <body>
-<div class="header">车间工时填报系统 V4.3.2</div>
+<div class="header">车间工时填报系统 V4.4</div>
 <div class="role-switch"><button class="primary" onclick="showEmp()">员工界面</button><button onclick="showAdmin()">管理员界面</button></div>
 <div id="empView">
   <div class="card info"><span>员工：<b id="empName">测试</b></span><span>工号：<b id="empNo">000001</b></span><span class="badge">已验证</span></div>
   <div class="week-section"><div class="week-title">Week</div><div class="week-card-row" id="weekCardRow"></div></div>
-  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.3.2：周卡片｜实时保存提示｜锁定标识｜每日逻辑锁定</span></div>
+  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.4：周卡片｜手机密集优化｜固定列｜压缩布局｜实时保存提示｜锁定标识｜每日逻辑锁定</span></div>
   <div class="card table-wrap"><table id="empTable"></table></div>
 </div>
 <div id="adminView" style="display:none;">
