@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>车间工时填报系统 V4.4.1</title>
+<title>车间工时填报系统 V4.4.2</title>
 <style>
 :root{
   --primary:#1f4e79;--primary2:#2f75b5;--bg:#eef2f6;--card:#fff;--line:#cfd8e3;--head:#e8edf3;--sub:#f5f7fa;--danger:#d9534f;--ok:#198754;--warn:#f0ad4e;--text:#1f2937;--blue:#0078d4;
@@ -85,7 +85,7 @@ table td,table th{padding:2px}
 
 
 
-/* ===== V4.4.1 桌面宽度 + 手机冻结列加强 ===== */
+/* ===== V4.4.2 桌面宽度 + 手机冻结列加强 ===== */
 @media (min-width: 1024px){
   .header,
   .role-switch,
@@ -194,15 +194,29 @@ tfoot td{
   thead tr:nth-child(2) th{top:30px!important;}
 }
 
+
+/* V4.4.2 滑动最终稳定修复 */
+thead th{z-index:60 !important;}
+td:nth-child(-n+4),th:nth-child(-n+4){z-index:50 !important;}
+tfoot td{z-index:40 !important;}
+tfoot td:nth-child(-n+4){z-index:55 !important;}
+
+/* 极限压缩 */
+td:nth-child(1){width:58px !important}
+td:nth-child(2){width:60px !important}
+td:nth-child(3){width:50px !important}
+td:nth-child(4){width:62px !important}
+.time-cell{width:32px !important;height:24px !important;font-size:11px !important}
+
 </style>
 </head>
 <body>
-<div class="header">车间工时填报系统 V4.4.1</div>
+<div class="header">车间工时填报系统 V4.4.2</div>
 <div class="role-switch"><button class="primary" onclick="showEmp()">员工界面</button><button onclick="showAdmin()">管理员界面</button></div>
 <div id="empView">
   <div class="card info"><span>员工：<b id="empName">测试</b></span><span>工号：<b id="empNo">000001</b></span><span class="badge">已验证</span></div>
   <div class="week-section"><div class="week-title">Week</div><div class="week-card-row" id="weekCardRow"></div></div>
-  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.4.1：桌面宽度优化｜手机固定列加强｜表头/汇总冻结｜压缩布局</span></div>
+  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.4.2：桌面宽度优化｜手机固定列加强｜表头/汇总冻结｜压缩布局</span></div>
   <div class="card table-wrap"><table id="empTable"></table></div>
 </div>
 <div id="adminView" style="display:none;">
