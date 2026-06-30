@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>车间工时填报系统 V4.2.2</title>
+<title>车间工时填报系统 V4.3.2</title>
 <style>
 :root{
   --primary:#1f4e79;--primary2:#2f75b5;--bg:#eef2f6;--card:#fff;--line:#cfd8e3;--head:#e8edf3;--sub:#f5f7fa;--danger:#d9534f;--ok:#198754;--warn:#f0ad4e;--text:#1f2937;--blue:#0078d4;
@@ -16,10 +16,25 @@
 @media(max-width:768px){.time-cell{width:54px;height:34px;font-size:15px;}.action-btn{min-width:46px;height:32px;}}
 
 
-/* V4.2.2 周选择与输入限制 */
+
+/* V4.3.1 周卡片 + 自动保存状态 */
+.week-section{background:#fff;margin:8px 10px;border-radius:10px;padding:8px 10px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.week-title{font-weight:bold;color:#1f4e79;border-left:4px solid #2f75b5;padding-left:7px;margin-bottom:7px;line-height:1.2;}
+.week-card-row{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:6px;}
+.week-card{height:30px;border-radius:7px;border:1px solid #b7d4f1;background:#e8f3ff;color:#1f4e79;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;box-shadow:none;min-height:30px;padding:0 8px;}
+.week-card.current{background:#0b86df;color:#fff;border-color:#0b86df;box-shadow:0 6px 14px rgba(11,134,223,.25);}
+.week-card.locked{background:#ffe1e1;color:#9a1b1b;border-color:#ffc6c6;}
+.week-card.current.locked{background:#c2410c;color:#fff;border-color:#c2410c;box-shadow:0 6px 14px rgba(194,65,12,.25);}
+.autosave-badge{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:999px;background:#eafaf0;color:#15803d;font-size:13px;font-weight:bold;}
+.autosave-badge.saving{background:#fff7ed;color:#c2410c;}
+.autosave-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;}
+.autosave-badge.saving .autosave-dot{background:#f97316;}
+@media(max-width:768px){.week-section{margin:7px;padding:7px}.week-card-row{grid-template-columns:repeat(4,minmax(72px,1fr));gap:5px}.week-card{height:32px;font-size:13px;padding:0 4px}.week-title{font-size:13px}.autosave-badge{font-size:12px;height:26px;padding:0 8px}}
+
+/* V4.3.1 周选择与输入限制 */
 .week-btn{height:28px;min-height:28px;padding:3px 9px;border-radius:7px;background:#eef4fb;color:#1f4e79;border:1px solid #cddbeb;}
 .week-btn.active{background:#1e90ff;color:#fff;border-color:#1e90ff;font-weight:bold;}
-.week-label{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:8px;background:#e8f3ff;color:#1f4e79;font-weight:bold;}
+
 .remain-hint{display:none!important;}
 .time-cell.locked-limit{background:#fff7cc!important;}
 
@@ -43,16 +58,18 @@ tfoot .day-over{background:#ffd6d6!important;color:#991b1b;font-weight:bold;}
 </style>
 </head>
 <body>
-<div class="header">车间工时填报系统 V4.2.2</div>
+<div class="header">车间工时填报系统 V4.3.2</div>
 <div class="role-switch"><button class="primary" onclick="showEmp()">员工界面</button><button onclick="showAdmin()">管理员界面</button></div>
 <div id="empView">
-  <div class="card info"><span>员工：<b id="empName">测试</b></span><span>工号：<b id="empNo">000001</b></span><span class="badge">已验证</span><button class="week-btn" id="weekBtnPrev2" onclick="setWeekOffset(-2)">前两周</button><button class="week-btn" id="weekBtnPrev1" onclick="setWeekOffset(-1)">前一周</button><button class="week-btn active" id="weekBtnCurrent" onclick="setWeekOffset(0)">本周</button><span class="week-label">周数：<b id="weekNo">W27</b></span></div>
-  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><button onclick="saveData();toast('已保存')">保存</button><button onclick="loadData();renderEmp();toast('已重新加载')">刷新数据</button><button class="danger" onclick="clearAllData()">清空本周</button><span class="notice">V4.2.2：周选择｜当前周高亮｜每日逻辑锁定｜手机直接输入</span></div>
+  <div class="card info"><span>员工：<b id="empName">测试</b></span><span>工号：<b id="empNo">000001</b></span><span class="badge">已验证</span></div>
+  <div class="week-section"><div class="week-title">Week</div><div class="week-card-row" id="weekCardRow"></div></div>
+  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.3.2：周卡片｜实时保存提示｜锁定标识｜每日逻辑锁定</span></div>
   <div class="card table-wrap"><table id="empTable"></table></div>
 </div>
 <div id="adminView" style="display:none;">
-  <div class="card info"><span>管理员：Manager</span><button class="week-btn" id="adminWeekBtnPrev2" onclick="setWeekOffset(-2)">前两周</button><button class="week-btn" id="adminWeekBtnPrev1" onclick="setWeekOffset(-1)">前一周</button><button class="week-btn active" id="adminWeekBtnCurrent" onclick="setWeekOffset(0)">本周</button><span class="week-label">周数：<b id="adminWeekNo">W27</b></span><span class="badge">本地数据后台</span></div>
-  <div class="card bar"><button onclick="lockWeek()">锁定</button><button onclick="unlockWeek()">解锁</button><button onclick="exportCSV()">导出CSV</button><select id="typeFilter" onchange="renderAdmin()"><option value="all">全部工时类别</option></select><input id="projectFilter" placeholder="项目筛选" oninput="renderAdmin()"><input id="unitFilter" placeholder="单元筛选" oninput="renderAdmin()"><button onclick="clearFilter()">清除筛选</button></div>
+  <div class="card info"><span>管理员：Manager</span><span class="badge">本地数据后台</span></div>
+  <div class="week-section"><div class="week-title">Week</div><div class="week-card-row" id="adminWeekCardRow"></div></div>
+  <div class="card bar"><button onclick="lockWeek()">锁定</button><button onclick="unlockWeek()">解锁</button><button onclick="exportCSV()">导出CSV</button><span class="autosave-badge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><select id="typeFilter" onchange="renderAdmin()"><option value="all">全部工时类别</option></select><input id="projectFilter" placeholder="项目筛选" oninput="renderAdmin()"><input id="unitFilter" placeholder="单元筛选" oninput="renderAdmin()"><button onclick="clearFilter()">清除筛选</button></div>
   <div class="card table-wrap"><table id="adminTable"></table></div>
 </div>
 <!-- 新增弹窗 -->
@@ -72,7 +89,7 @@ tfoot .day-over{background:#ffd6d6!important;color:#991b1b;font-weight:bold;}
   </div>
 </div>
 <script>
-const STORAGE_PREFIX="workHours_V4_2_2";const LOCK_PREFIX="workHours_V4_2_2_locked";let records=[];let currentWeekOffset=0;
+const STORAGE_PREFIX="workHours_V4_3_2";const LOCK_PREFIX="workHours_V4_3_2_locked";let records=[];let currentWeekOffset=0;
 function getISOWeek(d){const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dayNum=date.getUTCDay()||7;date.setUTCDate(date.getUTCDate()+4-dayNum);const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));return Math.ceil((((date-yearStart)/86400000)+1)/7)}
 function getWeekNo(offset=0){const d=new Date();d.setDate(d.getDate()+offset*7);return "W"+String(getISOWeek(d)).padStart(2,"0")}
 function storageKey(){return STORAGE_PREFIX+"_"+getWeekNo(currentWeekOffset)}
@@ -83,7 +100,17 @@ const projectUnits={"P0351706":["U503","U451","U381","U361","U344","U343","U335"
 let modalState={type:"",project:"",units:[],remark:""};
 function defaultRecord(){return {employee:"测试",empNo:"000001",week:"W27",type:"机械组装",project:"",unit:"",remark:"",monN:0,monO:0,tueN:0,tueO:0,wedN:0,wedO:0,thuN:0,thuO:0,friN:0,friO:0,satO:0,sunO:0}}
 function loadData(){try{const raw=localStorage.getItem(storageKey());records=raw?JSON.parse(raw):[];if(!Array.isArray(records))records=[]}catch(e){records=[]}}
-function saveData(){localStorage.setItem(storageKey(),JSON.stringify(records))}function isLocked(){return localStorage.getItem(lockKey())==="1"}function num(v){let n=parseFloat(v);return isNaN(n)?0:n}function normalTotal(r){return num(r.monN)+num(r.tueN)+num(r.wedN)+num(r.thuN)+num(r.friN)}function weekdayOT(r){return num(r.monO)+num(r.tueO)+num(r.wedO)+num(r.thuO)+num(r.friO)}function weekendOT(r){return num(r.satO)+num(r.sunO)}function toast(msg){alert(msg)}
+function setAutoSaveStatus(text,cls=""){
+  document.querySelectorAll(".autosave-badge").forEach(b=>b.classList.toggle("saving",cls==="saving"));
+  document.querySelectorAll(".autosaveText").forEach(el=>el.innerText=text);
+}
+function saveData(){
+  setAutoSaveStatus("保存中...","saving");
+  localStorage.setItem(storageKey(),JSON.stringify(records));
+  const now=new Date();
+  const hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),ss=String(now.getSeconds()).padStart(2,"0");
+  setAutoSaveStatus(`已自动保存 ${hh}:${mm}:${ss}`);
+}function isLocked(){return localStorage.getItem(lockKey())==="1"}function num(v){let n=parseFloat(v);return isNaN(n)?0:n}function normalTotal(r){return num(r.monN)+num(r.tueN)+num(r.wedN)+num(r.thuN)+num(r.friN)}function weekdayOT(r){return num(r.monO)+num(r.tueO)+num(r.wedO)+num(r.thuO)+num(r.friO)}function weekendOT(r){return num(r.satO)+num(r.sunO)}function toast(msg){alert(msg)}
 function tableHead(extra=false){return `<thead><tr>${extra?"<th rowspan='2'>员工</th><th rowspan='2'>工号</th><th rowspan='2'>周数</th>":""}<th rowspan="2">工时类别</th><th rowspan="2">项目号</th><th rowspan="2">单元号</th><th rowspan="2">备注</th><th colspan="2">周一</th><th colspan="2">周二</th><th colspan="2">周三</th><th colspan="2">周四</th><th colspan="2">周五</th><th rowspan="2">周六<br>加班</th><th rowspan="2">周日<br>加班</th><th colspan="3">汇总</th>${extra?"":"<th rowspan='2'>编辑</th><th rowspan='2'>删除</th>"}</tr><tr class="sub"><th>正常</th><th>加班</th><th>正常</th><th>加班</th><th>正常</th><th>加班</th><th>正常</th><th>加班</th><th>正常</th><th>加班</th><th>正常</th><th>工作日加班</th><th>周末加班</th></tr></thead>`}
 const DAY_FIELDS={
   monN:{day:"mon",type:"N",limit:8},monO:{day:"mon",type:"O",limit:4},
@@ -174,8 +201,8 @@ function editRow(idx){
   document.getElementById("addModal").style.display="flex";
   renderModalAll();
 }
-function numInput(k,r){return `<td><input class="cell-input" type="number" step="0.5" min="0" id="e_${k}" value="${num(r[k])}"></td>`}function saveRow(idx){const r=records[idx];r.type=document.getElementById("e_type").value.trim();r.project=document.getElementById("e_project").value.trim();r.unit=document.getElementById("e_unit").value.trim();r.remark=document.getElementById("e_remark").value.trim();["monN","monO","tueN","tueO","wedN","wedO","thuN","thuO","friN","friO","satO","sunO"].forEach(k=>r[k]=num(document.getElementById("e_"+k).value));saveData();renderEmp()}function delRow(idx){if(isLocked())return toast("本周已锁定，不能删除");if(!confirm("确认删除这一行？"))return;records.splice(idx,1);saveData();renderEmp()}function clearAllData(){if(isLocked())return toast("本周已锁定，不能清空");if(!confirm("确认清空本周全部本地数据？"))return;records=[];saveData();renderEmp()}function showEmp(){document.getElementById("empView").style.display="block";document.getElementById("adminView").style.display="none";renderEmp()}function showAdmin(){document.getElementById("empView").style.display="none";document.getElementById("adminView").style.display="block";renderAdmin()}function clearFilter(){document.getElementById("typeFilter").value="all";document.getElementById("projectFilter").value="";document.getElementById("unitFilter").value="";renderAdmin()}function lockWeek(){localStorage.setItem(lockKey(),"1");toast("已锁定")}function unlockWeek(){localStorage.setItem(lockKey(),"0");toast("已解锁")}
-function exportCSV(){const headers=["员工","工号","周数","工时类别","项目号","单元号","备注","周一正常","周一加班","周二正常","周二加班","周三正常","周三加班","周四正常","周四加班","周五正常","周五加班","周六加班","周日加班","正常汇总","工作日加班","周末加班"];const lines=[headers];records.forEach(r=>lines.push([r.employee,r.empNo,r.week,r.type,r.project,r.unit,r.remark,r.monN,r.monO,r.tueN,r.tueO,r.wedN,r.wedO,r.thuN,r.thuO,r.friN,r.friO,r.satO,r.sunO,normalTotal(r),weekdayOT(r),weekendOT(r)]));const csv="\ufeff"+lines.map(a=>a.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="车间工时_V4.2.2.csv";a.click();URL.revokeObjectURL(a.href)}
+function numInput(k,r){return `<td><input class="cell-input" type="number" step="0.5" min="0" id="e_${k}" value="${num(r[k])}"></td>`}function saveRow(idx){const r=records[idx];r.type=document.getElementById("e_type").value.trim();r.project=document.getElementById("e_project").value.trim();r.unit=document.getElementById("e_unit").value.trim();r.remark=document.getElementById("e_remark").value.trim();["monN","monO","tueN","tueO","wedN","wedO","thuN","thuO","friN","friO","satO","sunO"].forEach(k=>r[k]=num(document.getElementById("e_"+k).value));saveData();renderEmp()}function delRow(idx){if(isLocked())return toast("本周已锁定，不能删除");if(!confirm("确认删除这一行？"))return;records.splice(idx,1);saveData();renderEmp()}function showEmp(){document.getElementById("empView").style.display="block";document.getElementById("adminView").style.display="none";renderEmp()}function showAdmin(){document.getElementById("empView").style.display="none";document.getElementById("adminView").style.display="block";renderAdmin()}function clearFilter(){document.getElementById("typeFilter").value="all";document.getElementById("projectFilter").value="";document.getElementById("unitFilter").value="";renderAdmin()}function lockWeek(){localStorage.setItem(lockKey(),"1");refreshWeekDisplay();setAutoSaveStatus("已锁定 🔒");toast("已锁定")}function unlockWeek(){localStorage.setItem(lockKey(),"0");refreshWeekDisplay();setAutoSaveStatus("已解锁");toast("已解锁")}
+function exportCSV(){const headers=["员工","工号","周数","工时类别","项目号","单元号","备注","周一正常","周一加班","周二正常","周二加班","周三正常","周三加班","周四正常","周四加班","周五正常","周五加班","周六加班","周日加班","正常汇总","工作日加班","周末加班"];const lines=[headers];records.forEach(r=>lines.push([r.employee,r.empNo,r.week,r.type,r.project,r.unit,r.remark,r.monN,r.monO,r.tueN,r.tueO,r.wedN,r.wedO,r.thuN,r.thuO,r.friN,r.friO,r.satO,r.sunO,normalTotal(r),weekdayOT(r),weekendOT(r)]));const csv="\ufeff"+lines.map(a=>a.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="车间工时_V4.3.1.csv";a.click();URL.revokeObjectURL(a.href)}
 /* 弹窗逻辑 */
 function resetModal(){modalState={type:"机械组装",project:Object.keys(projectUnits)[0],units:[],remark:""};modalState.remark=remarkMap[modalState.type][0]||"";document.getElementById("customRemark").value=modalState.remark;document.getElementById("splitEnabled").checked=false;document.getElementById("splitTotal").value=""}
 function openAddModal(){if(isLocked())return toast("本周已锁定，不能新增");resetModal();delete modalState.editIndex;document.getElementById("addModal").style.display="flex";renderModalAll()}
@@ -206,7 +233,7 @@ function generateRowsFromModal(){
     closeAddModal();
     return;
   }
-  let newRows=modalState.units.map(u=>({...defaultRecord(),employee:document.getElementById("empName").innerText,empNo:document.getElementById("empNo").innerText,week:document.getElementById("weekNo").innerText,type:modalState.type,project:modalState.project,unit:u,remark:modalState.remark}));
+  let newRows=modalState.units.map(u=>({...defaultRecord(),employee:document.getElementById("empName").innerText,empNo:document.getElementById("empNo").innerText,week:getWeekNo(currentWeekOffset),type:modalState.type,project:modalState.project,unit:u,remark:modalState.remark}));
   applySplitToRows(newRows);
   records.push(...newRows);
   saveData();
@@ -214,11 +241,29 @@ function generateRowsFromModal(){
   closeAddModal();
 }
 
+function weekDisplayName(offset){
+  const w=getWeekNo(offset);
+  const locked=localStorage.getItem(LOCK_PREFIX+"_"+w)==="1";
+  const suffix=(offset===0?"（本周）":"")+(locked?" 🔒":"");
+  return w+suffix;
+}
+function renderWeekCards(containerId){
+  const box=document.getElementById(containerId);
+  if(!box) return;
+  box.innerHTML="";
+  [-3,-2,-1,0].forEach(off=>{
+    const w=getWeekNo(off);
+    const locked=localStorage.getItem(LOCK_PREFIX+"_"+w)==="1";
+    const btn=document.createElement("button");
+    btn.className="week-card"+(off===currentWeekOffset?" current":"")+(locked?" locked":"");
+    btn.innerText=weekDisplayName(off);
+    btn.onclick=()=>setWeekOffset(off);
+    box.appendChild(btn);
+  });
+}
 function refreshWeekDisplay(){
-  const w=getWeekNo(currentWeekOffset);
-  const emp=document.getElementById("weekNo"); if(emp) emp.innerText=w;
-  const adm=document.getElementById("adminWeekNo"); if(adm) adm.innerText=w;
-  [["weekBtnPrev2",-2],["weekBtnPrev1",-1],["weekBtnCurrent",0],["adminWeekBtnPrev2",-2],["adminWeekBtnPrev1",-1],["adminWeekBtnCurrent",0]].forEach(([id,off])=>{const el=document.getElementById(id);if(el)el.classList.toggle("active",off===currentWeekOffset)});
+  renderWeekCards("weekCardRow");
+  renderWeekCards("adminWeekCardRow");
 }
 function setWeekOffset(offset){
   saveData();
