@@ -4853,16 +4853,40 @@ if(typeof renderWeekRecords === 'function'){
 
 /* ===== 6. 提交接口简化（只提交明细） ===== */
 if(typeof submitInlineAndIntegratedRows === 'function'){
-  window.submitInlineAndIntegratedRows = async function(){
+window.submitInlineAndIntegratedRows = async function(){
 
-    const payloads = buildIntegratedPayloads();
+  const payloads = buildIntegratedPayloads();
 
-    console.log('✅ V14提交数据（最终结构）:', payloads);
+  if(!payloads.length){
+    alert('没有可提交的数据');
+    return;
+  }
 
-    alert('✅ 已提交（V14：仅明细数据，无原始记录）');
+  try{
+    for(const item of payloads){
 
-    return true;
-  };
+      const res = await fetch(apiUrl(), {
+        method: item.method || 'POST',
+        headers: headers(),
+        body: JSON.stringify(item.payload)
+      });
+
+      if(!res.ok){
+        throw new Error('提交失败：' + res.status);
+      }
+    }
+
+    alert('✅ 提交成功');
+
+    // ✅ 重新加载数据
+    if(typeof loadWeekRecords === 'function'){
+      await loadWeekRecords();
+    }
+
+  }catch(e){
+    alert('❌ 提交失败：' + e.message);
+  }
+};
 }
 
 /* ===== 7. 清理历史数据残留（防止旧逻辑影响） ===== */
