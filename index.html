@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>工时系统 V1.0</title>
+<title>工时系统 V1.0（结构版）</title>
 
 <style>
 body {
@@ -13,128 +13,122 @@ body {
 }
 
 .header {
-    padding: 12px;
-    background: #1e2a38;
+    padding: 10px;
+    background: #2f3e52;
     color: #fff;
     text-align: center;
-    font-size: 16px;
-}
-
-.container {
-    padding: 10px;
 }
 
 .table-wrap {
     overflow-x: auto;
-    background: #fff;
-    border-radius: 6px;
 }
 
 table {
-    width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    width: 1400px;
+    background: #fff;
+    font-size: 13px;
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 6px;
+    border: 1px solid #d0d7de;
     text-align: center;
+    padding: 4px;
 }
 
 th {
-    background: #2f3e52;
-    color: #fff;
+    background: #e9edf2;
+    font-weight: bold;
 }
 
-/* 移动端优化 */
-td input {
-    width: 60px;
-    height: 32px;
-    font-size: 14px;
-    text-align: center;
+.sub-head {
+    font-size: 12px;
+    background: #f4f6f8;
 }
+
+input {
+    width: 55px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 13px;
+}
+
+.left-input {
+    width: 90px;
+}
+
+.btn {
+    width: 60px;
+    height: 28px;
+    border: none;
+    cursor: pointer;
+}
+
+.edit { background: #4caf50; color: white; }
+.del { background: #f44336; color: white; }
 
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    工时填报系统 V1.0（基础版）
-</div>
+<div class="header">工时填报系统 V1.0</div>
 
-<div class="container">
-    <div class="table-wrap">
-        <table id="mainTable">
-            <thead>
-                <tr>
-                    <th>项目号</th>
-                    <th>单元</th>
-                    <th>类型</th>
-                    <th>周一</th>
-                    <th>周二</th>
-                    <th>周三</th>
-                    <th>周四</th>
-                    <th>周五</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <!-- 行数据 -->
-            </tbody>
-        </table>
-    </div>
+<div class="table-wrap">
+<table>
+<thead>
+
+<!-- 第一行 -->
+<tr>
+    <th rowspan="2">工时类别</th>
+    <th rowspan="2">项目号</th>
+    <th rowspan="2">单元号</th>
+    <th rowspan="2">备注</th>
+
+    <th colspan="2">周一</th>
+    <th colspan="2">周二</th>
+    <th colspan="2">周三</th>
+    <th colspan="2">周四</th>
+    <th colspan="2">周五</th>
+    <th rowspan="2">周六<br>实际加班</th>
+    <th rowspan="2">周日<br>实际加班</th>
+
+    <th colspan="3">汇总</th>
+
+    <th rowspan="2">编辑</th>
+    <th rowspan="2">删除</th>
+</tr>
+
+<!-- 第二行 -->
+<tr class="sub-head">
+    <th>正常</th><th>加班</th>
+    <th>正常</th><th>加班</th>
+    <th>正常</th><th>加班</th>
+    <th>正常</th><th>加班</th>
+    <th>正常</th><th>加班</th>
+
+    <th>正常</th>
+    <th>加班</th>
+    <th>未加班</th>
+</tr>
+
+</thead>
+
+<tbody id="tbody">
+</tbody>
+
+</table>
 </div>
 
 <script>
 
-// ✅ 数据模型（V1核心）
 let rows = [
-    {
-        project: "",
-        unit: "",
-        type: "",
-        mon: "",
-        tue: "",
-        wed: "",
-        thu: "",
-        fri: ""
-    }
+    {}
 ];
 
-// ✅ 渲染表格
-function renderTable() {
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
+function createRow(index){
+    return `
+    <tr>
 
-    rows.forEach((row, i) => {
-        let tr = document.createElement("tr");
-
-        tr.innerHTML = `
-            <td><input value="${row.project}" onchange="onInput(${i}, 'project', this.value)"></td>
-            <td><input value="${row.unit}" onchange="onInput(${i}, 'unit', this.value)"></td>
-            <td><input value="${row.type}" onchange="onInput(${i}, 'type', this.value)"></td>
-            <td><input value="${row.mon}" onchange="onInput(${i}, 'mon', this.value)"></td>
-            <td><input value="${row.tue}" onchange="onInput(${i}, 'tue', this.value)"></td>
-            <td><input value="${row.wed}" onchange="onInput(${i}, 'wed', this.value)"></td>
-            <td><input value="${row.thu}" onchange="onInput(${i}, 'thu', this.value)"></td>
-            <td><input value="${row.fri}" onchange="onInput(${i}, 'fri', this.value)"></td>
-        `;
-
-        tbody.appendChild(tr);
-    });
-}
-
-// ✅ 输入处理（V1基础）
-function onInput(rowIndex, field, value) {
-    rows[rowIndex][field] = value;
-    console.log(rows);
-}
-
-// ✅ 初始化
-renderTable();
-
-</script>
-
-</body>
-</html>
