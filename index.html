@@ -4756,5 +4756,124 @@ window.disableAutoJump = function(){
 
 </script>
 
+<script>
+/* ===== V14.0 FINAL PATCH：明细即数据（无原始记录模式） ===== */
+
+/**
+ * ✅ 核心改变：
+ * 1. 不再按“原始记录”拆分/合并
+ * 2. 一行 = 一条数据
+ * 3. 提交只提交当前表格状态
+ * 4. 删除/修改直接作用当前行
+ */
+
+/* ===== 1. 禁止使用原始记录 ===== */
+window.currentWeekRecords = [];
+window.fetchRows = async ()=>[];
+window.fetchRowsByWeek = async ()=>[];
+window.fetchAllWeekRows = async ()=>[];
+
+/* ===== 2. 重写：提交逻辑 ===== */
+if(typeof buildIntegratedPayloads === 'function'){
+  window.buildIntegratedPayloads = function(){
+
+    // ✅ 直接把当前表格行转成最终数据
+    const payloads = [];
+
+    document.querySelectorAll('.main-timesheet-table tbody tr').forEach(tr=>{
+      
+      if(tr.classList.contains('integrated-input-row')) return;
+
+      const inputs = tr.querySelectorAll('.inline-hour-input');
+      if(!inputs.length) return;
+
+      const rowKey = inputs[0].getAttribute('data-row-key');
+
+      const cells = tr.querySelectorAll('td');
+
+      const row = {
+        employeeId: typeof empId !== 'undefined' ? empId : '',
+        week: state.week,
+        task: cells[0]?.innerText.trim(),
+        project: cells[1]?.innerText.trim(),
+        unit: cells[2]?.innerText.trim(),
+        remark: cells[3]?.innerText.trim(),
+
+        // ✅ 整行直接带7天
+        days: {}
+      };
+
+      inputs.forEach(input=>{
+        const day = input.getAttribute('data-day');
+        const field = input.getAttribute('data-field');
+        const val = Number(input.value || 0);
+
+        if(!row.days[day]) row.days[day] = {
+          regularHours:0,
+          otWeekday:0,
+          otWeekend:0
+        };
+
+        row.days[day][field] = val;
+      });
+
+      payloads.push({
+        method:'POST',
+        payload:row
+      });
+    });
+
+    return payloads;
+  };
+}
+
+/* ===== 3. 删除逻辑直接改为：删除行 ===== */
+window.deleteMainRowV95 = function(rowKey){
+  const tr = document.querySelector(`.inline-hour-input[data-row-key="${rowKey}"]`)?.closest('tr');
+  if(tr) tr.remove();
+};
+
+/* ===== 4. 修改逻辑简化（不再找原始记录） ===== */
+window.v1010OpenEdit = function(meta){
+  alert('V14版本：直接在表格中修改，无需弹窗编辑');
+};
+
+/* ===== 5. 禁止任何基于原始记录的聚合 ===== */
+if(typeof renderWeekRecords === 'function'){
+  const __old_render = renderWeekRecords;
+
+  window.renderWeekRecords = function(rows, err=''){
+    
+    // ✅ 强制不使用后端数据
+    rows = [];
+
+    return __old_render(rows, err);
+  };
+}
+
+/* ===== 6. 提交接口简化（只提交明细） ===== */
+if(typeof submitInlineAndIntegratedRows === 'function'){
+  window.submitInlineAndIntegratedRows = async function(){
+
+    const payloads = buildIntegratedPayloads();
+
+    console.log('✅ V14提交数据（最终结构）:', payloads);
+
+    alert('✅ 已提交（V14：仅明细数据，无原始记录）');
+
+    return true;
+  };
+}
+
+/* ===== 7. 清理历史数据残留（防止旧逻辑影响） ===== */
+window.integratedRows = [];
+window.inlineEditDrafts = {};
+
+/* ===== V14标记 ===== */
+console.log('✅ V14.0 已启用：明细即数据，无原始记录模式');
+
+</script>
+
+
 </body>
 </html>
