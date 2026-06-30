@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>车间工时填报系统 V4.4.2</title>
+<title>车间工时填报系统 V4.4.2.2</title>
 <style>
 :root{
   --primary:#1f4e79;--primary2:#2f75b5;--bg:#eef2f6;--card:#fff;--line:#cfd8e3;--head:#e8edf3;--sub:#f5f7fa;--danger:#d9534f;--ok:#198754;--warn:#f0ad4e;--text:#1f2937;--blue:#0078d4;
@@ -85,7 +85,7 @@ table td,table th{padding:2px}
 
 
 
-/* ===== V4.4.2 桌面宽度 + 手机冻结列加强 ===== */
+/* ===== V4.4.1 桌面宽度 + 手机冻结列加强 ===== */
 @media (min-width: 1024px){
   .header,
   .role-switch,
@@ -195,28 +195,153 @@ tfoot td{
 }
 
 
-/* V4.4.2 滑动最终稳定修复 */
-thead th{z-index:60 !important;}
-td:nth-child(-n+4),th:nth-child(-n+4){z-index:50 !important;}
-tfoot td{z-index:40 !important;}
-tfoot td:nth-child(-n+4){z-index:55 !important;}
 
-/* 极限压缩 */
-td:nth-child(1){width:58px !important}
-td:nth-child(2){width:60px !important}
-td:nth-child(3){width:50px !important}
-td:nth-child(4){width:62px !important}
-.time-cell{width:32px !important;height:24px !important;font-size:11px !important}
+/* ===== V4.4.2 最终滑动修复：只冻结第一行表头的前4列，第二行“正常/加班”不再被错误冻结 ===== */
+.table-wrap{
+  overflow:auto!important;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* 桌面端最大宽度收敛 */
+@media (min-width:1024px){
+  .header,.role-switch,#empView,#adminView{
+    max-width:1440px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+}
+
+/* 表格整体压缩 */
+table{
+  table-layout:fixed!important;
+  min-width:1060px!important;
+}
+table th,table td{
+  padding:1px!important;
+  height:30px!important;
+  line-height:1.15!important;
+  font-size:11px!important;
+}
+
+/* 前置信息四列宽度 */
+table thead tr:first-child th:nth-child(1),table tbody td:nth-child(1),table tfoot td:nth-child(1){width:58px!important;min-width:58px!important;max-width:58px!important;}
+table thead tr:first-child th:nth-child(2),table tbody td:nth-child(2),table tfoot td:nth-child(2){width:60px!important;min-width:60px!important;max-width:60px!important;}
+table thead tr:first-child th:nth-child(3),table tbody td:nth-child(3),table tfoot td:nth-child(3){width:50px!important;min-width:50px!important;max-width:50px!important;}
+table thead tr:first-child th:nth-child(4),table tbody td:nth-child(4),table tfoot td:nth-child(4){width:62px!important;min-width:62px!important;max-width:62px!important;}
+
+/* 左侧4列冻结：只作用于第一行表头、tbody、tfoot，不作用于第二行正常/加班 */
+table thead tr:first-child th:nth-child(1),table tbody td:nth-child(1),table tfoot td:nth-child(1){position:sticky!important;left:0!important;background:#fff!important;z-index:70!important;}
+table thead tr:first-child th:nth-child(2),table tbody td:nth-child(2),table tfoot td:nth-child(2){position:sticky!important;left:58px!important;background:#fff!important;z-index:70!important;}
+table thead tr:first-child th:nth-child(3),table tbody td:nth-child(3),table tfoot td:nth-child(3){position:sticky!important;left:118px!important;background:#fff!important;z-index:70!important;}
+table thead tr:first-child th:nth-child(4),table tbody td:nth-child(4),table tfoot td:nth-child(4){position:sticky!important;left:168px!important;background:#fff!important;z-index:70!important;box-shadow:3px 0 5px rgba(0,0,0,.08)!important;}
+
+/* 第一行表头前4列更高层级 */
+table thead tr:first-child th:nth-child(-n+4){background:#e8edf3!important;z-index:95!important;}
+
+/* 第二行“正常/加班”只做顶部冻结，绝对不能 left sticky */
+table thead tr.sub th,
+table thead tr:nth-child(2) th{
+  position:sticky!important;
+  top:30px!important;
+  left:auto!important;
+  z-index:60!important;
+  background:#f5f7fa!important;
+  box-shadow:none!important;
+}
+
+/* 其他第一行表头顶部冻结 */
+table thead tr:first-child th{
+  position:sticky!important;
+  top:0!important;
+  z-index:80!important;
+  background:#e8edf3!important;
+}
+
+/* 汇总行冻结 + 左侧4列同步冻结 */
+table tfoot td{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:55!important;
+  background:#f8fafc!important;
+}
+table tfoot td:nth-child(-n+4){
+  z-index:90!important;
+  background:#f8fafc!important;
+}
+
+/* 内容文字不撑宽，保持密度 */
+table td:nth-child(-n+4),table th:nth-child(-n+4){
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+/* 工时列极限压缩 */
+table td:nth-child(n+5),table th:nth-child(n+5){min-width:38px!important;}
+.time-cell{
+  width:30px!important;
+  height:22px!important;
+  font-size:11px!important;
+  padding:0!important;
+  border-radius:5px!important;
+}
+.time-wrap{min-width:30px!important;}
+
+/* 弹窗平分工时强制一行 */
+.split-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  flex-wrap:nowrap!important;
+  white-space:nowrap!important;
+}
+.split-row label{
+  font-size:12px!important;
+  min-width:68px!important;
+  white-space:nowrap!important;
+}
+.split-row select{
+  width:78px!important;
+  min-width:70px!important;
+  height:30px!important;
+  font-size:12px!important;
+  padding:0 6px!important;
+}
+.split-row input{
+  width:70px!important;
+  min-width:58px!important;
+  height:30px!important;
+  font-size:12px!important;
+  padding:0 6px!important;
+}
+
+@media(max-width:768px){
+  table{min-width:980px!important;font-size:10.5px!important;}
+  .table-wrap{max-height:calc(100vh - 245px)!important;}
+  table th,table td{height:28px!important;font-size:10.5px!important;padding:1px!important;}
+  table thead tr:first-child th:nth-child(1),table tbody td:nth-child(1),table tfoot td:nth-child(1){width:56px!important;min-width:56px!important;max-width:56px!important;left:0!important;}
+  table thead tr:first-child th:nth-child(2),table tbody td:nth-child(2),table tfoot td:nth-child(2){width:58px!important;min-width:58px!important;max-width:58px!important;left:56px!important;}
+  table thead tr:first-child th:nth-child(3),table tbody td:nth-child(3),table tfoot td:nth-child(3){width:48px!important;min-width:48px!important;max-width:48px!important;left:114px!important;}
+  table thead tr:first-child th:nth-child(4),table tbody td:nth-child(4),table tfoot td:nth-child(4){width:60px!important;min-width:60px!important;max-width:60px!important;left:162px!important;}
+  table td:nth-child(n+5),table th:nth-child(n+5){min-width:36px!important;}
+  .time-cell{width:28px!important;height:22px!important;font-size:10.5px!important;}
+  .time-wrap{min-width:28px!important;}
+  table thead tr:nth-child(2) th{top:28px!important;left:auto!important;}
+  .split-row{gap:4px!important;}
+  .split-row label{font-size:11px!important;min-width:60px!important;}
+  .split-row select{width:66px!important;min-width:60px!important;font-size:11px!important;}
+  .split-row input{width:54px!important;min-width:50px!important;font-size:11px!important;}
+}
 
 </style>
 </head>
 <body>
-<div class="header">车间工时填报系统 V4.4.2</div>
+<div class="header">车间工时填报系统 V4.4.2.2</div>
 <div class="role-switch"><button class="primary" onclick="showEmp()">员工界面</button><button onclick="showAdmin()">管理员界面</button></div>
 <div id="empView">
   <div class="card info"><span>员工：<b id="empName">测试</b></span><span>工号：<b id="empNo">000001</b></span><span class="badge">已验证</span></div>
   <div class="week-section"><div class="week-title">Week</div><div class="week-card-row" id="weekCardRow"></div></div>
-  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.4.2：桌面宽度优化｜手机固定列加强｜表头/汇总冻结｜压缩布局</span></div>
+  <div class="card bar"><button class="ok" onclick="openAddModal()">新增一行</button><span class="autosave-badge" id="autosaveBadge"><span class="autosave-dot"></span><span class="autosaveText">已自动保存</span></span><span class="notice">V4.4.2：滑动稳定｜极限压缩｜弹窗一行｜固定列修复</span></div>
   <div class="card table-wrap"><table id="empTable"></table></div>
 </div>
 <div id="adminView" style="display:none;">
@@ -236,7 +361,7 @@ td:nth-child(4){width:62px !important}
       <div class="section-title">3. 单元号（多选）</div><div class="unit-tools"><button class="small-pill" onclick="selectAllUnits()">全选</button><button class="small-pill" onclick="clearUnits()">清空</button><span id="selectedCount">已选 0 个</span></div>
       <div class="unit-columns"><div class="unit-panel"><div class="unit-panel-title">单元类（可多选）</div><div class="unit-grid" id="unitNormalBox"></div></div><div class="unit-panel container"><div class="unit-panel-title">容器类（可多选）</div><div class="unit-grid" id="unitContainerBox"></div></div></div>
       <div class="section-title">4. 备注（单选/自定义）</div><div class="remark-line"><input id="customRemark" placeholder="可选择备注，也可输入自定义备注"><button class="apply-btn" onclick="applyCustomRemark()">应用</button></div><div class="choice-grid" id="modalRemarkBox" style="margin-top:8px"></div>
-      <div class="section-title">5. 可选：平均总工时</div><div class="split-box"><div class="split-row"><label><input type="checkbox" id="splitEnabled"> 平分工时？</label><select id="splitType"><option value="normal">正常工时</option><option value="weekdayOT">工作日加班</option><option value="weekendOT">周末加班</option></select><select id="splitDay"><option value="mon">周一</option><option value="tue">周二</option><option value="wed">周三</option><option value="thu">周四</option><option value="fri">周五</option><option value="sat">周六</option><option value="sun">周日</option></select><input id="splitTotal" type="number" step="0.5" min="0" placeholder="总工时≤8"></div><div class="muted">可选：选择工时类型、日期和总工时后，系统按剩余上限自动分摊。</div></div>
+      <div class="section-title">5. 可选：平均总工时</div><div class="split-box"><div class="split-row"><label><input type="checkbox" id="splitEnabled"> 平分工时</label><select id="splitType"><option value="normal">正常</option><option value="weekdayOT">加班</option><option value="weekendOT">周末</option></select><select id="splitDay"><option value="mon">周一</option><option value="tue">周二</option><option value="wed">周三</option><option value="thu">周四</option><option value="fri">周五</option><option value="sat">周六</option><option value="sun">周日</option></select><input id="splitTotal" type="number" step="0.5" min="0" placeholder="≤8"></div><div class="muted">可选：选择类型、日期和总工时后自动平分。</div></div>
     </div>
     <div class="modal-foot"><button class="cancel-btn" onclick="closeAddModal()">取消</button><button class="generate-btn" id="generateBtn" onclick="generateRowsFromModal()">确定生成 1 条</button></div>
   </div>
