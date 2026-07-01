@@ -75,7 +75,7 @@ function defaultRecord(){return {employee:currentUserName||employeeMap[currentLo
 function toast(m){alert(m)}
 async function loadData(){try{if(!currentLoginId){records=[];return}const week=getWeekNo(currentWeekOffset);const d=await apiCall('loadRecords',{empNo:currentLoginId,role:currentUserRole,week});records=Array.isArray(d.records)?d.records:[]}catch(e){console.error(e);records=[];toast('云端读取失败')}}
 async function saveData(){document.querySelectorAll('.autosave-badge').forEach(b=>b.classList.add('saving'));try{if(!currentLoginId)throw new Error('未登录');if(currentUserRole==='admin')return;const week=getWeekNo(currentWeekOffset);await apiCall('saveRecords',{empNo:currentLoginId,employee:currentUserName||employeeMap[currentLoginId]||'',week,records});const now=new Date();document.querySelectorAll('.autosaveText').forEach(e=>e.innerText=`已云端保存 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`)}catch(e){console.error(e);toast(String(e.message||e).includes('LOCKED')?'本周已锁定，后台拒绝保存':'云端保存失败')}finally{document.querySelectorAll('.autosave-badge').forEach(b=>b.classList.remove('saving'))}}
-async function doLogin(){const empNo=document.getElementById('loginEmpNo').value.trim(),key=document.getElementById('loginKey').value.trim(),err=document.getElementById('loginError');err.innerText='';try{if(!employeeMap[empNo])return err.innerText='工号不存在';if(employeeKeyMap[empNo]!==key)return err.innerText='密码错误';currentLoginId=empNo;currentUserName=employeeMap[empNo];currentUserRole=empNo==='1237794'?'admin':'employee';document.getElementById('empNo').innerText=empNo;document.getElementById('empName').innerText=currentUserName;document.getElementById('loginScreen').style.display='none';document.getElementById('mainApp').classList.remove('locked');await refreshVisibleLockStates();refreshWeekDisplay();await loadData();currentUserRole==='admin'?showAdmin():showEmp()}catch(e){console.error(e);err.innerText='登录失败'}}
+async function doLogin(){const empNo=document.getElementById('loginEmpNo').value.trim(),key=document.getElementById('loginKey').value.trim(),err=document.getElementById('loginError');err.innerText='';try{if(!employeeMap[empNo])return err.innerText='工号不存在';if(employeeKeyMap[empNo]!==key)return err.innerText='密码错误';currentLoginId=empNo;currentUserName=employeeMap[empNo];currentUserRole=empNo==='1237794'?'admin':'employee';document.getElementById('empNo').innerText=empNo;document.getElementById('empName').innerText=currentUserName;document.getElementById('loginScreen').style.display='none';document.getElementById('mainApp').classList.remove('locked');await refreshVisibleLockStates();refreshWeekDisplay();await loadData();currentUserRole==='admin'?showAdmin():showEmp();startLockRefresh()}catch(e){console.error(e);err.innerText='登录失败'}}
 function logout(){stopAutoRefresh();stopLockRefresh();currentLoginId='';records=[];document.getElementById('mainApp').classList.add('locked');document.getElementById('loginScreen').style.display='flex';document.getElementById('loginKey').value='';document.getElementById('loginError').innerText=''}
 function initLogin(){document.getElementById('loginScreen').style.display='flex';document.getElementById('mainApp').classList.add('locked')}
 function weekDisplayName(o){const w=getWeekNo(o),locked=lockCache[w]===true;return w+(o===0?'（本周）':'')+(locked?' 🔒':'')}
@@ -107,7 +107,7 @@ async function checkLockRealtime(silent=false){
   try{
     if(!currentLoginId)return;
     const week=getWeekNo(currentWeekOffset);
-    const d=await apiCall('getLocks',{weeks:[week]});
+    const d=await apiCall('getLocks',{weeks:[week],_t:Date.now()});
     const newLocked=(d.locks&&d.locks[week]===true);
     const oldLocked=currentWeekLocked===true;
     lockCache[week]=newLocked;
@@ -123,7 +123,7 @@ async function checkLockRealtime(silent=false){
     }
   }catch(e){console.error(e)}
 }
-function startLockRefresh(){stopLockRefresh();checkLockRealtime(true);lockRefreshTimer=setInterval(()=>checkLockRealtime(false),5000)}
+function startLockRefresh(){setTimeout(()=>checkLockRealtime(false),800);stopLockRefresh();checkLockRealtime(true);lockRefreshTimer=setInterval(()=>checkLockRealtime(false),2000)}
 function stopLockRefresh(){if(lockRefreshTimer){clearInterval(lockRefreshTimer);lockRefreshTimer=null}}
 function startAutoRefresh(){stopAutoRefresh();autoRefreshTimer=setInterval(async()=>{if(document.getElementById('adminView').style.display==='none')return;await loadData();renderAdmin()},30000)}function stopAutoRefresh(){if(autoRefreshTimer){clearInterval(autoRefreshTimer);autoRefreshTimer=null}}
 function showEmp(){document.getElementById('empView').style.display='block';document.getElementById('adminView').style.display='none';stopAutoRefresh();renderEmp();startLockRefresh()}function showAdmin(){if(currentUserRole!=='admin')return toast('只有管理员可以进入后台');document.getElementById('empView').style.display='none';document.getElementById('adminView').style.display='block';renderAdmin();startAutoRefresh();startLockRefresh()}
