@@ -82,7 +82,7 @@ async function cloudSaveRecords(){
     _id:docId,empNo:currentLoginId,employee:employeeMap[currentLoginId]||"",week,
     records,updatedAt:new Date().toISOString()
   };
-  try{await cloudDb.collection(CLOUD_COLLECTION).doc(docId).set(payload);setCloudStatus("数据库已同步","online");}
+  try{await cloudDb.collection(CLOUD_COLLECTION).doc(docId).set({ data: payload });setCloudStatus("数据库已同步","online");}
   catch(e){console.error("cloud save failed",e);setCloudStatus("同步失败，本地已保存","error");}
 }
 async function cloudLoadRecords(){
