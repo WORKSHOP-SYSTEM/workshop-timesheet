@@ -16,7 +16,7 @@
 
 </style>
 
-<script src="https://imgcache.qq.com/qcloud/tcbjs/1.10.10/tcb.js"></script>
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
 </head><body>
 <div class="login-screen" id="loginScreen"><div class="login-card"><div class="login-title">车间工时填报系统</div><div class="login-hero"><div class="login-logo"><div class="login-logo-main">WH</div><div class="login-logo-sub">WORK HOURS</div></div></div><div class="login-sub">请输入工号和密码登录</div><div class="login-row"><label>工号</label><input id="loginEmpNo" inputmode="numeric" placeholder="请输入工号，例如 1177215"></div><div class="login-row"><label>密码</label><input id="loginKey" type="password" inputmode="numeric" placeholder="请输入密码"></div><button class="login-btn" onclick="doLogin()">登录</button><div class="login-error" id="loginError"></div></div></div>
 <div class="app locked" id="mainApp"><div class="header">车间工时填报系统 V4.7</div>
@@ -27,7 +27,7 @@
 const STORAGE_PREFIX="workHours_V4_7",LOCK_PREFIX="workHours_V4_7_locked";let records=[],currentWeekOffset=0,currentLoginId="";
 // ===== CloudBase 配置区 =====
 // 这里填腾讯云 CloudBase 环境ID，例如：cloud1-xxxxxx。为空时自动使用本地缓存模式。
-const CLOUD_ENV_ID="timesheet-d6g9cfu6c9d0e7fce";
+const CLOUD_ENV_ID="tn-tb5n2djbkm";
 const CLOUD_COLLECTION="work_hours_weeks";
 let cloudApp=null,cloudDb=null,cloudReady=false;
 function setCloudStatus(text,mode="local"){
@@ -35,18 +35,44 @@ function setCloudStatus(text,mode="local"){
   ["cloudBadge","cloudBadgeAdmin"].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove("online","error");if(mode==="online")el.classList.add("online");if(mode==="error")el.classList.add("error")}});
 }
 async function initCloudBase(){
-  if(!CLOUD_ENV_ID){setCloudStatus("本地模式","local");return false;}
-  if(typeof tcb==="undefined"){setCloudStatus("SDK未加载","error");return false;}
+  if(!CLOUD_ENV_ID){
+    setCloudStatus("本地模式","local");
+    return false;
+  }
+
+  if(typeof cloudbase === "undefined"){
+    setCloudStatus("CloudBase SDK未加载","error");
+    return false;
+  }
+
   try{
-    cloudApp=tcb.init({env:CLOUD_ENV_ID});
-    const auth=cloudApp.auth({persistence:"local"});
-    await auth.anonymousAuthProvider().signIn();
-    cloudDb=cloudApp.database();
-    cloudReady=true;
+    cloudApp = cloudbase.init({
+      env: CLOUD_ENV_ID,
+      region: "ap-shanghai"
+    });
+
+    const auth = cloudApp.auth();
+
+    if(auth.signInAnonymously){
+      await auth.signInAnonymously();
+    }else if(auth.anonymousAuthProvider){
+      await auth.anonymousAuthProvider().signIn();
+    }
+
+    cloudDb = cloudApp.database();
+    cloudReady = true;
+
     setCloudStatus("数据库已连接","online");
     return true;
-  }catch(e){console.error("CloudBase init failed",e);setCloudStatus("数据库连接失败","error");cloudReady=false;return false;}
+
+  }catch(e){
+    console.error("CloudBase init failed:", e);
+    setCloudStatus("数据库连接失败","error");
+    cloudReady = false;
+    return false;
+  }
 }
+
 function cloudDocId(empNo,week){return `${empNo}_${week}`.replace(/[^a-zA-Z0-9_-]/g,"_");}
 async function cloudSaveRecords(){
   if(!cloudReady||!cloudDb||!currentLoginId)return;
