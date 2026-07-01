@@ -27,7 +27,7 @@
 const STORAGE_PREFIX="workHours_V4_7",LOCK_PREFIX="workHours_V4_7_locked";let records=[],currentWeekOffset=0,currentLoginId="";
 // ===== CloudBase 配置区 =====
 // 这里填腾讯云 CloudBase 环境ID，例如：cloud1-xxxxxx。为空时自动使用本地缓存模式。
-const CLOUD_ENV_ID="tnt-b5n2djbkm";
+const CLOUD_ENV_ID="timesheet-d6g9cfu6c9d0e7fce";
 const CLOUD_COLLECTION="work_hours_weeks";
 let cloudApp=null,cloudDb=null,cloudReady=false;
 function setCloudStatus(text,mode="local"){
