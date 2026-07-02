@@ -381,11 +381,15 @@ function getAdminDisplayRecords(){
 function showAdminAbnormalList(){
   const list=getAdminBaseRecords();
   const lines=[];
-  adminEmployeeNos().forEach(no=>{const sev=adminEmployeeSeverity(no,list);if(sev>0)lines.push(`${employeeMap[no]||''}（${no}） - ${adminSeverityText(sev)}`)});
-  alert(lines.length?`异常/未填报名单：
-
-${lines.map((x,i)=>`${i+1}. ${x}`).join('
-')}`:'当前没有未填报或异常人员');
+  adminEmployeeNos().forEach(no=>{
+    const sev=adminEmployeeSeverity(no,list);
+    if(sev>0)lines.push(`${employeeMap[no]||''}（${no}） - ${adminSeverityText(sev)}`);
+  });
+  if(lines.length){
+    alert('异常/未填报名单：\n\n'+lines.map((x,i)=>(i+1)+'. '+x).join('\n'));
+  }else{
+    alert('当前没有未填报或异常人员');
+  }
 }
 function updateAdminAnomalyButton(){
   const btn=document.getElementById('adminAnomalyBtn');
